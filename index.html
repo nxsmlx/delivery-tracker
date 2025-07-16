@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Aging Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            min-width: 150px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .aging-1 { color: #28a745; }
+        .aging-2 { color: #ffc107; }
+        .aging-3 { color: #dc3545; }
+
+        .controls {
+            padding: 30px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: #007bff;
+            color: #007bff;
+        }
+
+        .filter-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .filter-btn.aging-1.active {
+            background: #28a745;
+            border-color: #28a745;
+        }
+
+        .filter-btn.aging-2.active {
+            background: #ffc107;
+            border-color: #ffc107;
+            color: #000;
+        }
+
+        .filter-btn.aging-3.active {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .refresh-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #218838;
+        }
+
+        .refresh-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .excel-input {
+            padding: 12px 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s ease;
+            min-width: 300px;
+        }
+
+        .excel-input:focus {
+            border-color: #007bff;
+        }
+
+        .search-box {
+            width: 300px;
+            padding: 12px 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #007bff;
+        }
+
+        .data-table {
+            padding: 30px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .aging-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+            color: white;
+        }
+
+        .aging-badge.aging-1 { background: #28a745; }
+        .aging-badge.aging-2 { background: #ffc107; color: #000; }
+        .aging-badge.aging-3 { background: #dc3545; }
+
+        .urgent-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+            background: #dc3545;
+            color: white;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .status-message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        @media (max-width: 768px) {
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box, .excel-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Delivery Aging Tracker</h1>
+            <p>Monitor delivery performance and aging statistics</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number aging-1" id="count-1">0</div>
+                <div class="stat-label">1 Day Aging</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number aging-2" id="count-2">0</div>
+                <div class="stat-label">2 Days Aging</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number aging-3" id="count-3">0</div>
+                <div class="stat-label">3 Days Aging</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-count">0</div>
+                <div class="stat-label">Total Pending Tickets</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+                <button class="refresh-btn" onclick="document.getElementById('fileInput').click()">📁 Upload Excel/CSV File</button>
+                <span style="margin: 0 10px;">OR</span>
+                <input type="text" class="excel-input" id="excelUrl" placeholder="Paste your Excel Online sharing link here...">
+                <button class="refresh-btn" id="refreshBtn" onclick="loadExcelData()">🔄 Refresh Data</button>
+            </div>
+            <div class="control-group" style="margin-top: 20px;">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search by Ticket ID or Customer...">
+                <button class="filter-btn active" onclick="filterByAging('all')">All</button>
+                <button class="filter-btn aging-1" onclick="filterByAging('1')">1 Day</button>
+                <button class="filter-btn aging-2" onclick="filterByAging('2')">2 Days</button>
+                <button class="filter-btn aging-3" onclick="filterByAging('3')">3 Days</button>
+            </div>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <div class="data-table">
+            <div class="table-wrapper">
+                <table id="deliveryTable">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Order Received</th>
+                            <th>Type</th>
+                            <th>Urgent?</th>
+                            <th>Customer</th>
+                            <th>Aging</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Data from your Excel file - will be loaded dynamically
+        let deliveryData = [
+            { ticketId: '60210', orderReceived: '7/11/2025', type: 'Delivery', urgent: 'Yes', customer: 'Segi University', aging: 1 },
+            { ticketId: '60521', orderReceived: '7/14/2025', type: 'Delivery', urgent: 'No', customer: 'Ingram', aging: 3 },
+            { ticketId: '60570', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'Imazium', aging: 2 },
+            { ticketId: '60572', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'Evoscale', aging: 1 },
+            { ticketId: '60574', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'Ginmaro', aging: 1 },
+            { ticketId: '60584', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'MLINK', aging: 2 },
+            { ticketId: '60585', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'Vstecs', aging: 2 },
+            { ticketId: '60588', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'MR DIY HQ', aging: 1 },
+            { ticketId: '60591', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'PC Image', aging: 1 },
+            { ticketId: '60620', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'PKT', aging: 2 }
+        ];
+
+        let currentFilter = 'all';
+        let filteredData = [...deliveryData];
+
+        function showStatusMessage(message, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, 5000);
+            }
+        }
+
+        async function loadExcelFile(file) {
+            showStatusMessage('Reading file...', 'info');
+            
+            try {
+                const fileName = file.name.toLowerCase();
+                let data;
+                
+                if (fileName.endsWith('.csv')) {
+                    // Handle CSV files
+                    const text = await file.text();
+                    data = parseCSV(text);
+                } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                    // Handle Excel files
+                    const arrayBuffer = await file.arrayBuffer();
+                    data = parseExcel(arrayBuffer);
+                } else {
+                    throw new Error('Unsupported file format. Please use .xlsx, .xls, or .csv files.');
+                }
+                
+                deliveryData = data;
+                updateStats();
+                applyFilters();
+                
+                showStatusMessage(`✅ Successfully loaded ${deliveryData.length} records from ${file.name}`, 'success');
+                
+            } catch (error) {
+                console.error('Error loading file:', error);
+                showStatusMessage(`❌ Error loading file: ${error.message}`, 'error');
+            }
+        }
+
+        function parseCSV(text) {
+            const lines = text.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const rows = lines.slice(1);
+            
+            // Find column indices
+            const findColumn = (possibleNames) => {
+                for (const name of possibleNames) {
+                    const index = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
+                    if (index !== -1) return index;
+                }
+                return -1;
+            };
+            
+            const ticketIdCol = findColumn(['Ticket ID', 'TicketID', 'Ticket']) !== -1 ? findColumn(['Ticket ID', 'TicketID', 'Ticket']) : 0;
+            const orderReceivedCol = findColumn(['Order Received', 'OrderReceived', 'Date']) !== -1 ? findColumn(['Order Received', 'OrderReceived', 'Date']) : 1;
+            const typeCol = findColumn(['Type', 'Service Type']) !== -1 ? findColumn(['Type', 'Service Type']) : 4;
+            const urgentCol = findColumn(['Urgent', 'Urgent?']) !== -1 ? findColumn(['Urgent', 'Urgent?']) : 5;
+            const customerCol = findColumn(['Customer', 'Client']) !== -1 ? findColumn(['Customer', 'Client']) : 13;
+            const agingCol = findColumn(['Aging']) !== -1 ? findColumn(['Aging']) : 14;
+            
+            return rows.map(row => {
+                const cols = row.split(',').map(c => c.trim().replace(/"/g, ''));
+                return {
+                    ticketId: cols[ticketIdCol] || '',
+                    orderReceived: cols[orderReceivedCol] || '',
+                    type: cols[typeCol] || '',
+                    urgent: cols[urgentCol] || 'No',
+                    customer: cols[customerCol] || '',
+                    aging: parseInt(cols[agingCol]) || 0
+                };
+            }).filter(item => item.ticketId && item.ticketId.toString().trim() !== '');
+        }
+
+        function parseExcel(arrayBuffer) {
+            const XLSX = window.XLSX;
+            if (!XLSX) {
+                throw new Error('Excel library not loaded');
+            }
+            
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            
+            // Convert to JSON
+            const jsonData = XLSX.utils.sheet_to_json(sheet, { 
+                header: 1, 
+                raw: false,
+                defval: ''
+            });
+            
+            if (jsonData.length === 0) {
+                throw new Error('No data found in Excel file');
+            }
+            
+            // Parse the data
+            const headers = jsonData[0];
+            const rows = jsonData.slice(1);
+            
+            // Find column indices
+            const findColumn = (possibleNames) => {
+                for (const name of possibleNames) {
+                    const index = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
+                    if (index !== -1) return index;
+                }
+                return -1;
+            };
+            
+            const ticketIdCol = findColumn(['Ticket ID', 'TicketID', 'Ticket']) !== -1 ? findColumn(['Ticket ID', 'TicketID', 'Ticket']) : 0;
+            const orderReceivedCol = findColumn(['Order Received', 'OrderReceived', 'Date']) !== -1 ? findColumn(['Order Received', 'OrderReceived', 'Date']) : 1;
+            const typeCol = findColumn(['Type', 'Service Type']) !== -1 ? findColumn(['Type', 'Service Type']) : 4;
+            const urgentCol = findColumn(['Urgent', 'Urgent?']) !== -1 ? findColumn(['Urgent', 'Urgent?']) : 5;
+            const customerCol = findColumn(['Customer', 'Client']) !== -1 ? findColumn(['Customer', 'Client']) : 13;
+            const agingCol = findColumn(['Aging']) !== -1 ? findColumn(['Aging']) : 14;
+            
+            return rows.map(row => ({
+                ticketId: row[ticketIdCol] || '',
+                orderReceived: row[orderReceivedCol] || '',
+                type: row[typeCol] || '',
+                urgent: row[urgentCol] || 'No',
+                customer: row[customerCol] || '',
+                aging: parseInt(row[agingCol]) || 0
+            })).filter(item => item.ticketId && item.ticketId.toString().trim() !== '');
+        }
+
+        async function loadExcelData() {
+            const excelUrl = document.getElementById('excelUrl').value.trim();
+            const refreshBtn = document.getElementById('refreshBtn');
+            
+            if (!excelUrl) {
+                showStatusMessage('Please enter an Excel Online sharing link', 'error');
+                return;
+            }
+
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '🔄 Loading...';
+            showStatusMessage('Loading data from Excel Online...', 'info');
+
+            try {
+                // For now, direct Excel Online API access requires authentication
+                // Show instructions for manual data update
+                showStatusMessage(`
+                    ⚠️ <strong>Excel Online API requires authentication setup.</strong><br>
+                    <br>
+                    <strong>Alternative Solutions:</strong><br>
+                    1. <strong>Upload Excel File</strong>: Click "📁 Upload Excel File" for instant loading<br>
+                    2. <strong>Export to CSV</strong>: Save your Excel as CSV and upload it<br>
+                    3. <strong>Manual Update</strong>: Copy your data and paste it in the JavaScript section<br>
+                    <br>
+                    For real-time Excel Online integration, you'll need to set up Microsoft Graph API authentication.
+                `, 'error');
+                
+            } catch (error) {
+                console.error('Error loading Excel data:', error);
+                showStatusMessage(`❌ Error loading Excel data: ${error.message}`, 'error');
+            } finally {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '🔄 Refresh Data';
+            }
+        }
+
+        function updateStats() {
+            const stats = { 1: 0, 2: 0, 3: 0 };
+            let totalPending = 0;
+            
+            deliveryData.forEach(item => {
+                if (item.aging) {
+                    stats[item.aging]++;
+                    totalPending++;
+                }
+            });
+
+            document.getElementById('count-1').textContent = stats[1];
+            document.getElementById('count-2').textContent = stats[2];
+            document.getElementById('count-3').textContent = stats[3];
+            document.getElementById('total-count').textContent = totalPending;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">No data found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td><strong>${item.ticketId}</strong></td>
+                    <td>${item.orderReceived}</td>
+                    <td>${item.type}</td>
+                    <td>${item.urgent === 'Yes' ? '<span class="urgent-badge">URGENT</span>' : item.urgent}</td>
+                    <td>${item.customer}</td>
+                    <td>${item.aging ? `<span class="aging-badge aging-${item.aging}">${item.aging} Day${item.aging > 1 ? 's' : ''}</span>` : ''}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterByAging(aging) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            currentFilter = aging;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            let filtered = [...deliveryData];
+
+            // Apply aging filter
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(item => item.aging == currentFilter);
+            }
+
+            // Apply search filter
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(item => 
+                    item.ticketId.toLowerCase().includes(searchTerm) ||
+                    item.customer.toLowerCase().includes(searchTerm) ||
+                    item.type.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            filteredData = filtered;
+            renderTable(filteredData);
+        }
+
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadExcelFile(file);
+            }
+        });
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', applyFilters);
+
+        // Auto-refresh every 5 minutes if Excel URL is set
+        setInterval(() => {
+            const excelUrl = document.getElementById('excelUrl').value.trim();
+            if (excelUrl) {
+                loadExcelData();
+            }
+        }, 5 * 60 * 1000); // 5 minutes
+
+        // Initialize
+        window.addEventListener('load', () => {
+            // Load saved Excel URL
+            const savedUrl = localStorage.getItem('excelUrl');
+            if (savedUrl) {
+                document.getElementById('excelUrl').value = savedUrl;
+            }
+            
+            updateStats();
+            renderTable(deliveryData);
+            
+            // Show setup instructions
+            showStatusMessage(`
+                📋 <strong>Ready to load your data!</strong><br>
+                <br>
+                <strong>Method 1: Upload File (Recommended)</strong><br>
+                • Click "📁 Upload Excel/CSV File"<br>
+                • Select your "Delivery Tracking -.xlsx" or exported CSV file<br>
+                • Data loads instantly!<br>
+                <br>
+                <strong>Method 2: Excel Online (Limited)</strong><br>
+                • Excel Online direct integration requires API authentication<br>
+                • Alternative: Export your Excel to CSV and upload it<br>
+                <br>
+                💡 <strong>Quick Start:</strong> Upload your Excel file for immediate results!
+            `, 'info');
+        });
+    </script>
+</body>
+</html>
