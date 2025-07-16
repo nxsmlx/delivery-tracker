@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -28,7 +28,7 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -38,6 +38,11 @@
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 700;
+        }
+
+        .header h1::before {
+            content: "🔴 ";
+            color: #dc3545;
         }
 
         .header p {
@@ -81,7 +86,7 @@
         }
 
         .aging-1 { color: #28a745; }
-        .aging-2 { color: #ffc107; }
+        .aging-2 { color: #fd7e14; }
         .aging-3 { color: #dc3545; }
 
         .controls {
@@ -108,14 +113,14 @@
         }
 
         .filter-btn:hover {
-            border-color: #007bff;
-            color: #007bff;
+            border-color: #dc3545;
+            color: #dc3545;
         }
 
         .filter-btn.active {
-            background: #007bff;
+            background: #dc3545;
             color: white;
-            border-color: #007bff;
+            border-color: #dc3545;
         }
 
         .filter-btn.aging-1.active {
@@ -124,9 +129,9 @@
         }
 
         .filter-btn.aging-2.active {
-            background: #ffc107;
-            border-color: #ffc107;
-            color: #000;
+            background: #fd7e14;
+            border-color: #fd7e14;
+            color: white;
         }
 
         .filter-btn.aging-3.active {
@@ -134,11 +139,17 @@
             border-color: #dc3545;
         }
 
+        .filter-btn.urgent-btn.active {
+            background: #fd7e14;
+            border-color: #fd7e14;
+            color: white;
+        }
+
         .refresh-btn {
             padding: 12px 24px;
             border: none;
             border-radius: 25px;
-            background: #28a745;
+            background: #dc3545;
             color: white;
             cursor: pointer;
             font-weight: 500;
@@ -146,7 +157,7 @@
         }
 
         .refresh-btn:hover {
-            background: #218838;
+            background: #c82333;
         }
 
         .refresh-btn:disabled {
@@ -165,7 +176,7 @@
         }
 
         .excel-input:focus {
-            border-color: #007bff;
+            border-color: #dc3545;
         }
 
         .search-box {
@@ -179,7 +190,7 @@
         }
 
         .search-box:focus {
-            border-color: #007bff;
+            border-color: #dc3545;
         }
 
         .data-table {
@@ -226,7 +237,7 @@
         }
 
         .aging-badge.aging-1 { background: #28a745; }
-        .aging-badge.aging-2 { background: #ffc107; color: #000; }
+        .aging-badge.aging-2 { background: #fd7e14; color: white; }
         .aging-badge.aging-3 { background: #dc3545; }
 
         .urgent-badge {
@@ -290,7 +301,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📦 Delivery Aging Tracker</h1>
+            <h1>Delivery Aging Tracker</h1>
             <p>Monitor delivery performance and aging statistics</p>
         </div>
 
@@ -306,6 +317,10 @@
             <div class="stat-card">
                 <div class="stat-number aging-3" id="count-3">0</div>
                 <div class="stat-label">3 Days Aging</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: #fd7e14;" id="urgent-count">0</div>
+                <div class="stat-label">Urgent Tickets</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="total-count">0</div>
@@ -327,6 +342,7 @@
                 <button class="filter-btn aging-1" onclick="filterByAging('1')">1 Day</button>
                 <button class="filter-btn aging-2" onclick="filterByAging('2')">2 Days</button>
                 <button class="filter-btn aging-3" onclick="filterByAging('3')">3 Days</button>
+                <button class="filter-btn urgent-btn" onclick="filterByUrgent()">Urgent</button>
             </div>
         </div>
 
@@ -369,6 +385,7 @@
         ];
 
         let currentFilter = 'all';
+        let urgentFilter = false;
         let filteredData = [...deliveryData];
 
         function showStatusMessage(message, type = 'info') {
@@ -537,17 +554,22 @@
         function updateStats() {
             const stats = { 1: 0, 2: 0, 3: 0 };
             let totalPending = 0;
+            let urgentCount = 0;
             
             deliveryData.forEach(item => {
                 if (item.aging) {
                     stats[item.aging]++;
                     totalPending++;
                 }
+                if (item.urgent && item.urgent.toLowerCase() === 'yes') {
+                    urgentCount++;
+                }
             });
 
             document.getElementById('count-1').textContent = stats[1];
             document.getElementById('count-2').textContent = stats[2];
             document.getElementById('count-3').textContent = stats[3];
+            document.getElementById('urgent-count').textContent = urgentCount;
             document.getElementById('total-count').textContent = totalPending;
         }
 
@@ -572,16 +594,52 @@
         }
 
         function filterByAging(aging) {
-            // Update active button
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            // Update active button - remove active from all aging buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (!btn.classList.contains('urgent-btn')) {
+                    btn.classList.remove('active');
+                }
+            });
             event.target.classList.add('active');
+
+            // Reset urgent filter when selecting aging filter
+            urgentFilter = false;
+            document.querySelector('.urgent-btn').classList.remove('active');
 
             currentFilter = aging;
             applyFilters();
         }
 
+        function filterByUrgent() {
+            // Toggle urgent filter
+            urgentFilter = !urgentFilter;
+            
+            // Update button appearance
+            const urgentBtn = document.querySelector('.urgent-btn');
+            if (urgentFilter) {
+                urgentBtn.classList.add('active');
+                // Reset aging filter when urgent is selected
+                currentFilter = 'all';
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    if (!btn.classList.contains('urgent-btn')) {
+                        btn.classList.remove('active');
+                    }
+                });
+                document.querySelector('.filter-btn:not(.urgent-btn)').classList.add('active');
+            } else {
+                urgentBtn.classList.remove('active');
+            }
+
+            applyFilters();
+        }
+
         function applyFilters() {
             let filtered = [...deliveryData];
+
+            // Apply urgent filter first
+            if (urgentFilter) {
+                filtered = filtered.filter(item => item.urgent && item.urgent.toLowerCase() === 'yes');
+            }
 
             // Apply aging filter
             if (currentFilter !== 'all') {
