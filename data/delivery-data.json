@@ -1,14 +1,5 @@
 {
-  "data": [
-    {
-      "ticketId": "60210",
-      "orderReceived": "7/11/2025",
-      "type": "Delivery",
-      "urgent": "Yes",
-      "customer": "Segi University",
-      "aging": 1
-    }
-  ],
-  "lastUpdate": "Initial Setup",
+  "data": [],
+  "lastUpdate": "Initial setup",
   "updatedBy": "System"
 }
