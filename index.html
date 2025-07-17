@@ -491,24 +491,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         // ================================
-        // CONFIGURATION - UPDATE WITH YOUR GITHUB DETAILS
+        // CONFIGURATION - UPDATE WITH YOUR SUPABASE DETAILS
         // ================================
         const CONFIG = {
-            // GitHub Settings (UPDATE THESE)
-            github: {
-                owner: 'nxsmlx',     // Your GitHub username
-                repo: 'delivery-tracker',      // Your repository name
-                branch: 'main',                    // Branch name (usually 'main')
-                dataFile: 'data/delivery-data.json', // Data file path
-                token: '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'         // Your GitHub token
+            supabase: {
+                url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',           // From Supabase project settings (e.g., https://abc123.supabase.co)
+                key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',     // From Supabase project API settings
+                tableName: 'delivery_data'         // Table name in database
             },
-            // Admin Settings
-            adminPassword: 'qube5182'
+            adminPassword: 'qube2025'
         };
 
-        // ================================
-        // APPLICATION STATE
-        // ================================
+        // Sample data (will be replaced by database data)
         let deliveryData = [
             { ticketId: '60210', orderReceived: '7/11/2025', type: 'Delivery', urgent: 'Yes', customer: 'Segi University', aging: 1 },
             { ticketId: '60521', orderReceived: '7/14/2025', type: 'Delivery', urgent: 'No', customer: 'Ingram', aging: 5 },
@@ -524,6 +518,103 @@
 
         let currentFilter = 'all';
         let filteredData = [...deliveryData];
+
+        // ================================
+        // SUPABASE CLIENT
+        // ================================
+        class SupabaseClient {
+            constructor(url, key) {
+                this.url = url;
+                this.key = key;
+                this.headers = {
+                    'apikey': key,
+                    'Authorization': `Bearer ${key}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                };
+            }
+
+            async query(method, endpoint, data = null) {
+                const response = await fetch(`${this.url}/rest/v1/${endpoint}`, {
+                    method,
+                    headers: this.headers,
+                    body: data ? JSON.stringify(data) : null
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`Supabase error: ${response.status} - ${error}`);
+                }
+
+                return response.json();
+            }
+
+            // Get all delivery data
+            async getDeliveryData() {
+                return this.query('GET', `${CONFIG.supabase.tableName}?select=*&order=created_at.desc`);
+            }
+
+            // Save delivery data (replaces all data)
+            async saveDeliveryData(data) {
+                // First, delete existing data
+                await this.query('DELETE', `${CONFIG.supabase.tableName}?id=gte.0`);
+                
+                // Then insert new data with metadata
+                const records = data.map((item, index) => ({
+                    id: index + 1,
+                    ticket_id: item.ticketId,
+                    order_received: item.orderReceived,
+                    type: item.type,
+                    urgent: item.urgent,
+                    customer: item.customer,
+                    aging: item.aging,
+                    created_at: new Date().toISOString(),
+                    updated_by: 'Admin'
+                }));
+
+                return this.query('POST', CONFIG.supabase.tableName, records);
+            }
+
+            // Get metadata (last update info)
+            async getMetadata() {
+                try {
+                    const result = await this.query('GET', 'delivery_metadata?select=*&limit=1');
+                    return result[0] || { last_update: 'Never', updated_by: 'System' };
+                } catch (error) {
+                    return { last_update: 'Never', updated_by: 'System' };
+                }
+            }
+
+            // Update metadata
+            async updateMetadata() {
+                const metadata = {
+                    last_update: new Date().toLocaleString(),
+                    updated_by: 'Admin',
+                    updated_at: new Date().toISOString()
+                };
+
+                try {
+                    // Try to update existing record
+                    await this.query('POST', 'delivery_metadata', [{ id: 1, ...metadata }]);
+                } catch (error) {
+                    // If update fails, insert new record
+                    await this.query('POST', 'delivery_metadata', [metadata]);
+                }
+            }
+        }
+
+        let supabase;
+
+        function initializeDatabase() {
+            if (!CONFIG.supabase.url || CONFIG.supabase.url === 'YOUR_SUPABASE_URL') {
+                throw new Error('Supabase URL not configured');
+            }
+            if (!CONFIG.supabase.key || CONFIG.supabase.key === 'YOUR_SUPABASE_ANON_KEY') {
+                throw new Error('Supabase API key not configured');
+            }
+
+            supabase = new SupabaseClient(CONFIG.supabase.url, CONFIG.supabase.key);
+        }
 
         // ================================
         // UTILITY FUNCTIONS
@@ -801,67 +892,38 @@
         }
 
         // ================================
-        // GITHUB INTEGRATION
+        // DATABASE INTEGRATION
         // ================================
-        async function loadDataFromGitHub() {
+        async function loadDataFromDatabase() {
             try {
-                showMessage('🔄 Loading latest data from server...', 'info');
+                showMessage('🔄 Loading latest data from database...', 'info');
                 
-                // Check if GitHub config is properly set
-                if (!CONFIG.github.token || CONFIG.github.token === 'YOUR_GITHUB_TOKEN') {
-                    throw new Error('GitHub token not configured. Please update CONFIG section.');
-                }
+                initializeDatabase();
                 
-                if (!CONFIG.github.owner || CONFIG.github.owner === 'YOUR_GITHUB_USERNAME') {
-                    throw new Error('GitHub username not configured. Please update CONFIG section.');
-                }
+                const [data, metadata] = await Promise.all([
+                    supabase.getDeliveryData(),
+                    supabase.getMetadata()
+                ]);
                 
-                if (!CONFIG.github.repo || CONFIG.github.repo === 'YOUR_REPOSITORY_NAME') {
-                    throw new Error('Repository name not configured. Please update CONFIG section.');
-                }
+                // Convert back to original format
+                deliveryData = data.map(item => ({
+                    ticketId: item.ticket_id,
+                    orderReceived: item.order_received,
+                    type: item.type,
+                    urgent: item.urgent,
+                    customer: item.customer,
+                    aging: item.aging
+                }));
                 
-                const url = `https://api.github.com/repos/${CONFIG.github.owner}/${CONFIG.github.repo}/contents/${CONFIG.github.dataFile}`;
-                console.log('Fetching data from:', url);
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${CONFIG.github.token}`,
-                        'Accept': 'application/vnd.github+json',
-                        'X-GitHub-Api-Version': '2022-11-28'
-                    }
-                });
-                
-                console.log('Response status:', response.status);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('GitHub API Error:', errorText);
-                    
-                    if (response.status === 401) {
-                        throw new Error('Authentication failed. Please check your GitHub token.');
-                    } else if (response.status === 404) {
-                        throw new Error('Data file not found. Please create data/delivery-data.json in your repository.');
-                    } else {
-                        throw new Error(`GitHub API error: ${response.status} - ${errorText}`);
-                    }
-                }
-                
-                const data = await response.json();
-                const content = atob(data.content);
-                const jsonData = JSON.parse(content);
-                
-                deliveryData = jsonData.data || [];
-                
-                showMessage(`✅ Data loaded successfully (Last update: ${jsonData.lastUpdate || 'Unknown'})`, 'success');
+                showMessage(`✅ Data loaded successfully (Last update: ${metadata.last_update})`, 'success');
                 
                 updateStats();
                 applyFilters();
                 
                 return true;
             } catch (error) {
-                console.error('Error loading data from GitHub:', error);
-                showMessage(`❌ Could not load data from server: ${error.message}`, 'error');
+                console.error('Error loading data from database:', error);
+                showMessage(`❌ Could not load data from database: ${error.message}`, 'error');
                 
                 // Use sample data as fallback
                 updateStats();
@@ -871,92 +933,20 @@
             }
         }
 
-        async function saveDataToGitHub(data) {
+        async function saveDataToDatabase(data) {
             try {
-                showMessage('📤 Saving data to server...', 'info');
+                showMessage('📤 Saving data to database...', 'info');
                 
-                // Check configuration
-                if (!CONFIG.github.token || CONFIG.github.token === 'YOUR_GITHUB_TOKEN') {
-                    throw new Error('GitHub token not configured. Please update CONFIG section.');
-                }
+                initializeDatabase();
                 
-                const dataToSave = {
-                    data: data,
-                    lastUpdate: new Date().toLocaleString(),
-                    updatedBy: 'Admin'
-                };
-                
-                const content = btoa(JSON.stringify(dataToSave, null, 2));
-                const url = `https://api.github.com/repos/${CONFIG.github.owner}/${CONFIG.github.repo}/contents/${CONFIG.github.dataFile}`;
-                
-                console.log('Saving data to:', url);
-                
-                // First, try to get the current file to get its SHA
-                let sha = null;
-                try {
-                    const currentFileResponse = await fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${CONFIG.github.token}`,
-                            'Accept': 'application/vnd.github+json',
-                            'X-GitHub-Api-Version': '2022-11-28'
-                        }
-                    });
-                    
-                    if (currentFileResponse.ok) {
-                        const currentData = await currentFileResponse.json();
-                        sha = currentData.sha;
-                        console.log('Found existing file with SHA:', sha);
-                    }
-                } catch (e) {
-                    console.log('File does not exist yet, will create new file');
-                }
-                
-                // Create or update the file
-                const updateData = {
-                    message: `Update delivery data - ${new Date().toLocaleString()}`,
-                    content: content,
-                    branch: CONFIG.github.branch
-                };
-                
-                if (sha) {
-                    updateData.sha = sha;
-                }
-                
-                const response = await fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${CONFIG.github.token}`,
-                        'Accept': 'application/vnd.github+json',
-                        'X-GitHub-Api-Version': '2022-11-28',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(updateData)
-                });
-                
-                console.log('Save response status:', response.status);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Save error:', errorText);
-                    
-                    if (response.status === 401) {
-                        throw new Error('Authentication failed. Please check your GitHub token permissions.');
-                    } else if (response.status === 422) {
-                        throw new Error('Validation failed. The data file may have been modified by someone else.');
-                    } else {
-                        throw new Error(`Failed to save: ${response.status} - ${errorText}`);
-                    }
-                }
-                
-                const result = await response.json();
-                console.log('Save successful:', result);
+                await supabase.saveDeliveryData(data);
+                await supabase.updateMetadata();
                 
                 showMessage('✅ Data saved successfully! All users will see the update.', 'success');
                 return true;
                 
             } catch (error) {
-                console.error('Error saving data to GitHub:', error);
+                console.error('Error saving data to database:', error);
                 showMessage(`❌ Failed to save data: ${error.message}`, 'error');
                 return false;
             }
@@ -1067,7 +1057,7 @@
                     throw new Error('Unsupported file format. Please use .xlsx, .xls, or .csv files.');
                 }
                 
-                const saved = await saveDataToGitHub(data);
+                const saved = await saveDataToDatabase(data);
                 
                 if (saved) {
                     deliveryData = data;
