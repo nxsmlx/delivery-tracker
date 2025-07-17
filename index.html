@@ -496,9 +496,9 @@
         // ================================
         const CONFIG = {
             supabase: {
-                url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',           // From Supabase project settings (e.g., https://abc123.supabase.co)
-                key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',     // From Supabase project API settings
-                tableName: 'delivery_data'         // Table name in database
+                url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
+                key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
+                tableName: 'delivery_data'
             },
             adminPassword: 'qube2025'
         };
@@ -521,7 +521,7 @@
         let filteredData = [...deliveryData];
 
         // ================================
-        // SUPABASE CLIENT (Fixed)
+        // SUPABASE CLIENT
         // ================================
         class SupabaseClient {
             constructor(url, key) {
@@ -1289,10 +1289,14 @@
                 document.getElementById('adminPassword').focus();
             });
 
-            // Refresh button
+            // Refresh button - FIXED TO USE DATABASE
             document.getElementById('refreshBtn').addEventListener('click', async function() {
-                await loadDataFromGitHub();
-                showMessage('🔄 Data refreshed from server', 'success');
+                await loadDataFromDatabase();
+            });
+
+            // Test database button - FIXED TO WORK
+            document.getElementById('testBtn').addEventListener('click', async function() {
+                await testDatabaseConnection();
             });
 
             // Modal buttons
@@ -1354,28 +1358,28 @@
         }
 
         // ================================
-        // CONFIGURATION CHECKER
+        // CONFIGURATION CHECKER - FIXED FOR SUPABASE
         // ================================
         function checkConfiguration() {
             const issues = [];
             
-            if (!CONFIG.github.token || CONFIG.github.token === 'YOUR_GITHUB_TOKEN') {
-                issues.push('GitHub token not set');
+            if (!CONFIG.supabase.url || CONFIG.supabase.url === 'YOUR_SUPABASE_URL') {
+                issues.push('Supabase URL not set');
             }
             
-            if (!CONFIG.github.owner || CONFIG.github.owner === 'YOUR_GITHUB_USERNAME') {
-                issues.push('GitHub username not set');
+            if (!CONFIG.supabase.key || CONFIG.supabase.key === 'YOUR_SUPABASE_ANON_KEY') {
+                issues.push('Supabase API key not set');
             }
             
-            if (!CONFIG.github.repo || CONFIG.github.repo === 'YOUR_REPOSITORY_NAME') {
-                issues.push('Repository name not set');
+            if (!CONFIG.supabase.tableName || CONFIG.supabase.tableName === 'YOUR_TABLE_NAME') {
+                issues.push('Table name not set');
             }
             
             return issues;
         }
 
         // ================================
-        // INITIALIZATION
+        // INITIALIZATION - FIXED
         // ================================
         async function initialize() {
             // Initialize event handlers
@@ -1389,7 +1393,7 @@
                     Please update the CONFIG section in your code:<br>
                     • ${configIssues.join('<br>• ')}<br><br>
                     <strong>Find this section at the top of the script:</strong><br>
-                    <code>const CONFIG = { github: { ... } }</code><br><br>
+                    <code>const CONFIG = { supabase: { ... } }</code><br><br>
                     <strong>For now, using sample data.</strong>`, 'error');
                 
                 // Use sample data
@@ -1399,8 +1403,8 @@
                 return;
             }
             
-            // Try to load data from GitHub
-            const loadSuccess = await loadDataFromGitHub();
+            // Try to load data from database
+            const loadSuccess = await loadDataFromDatabase();
             
             if (!loadSuccess) {
                 // Initialize with sample data
@@ -1414,15 +1418,16 @@
                 showMessage(`📊 <strong>Qube-Inventory Delivery Tracker</strong><br><br>
                     <strong>👨‍💼 Admin:</strong> Click "🔒 Admin Upload" to upload daily data<br>
                     <strong>👥 Users:</strong> Click "🔄 Refresh Data" to see latest updates<br>
+                    <strong>🔧 Test:</strong> Click "🔧 Test Database" to verify connection<br>
                     <strong>🔄 Auto-refresh:</strong> Data updates automatically every 30 seconds<br>
                     <br>
                     💡 <strong>Real-time updates:</strong> All users see the same data instantly!`, 'info');
             }
         }
 
-        // Auto-refresh every 30 seconds
+        // Auto-refresh every 30 seconds - FIXED
         setInterval(async () => {
-            await loadDataFromGitHub();
+            await loadDataFromDatabase();
         }, 30000);
 
         // Start the application
