@@ -90,6 +90,7 @@ body{
     text-transform:uppercase;
     letter-spacing:.5px;
 }
+.aging-0{color:#38a169}
 .aging-1{color:var(--success)}
 .aging-2{color:var(--warning)}
 .aging-3{color:var(--error)}
@@ -135,6 +136,7 @@ body{
     border-color:var(--accent);
     color:#fff;
 }
+.btn-secondary.aging-0.active{background:#38a169;border-color:#38a169}
 .btn-secondary.aging-1.active{background:var(--success);border-color:var(--success)}
 .btn-secondary.aging-2.active{background:var(--warning);border-color:var(--warning)}
 .btn-secondary.aging-3.active{background:var(--error);border-color:var(--error)}
@@ -187,6 +189,7 @@ th,td{padding:12px 16px;text-align:left;font-size:.875rem}
 th{background:var(--surface-2);color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
 tr:hover{background:var(--surface-2)}
 .badge{padding:4px 8px;border-radius:4px;font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#fff}
+.badge-aging-0{background:#38a169}
 .badge-aging-1{background:var(--success)}
 .badge-aging-2{background:var(--warning)}
 .badge-aging-3{background:var(--error)}
@@ -250,6 +253,10 @@ tr:hover{background:var(--surface-2)}
 
         <div class="stats">
             <div class="stat-card">
+                <div class="stat-number aging-0" id="count-0">0</div>
+                <div class="stat-label">Same Day (0)</div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-number aging-1" id="count-1">0</div>
                 <div class="stat-label">1 Day Aging</div>
             </div>
@@ -285,6 +292,7 @@ tr:hover{background:var(--surface-2)}
             <div class="control-group">
                 <input type="text" class="search-box" id="searchBox" placeholder="Search by Ticket ID or Customer...">
                 <button class="btn btn-secondary active" data-filter="all">All</button>
+                <button class="btn btn-secondary aging-0" data-filter="0">Same Day</button>
                 <button class="btn btn-secondary aging-1" data-filter="1">1 Day</button>
                 <button class="btn btn-secondary aging-2" data-filter="2">2 Days</button>
                 <button class="btn btn-secondary aging-3" data-filter="3">3 Days</button>
@@ -362,7 +370,7 @@ tr:hover{background:var(--surface-2)}
             { ticketId: '60574', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'Yes', customer: 'Ginmaro', aging: 4 },
             { ticketId: '60584', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'MLINK', aging: 2 },
             { ticketId: '60585', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'Vstecs', aging: 3 },
-            { ticketId: '60588', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'MR DIY HQ', aging: 1 },
+            { ticketId: '60588', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'MR DIY HQ', aging: 0 },
             { ticketId: '60591', orderReceived: '7/15/2025', type: 'Collection', urgent: 'Yes', customer: 'PC Image', aging: 6 },
             { ticketId: '60620', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'PKT', aging: 2 }
         ];
@@ -453,7 +461,7 @@ tr:hover{background:var(--surface-2)}
                         type: item.type || '',
                         urgent: item.urgent || 'No',
                         customer: item.customer || '',
-                        aging: parseInt(item.aging) || 0,
+                        aging: (item.aging === 'x' || item.aging === 'X') ? null : parseInt(item.aging) || 0,
                         updated_by: 'Admin'
                     }));
 
@@ -566,7 +574,7 @@ tr:hover{background:var(--surface-2)}
                     type: 'Test',
                     urgent: 'No',
                     customer: 'Test Customer',
-                    aging: 1,
+                    aging: 0,
                     updated_by: 'Test'
                 };
                 
@@ -615,24 +623,32 @@ tr:hover{background:var(--surface-2)}
         }
 
         function updateStats() {
-            const stats = { 1: 0, 2: 0, 3: 0, 4: 0 };
+            const stats = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
             let totalPending = 0;
             let urgentCount = 0;
             
             deliveryData.forEach(item => {
-                if (item.aging && item.aging > 0) {
-                    if (item.aging <= 3) {
-                        stats[item.aging]++;
-                    } else {
-                        stats[4]++;
+                // Skip items with aging 'x' or 'X'
+                if (item.aging !== 'x' && item.aging !== 'X' && item.aging !== null) {
+                    const agingValue = parseInt(item.aging);
+                    if (!isNaN(agingValue)) {
+                        if (agingValue === 0) {
+                            stats[0]++;
+                        } else if (agingValue <= 3) {
+                            stats[agingValue]++;
+                        } else {
+                            stats[4]++;
+                        }
+                        totalPending++;
                     }
-                    totalPending++;
                 }
+                
                 if (item.urgent && item.urgent.toLowerCase() === 'yes') {
                     urgentCount++;
                 }
             });
 
+            document.getElementById('count-0').textContent = stats[0];
             document.getElementById('count-1').textContent = stats[1];
             document.getElementById('count-2').textContent = stats[2];
             document.getElementById('count-3').textContent = stats[3];
@@ -645,643 +661,29 @@ tr:hover{background:var(--surface-2)}
         // DATA RENDERING
         // ================================
         function getAgingBadge(aging) {
-            if (aging <= 3) {
-                return `<span class="badge badge-aging-${aging}">${aging} Day${aging > 1 ? 's' : ''}</span>`;
+            // Handle 'x' or null values
+            if (aging === 'x' || aging === 'X' || aging === null) {
+                return '<span class="badge" style="background-color: #718096;">N/A</span>';
+            }
+            
+            const agingValue = parseInt(aging);
+            
+            if (agingValue === 0) {
+                return '<span class="badge badge-aging-0">Same Day</span>';
+            } else if (agingValue <= 3) {
+                return `<span class="badge badge-aging-${agingValue}">${agingValue} Day${agingValue > 1 ? 's' : ''}</span>`;
             } else {
-                return `<span class="badge badge-aging-4">${aging} Days</span>`;
+                return `<span class="badge badge-aging-4">${agingValue} Days</span>`;
             }
         }
 
         function getPriority(item) {
-            if (item.urgent === 'Yes' && item.aging > 3) {
+            // Handle 'x' or null aging values
+            if (item.aging === 'x' || item.aging === 'X' || item.aging === null) {
+                return { class: 'low', text: 'Unspecified' };
+            }
+            
+            const agingValue = parseInt(item.aging);
+            
+            if (item.urgent === 'Yes' && agingValue > 3) {
                 return { class: 'critical', text: 'Critical' };
-            } else if (item.urgent === 'Yes' || item.aging > 3) {
-                return { class: 'high', text: 'High' };
-            } else if (item.aging === 3) {
-                return { class: 'medium', text: 'Medium' };
-            } else {
-                return { class: 'low', text: 'Low' };
-            }
-        }
-
-        function getActionRequired(item) {
-            if (item.urgent === 'Yes' && item.aging > 3) {
-                return { class: 'urgent', text: 'Urgent' };
-            } else if (item.aging > 3) {
-                return { class: 'urgent', text: 'Overdue' };
-            } else if (item.aging === 3) {
-                return { class: 'today', text: 'Today' };
-            } else if (item.aging === 2) {
-                return { class: 'tomorrow', text: 'Tomorrow' };
-            } else {
-                return { class: 'scheduled', text: 'Scheduled' };
-            }
-        }
-
-        function renderTable(data) {
-            const tbody = document.getElementById('tableBody');
-            
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="no-data">No pending tickets with aging data found</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = data.map(item => {
-                const priority = getPriority(item);
-                const action = getActionRequired(item);
-                
-                return `
-                    <tr>
-                        <td><strong>${item.ticketId}</strong></td>
-                        <td>${item.orderReceived}</td>
-                        <td>${item.type}</td>
-                        <td>${item.urgent === 'Yes' ? '<span class="badge badge-urgent">URGENT</span>' : item.urgent}</td>
-                        <td>${item.customer}</td>
-                        <td>${getAgingBadge(item.aging)}</td>
-                        <td><span class="badge badge-priority-${priority.class}">${priority.text}</span></td>
-                        <td><span class="badge badge-priority-${action.class}">${action.text}</span></td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function updateReminders(data = deliveryData) {
-            const reminderContent = document.getElementById('reminderContent');
-            
-            const overdueTickets = data.filter(item => item.aging > 3);
-            const todayTickets = data.filter(item => item.aging === 3);
-            const tomorrowTickets = data.filter(item => item.aging === 2);
-            const urgentTickets = data.filter(item => item.urgent === 'Yes');
-            
-            let html = '';
-            
-            if (overdueTickets.length > 0) {
-                html += `
-                    <div class="reminder-section">
-                        <div class="reminder-title">
-                            🚨 <span style="color: #e74c3c;">OVERDUE - Complete Immediately</span>
-                        </div>
-                        <ul class="reminder-list">
-                            ${overdueTickets.map(item => `
-                                <li class="reminder-item">
-                                    <div>
-                                        <strong>${item.ticketId}</strong> - ${item.customer} (${item.type})
-                                        <br><small style="color: #666;">Aging: ${item.aging} days</small>
-                                    </div>
-                                    <span class="badge badge-urgent">URGENT</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            if (todayTickets.length > 0) {
-                html += `
-                    <div class="reminder-section">
-                        <div class="reminder-title">
-                            📅 <span style="color: #f39c12;">Complete Today (Day 3 - Last Day)</span>
-                        </div>
-                        <ul class="reminder-list">
-                            ${todayTickets.map(item => `
-                                <li class="reminder-item">
-                                    <div>
-                                        <strong>${item.ticketId}</strong> - ${item.customer} (${item.type})
-                                        ${item.urgent === 'Yes' ? '<span class="badge badge-urgent" style="margin-left: 10px;">URGENT</span>' : ''}
-                                    </div>
-                                    <span class="badge badge-aging-3">TODAY</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            if (tomorrowTickets.length > 0) {
-                html += `
-                    <div class="reminder-section">
-                        <div class="reminder-title">
-                            📋 <span style="color: #3b82f6;">Plan for Tomorrow (Day 2)</span>
-                        </div>
-                        <ul class="reminder-list">
-                            ${tomorrowTickets.map(item => `
-                                <li class="reminder-item">
-                                    <div>
-                                        <strong>${item.ticketId}</strong> - ${item.customer} (${item.type})
-                                        ${item.urgent === 'Yes' ? '<span class="badge badge-urgent" style="margin-left: 10px;">URGENT</span>' : ''}
-                                    </div>
-                                    <span class="badge badge-aging-2">TOMORROW</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            if (urgentTickets.length > 0) {
-                html += `
-                    <div class="reminder-section">
-                        <div class="reminder-title">
-                            ⚠️ <span style="color: #e74c3c;">All Urgent Items Priority</span>
-                        </div>
-                        <ul class="reminder-list">
-                            ${urgentTickets.map(item => `
-                                <li class="reminder-item">
-                                    <div>
-                                        <strong>${item.ticketId}</strong> - ${item.customer} (${item.type})
-                                        <br><small style="color: #666;">Aging: ${item.aging} days - Priority delivery required</small>
-                                    </div>
-                                    <span class="badge badge-urgent">URGENT</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            const totalTickets = data.length;
-            const onTimeTickets = data.filter(item => item.aging <= 3).length;
-            const performanceRate = totalTickets > 0 ? Math.round((onTimeTickets / totalTickets) * 100) : 100;
-            
-            html += `
-                <div class="reminder-section">
-                    <div class="reminder-title">
-                        📊 <span style="color: #1e3c72;">Performance Summary</span>
-                    </div>
-                    <div class="performance-grid">
-                        <div class="performance-card">
-                            <div class="performance-number" style="color: ${performanceRate >= 80 ? '#27ae60' : performanceRate >= 60 ? '#f39c12' : '#e74c3c'};">${performanceRate}%</div>
-                            <div class="performance-label">On-time Performance</div>
-                        </div>
-                        <div class="performance-card">
-                            <div class="performance-number" style="color: #e74c3c;">${overdueTickets.length}</div>
-                            <div class="performance-label">Overdue Items</div>
-                        </div>
-                        <div class="performance-card">
-                            <div class="performance-number" style="color: #f39c12;">${todayTickets.length}</div>
-                            <div class="performance-label">Due Today</div>
-                        </div>
-                        <div class="performance-card">
-                            <div class="performance-number" style="color: #3b82f6;">${tomorrowTickets.length}</div>
-                            <div class="performance-label">Due Tomorrow</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            if (html === '') {
-                html = `
-                    <div style="text-align: center; color: #27ae60; padding: 20px;">
-                        ✅ <strong>Great job!</strong> No pending deliveries found.
-                    </div>
-                `;
-            }
-            
-            reminderContent.innerHTML = html;
-        }
-
-        // ================================
-        // FILTERING
-        // ================================
-        function applyFilters() {
-            let filtered = [...deliveryData];
-
-            // Filter out items with no aging
-            filtered = filtered.filter(item => item.aging && item.aging > 0);
-
-            // Apply current filter
-            if (currentFilter === 'urgent') {
-                filtered = filtered.filter(item => item.urgent && item.urgent.toLowerCase() === 'yes');
-            } else if (currentFilter !== 'all') {
-                if (currentFilter === '4') {
-                    filtered = filtered.filter(item => item.aging > 3);
-                } else {
-                    filtered = filtered.filter(item => item.aging == currentFilter);
-                }
-            }
-
-            // Apply search
-            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-            if (searchTerm) {
-                filtered = filtered.filter(item => 
-                    item.ticketId.toLowerCase().includes(searchTerm) ||
-                    item.customer.toLowerCase().includes(searchTerm) ||
-                    item.type.toLowerCase().includes(searchTerm)
-                );
-            }
-
-            filteredData = filtered;
-            renderTable(filteredData);
-            updateReminders(filtered);
-        }
-
-        // ================================
-        // DATABASE INTEGRATION (Fixed)
-        // ================================
-        async function loadDataFromDatabase() {
-            try {
-                showMessage('🔄 Loading latest data from database...', 'info');
-                
-                initializeDatabase();
-                
-                console.log('Loading data from database...');
-                const [data, metadata] = await Promise.all([
-                    supabase.getDeliveryData(),
-                    supabase.getMetadata()
-                ]);
-                
-                console.log('Raw data from database:', data);
-                console.log('Metadata from database:', metadata);
-                
-                // Convert back to original format
-                if (data && data.length > 0) {
-                    deliveryData = data.map(item => ({
-                        ticketId: item.ticket_id,
-                        orderReceived: item.order_received,
-                        type: item.type,
-                        urgent: item.urgent,
-                        customer: item.customer,
-                        aging: item.aging
-                    }));
-                    
-                    console.log('Converted delivery data:', deliveryData);
-                    
-                    showMessage(`✅ Data loaded successfully (${deliveryData.length} records, Last update: ${metadata.last_update})`, 'success');
-                } else {
-                    deliveryData = [];
-                    showMessage(`ℹ️ No data found in database (Last update: ${metadata.last_update})`, 'info');
-                }
-                
-                updateStats();
-                applyFilters();
-                
-                return true;
-            } catch (error) {
-                console.error('Error loading data from database:', error);
-                showMessage(`❌ Could not load data from database: ${error.message}`, 'error');
-                
-                // Keep existing sample data as fallback
-                console.log('Using fallback sample data');
-                updateStats();
-                applyFilters();
-                
-                return false;
-            }
-        }
-
-        async function saveDataToDatabase(data) {
-            try {
-                showMessage('📤 Saving data to database...', 'info');
-                
-                initializeDatabase();
-                
-                console.log('Saving data to database:', data);
-                
-                await supabase.saveDeliveryData(data);
-                
-                console.log('Data saved successfully');
-                showMessage('✅ Data saved successfully! All users will see the update.', 'success');
-                
-                // Immediately reload to verify the save worked
-                setTimeout(async () => {
-                    await loadDataFromDatabase();
-                }, 1000);
-                
-                return true;
-                
-            } catch (error) {
-                console.error('Error saving data to database:', error);
-                showMessage(`❌ Failed to save data: ${error.message}`, 'error');
-                return false;
-            }
-        }
-
-        // ================================
-        // FILE PROCESSING (Updated with Date Conversion)
-        // ================================
-        
-        // Convert Excel serial number to proper date
-        function convertExcelDate(serialNumber) {
-            if (!serialNumber || isNaN(serialNumber)) {
-                return serialNumber; // Return original if not a number
-            }
-            
-            // Excel epoch starts from January 1, 1900 (but Excel incorrectly treats 1900 as a leap year)
-            const excelEpoch = new Date(1899, 11, 30); // December 30, 1899
-            const days = parseInt(serialNumber);
-            const date = new Date(excelEpoch.getTime() + days * 24 * 60 * 60 * 1000);
-            
-            // Format as DD/MM/YYYY
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            
-            return `${day}/${month}/${year}`;
-        }
-
-        function parseCSV(text) {
-            const lines = text.split('\n');
-            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-            const rows = lines.slice(1);
-            
-            console.log('CSV Headers found:', headers);
-            
-            const findColumn = (possibleNames) => {
-                for (const name of possibleNames) {
-                    const index = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
-                    if (index !== -1) return index;
-                }
-                return -1;
-            };
-            
-            const ticketIdCol = findColumn(['Ticket ID', 'TicketID', 'Ticket', 'TICKET ID']) !== -1 ? findColumn(['Ticket ID', 'TicketID', 'Ticket', 'TICKET ID']) : 0;
-            const orderReceivedCol = findColumn(['Order Received', 'OrderReceived', 'Date', 'ORDER RECEIVED']) !== -1 ? findColumn(['Order Received', 'OrderReceived', 'Date', 'ORDER RECEIVED']) : 1;
-            const typeCol = findColumn(['Type', 'Service Type', 'TYPE']) !== -1 ? findColumn(['Type', 'Service Type', 'TYPE']) : 2;
-            const urgentCol = findColumn(['Urgent', 'Urgent?', 'URGENT?']) !== -1 ? findColumn(['Urgent', 'Urgent?', 'URGENT?']) : 3;
-            const customerCol = findColumn(['Customer', 'Client', 'CUSTOMER']) !== -1 ? findColumn(['Customer', 'Client', 'CUSTOMER']) : 4;
-            const agingCol = findColumn(['Aging', 'AGING']) !== -1 ? findColumn(['Aging', 'AGING']) : 5;
-            
-            console.log('Column mapping:', {
-                ticketId: ticketIdCol,
-                orderReceived: orderReceivedCol,
-                type: typeCol,
-                urgent: urgentCol,
-                customer: customerCol,
-                aging: agingCol
-            });
-            
-            return rows.map(row => {
-                const cols = row.split(',').map(c => c.trim().replace(/"/g, ''));
-                const aging = parseInt(cols[agingCol]) || 0;
-                const rawDate = cols[orderReceivedCol] || '';
-                
-                // Convert Excel serial number to proper date
-                const convertedDate = convertExcelDate(rawDate);
-                
-                return {
-                    ticketId: cols[ticketIdCol] || '',
-                    orderReceived: convertedDate,
-                    type: cols[typeCol] || '',
-                    urgent: cols[urgentCol] || 'No',
-                    customer: cols[customerCol] || '',
-                    aging: aging
-                };
-            }).filter(item => item.ticketId && item.ticketId.toString().trim() !== '' && item.aging > 0);
-        }
-
-        function parseExcel(arrayBuffer) {
-            const XLSX = window.XLSX;
-            if (!XLSX) {
-                throw new Error('Excel library not loaded');
-            }
-            
-            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            
-            const jsonData = XLSX.utils.sheet_to_json(sheet, { 
-                header: 1, 
-                raw: false,
-                defval: ''
-            });
-            
-            if (jsonData.length === 0) {
-                throw new Error('No data found in Excel file');
-            }
-            
-            const headers = jsonData[0];
-            const rows = jsonData.slice(1);
-            
-            console.log('Excel Headers found:', headers);
-            
-            const findColumn = (possibleNames) => {
-                for (const name of possibleNames) {
-                    const index = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
-                    if (index !== -1) return index;
-                }
-                return -1;
-            };
-            
-            const ticketIdCol = findColumn(['Ticket ID', 'TicketID', 'Ticket', 'TICKET ID']) !== -1 ? findColumn(['Ticket ID', 'TicketID', 'Ticket', 'TICKET ID']) : 0;
-            const orderReceivedCol = findColumn(['Order Received', 'OrderReceived', 'Date', 'ORDER RECEIVED']) !== -1 ? findColumn(['Order Received', 'OrderReceived', 'Date', 'ORDER RECEIVED']) : 1;
-            const typeCol = findColumn(['Type', 'Service Type', 'TYPE']) !== -1 ? findColumn(['Type', 'Service Type', 'TYPE']) : 2;
-            const urgentCol = findColumn(['Urgent', 'Urgent?', 'URGENT?']) !== -1 ? findColumn(['Urgent', 'Urgent?', 'URGENT?']) : 3;
-            const customerCol = findColumn(['Customer', 'Client', 'CUSTOMER']) !== -1 ? findColumn(['Customer', 'Client', 'CUSTOMER']) : 4;
-            const agingCol = findColumn(['Aging', 'AGING']) !== -1 ? findColumn(['Aging', 'AGING']) : 5;
-            
-            console.log('Column mapping:', {
-                ticketId: ticketIdCol,
-                orderReceived: orderReceivedCol,
-                type: typeCol,
-                urgent: urgentCol,
-                customer: customerCol,
-                aging: agingCol
-            });
-            
-            return rows.map(row => {
-                const aging = parseInt(row[agingCol]) || 0;
-                const rawDate = row[orderReceivedCol] || '';
-                
-                // Convert Excel serial number to proper date
-                const convertedDate = convertExcelDate(rawDate);
-                
-                return {
-                    ticketId: row[ticketIdCol] || '',
-                    orderReceived: convertedDate,
-                    type: row[typeCol] || '',
-                    urgent: row[urgentCol] || 'No',
-                    customer: row[customerCol] || '',
-                    aging: aging
-                };
-            }).filter(item => item.ticketId && item.ticketId.toString().trim() !== '' && item.aging > 0);
-        }
-
-        async function processFile(file) {
-            showMessage('Reading file...', 'info');
-            
-            try {
-                const fileName = file.name.toLowerCase();
-                let data;
-                
-                if (fileName.endsWith('.csv')) {
-                    const text = await file.text();
-                    data = parseCSV(text);
-                } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    data = parseExcel(arrayBuffer);
-                } else {
-                    throw new Error('Unsupported file format. Please use .xlsx, .xls, or .csv files.');
-                }
-                
-                const saved = await saveDataToDatabase(data);
-                
-                if (saved) {
-                    deliveryData = data;
-                    updateStats();
-                    applyFilters();
-                    
-                    showMessage(`✅ Successfully uploaded ${data.length} records. All users will see the update!`, 'success');
-                }
-                
-            } catch (error) {
-                console.error('Error processing file:', error);
-                showMessage(`❌ Error processing file: ${error.message}`, 'error');
-            }
-        }
-
-        // ================================
-        // EVENT HANDLERS
-        // ================================
-        function initializeEventHandlers() {
-            // Admin upload button
-            document.getElementById('adminBtn').addEventListener('click', function() {
-                document.getElementById('passwordModal').style.display = 'flex';
-                document.getElementById('adminPassword').focus();
-            });
-
-            // Refresh button - FIXED TO USE DATABASE
-            document.getElementById('refreshBtn').addEventListener('click', async function() {
-                await loadDataFromDatabase();
-            });
-
-            // Test database button - FIXED TO WORK
-            document.getElementById('testBtn').addEventListener('click', async function() {
-                await testDatabaseConnection();
-            });
-
-            // Modal buttons
-            document.getElementById('cancelBtn').addEventListener('click', function() {
-                document.getElementById('passwordModal').style.display = 'none';
-                document.getElementById('adminPassword').value = '';
-            });
-
-            document.getElementById('accessBtn').addEventListener('click', function() {
-                const enteredPassword = document.getElementById('adminPassword').value;
-                
-                if (enteredPassword === CONFIG.adminPassword) {
-                    document.getElementById('passwordModal').style.display = 'none';
-                    document.getElementById('adminPassword').value = '';
-                    document.getElementById('fileInput').click();
-                } else {
-                    alert('❌ Incorrect password. Access denied.');
-                    document.getElementById('adminPassword').value = '';
-                    document.getElementById('adminPassword').focus();
-                }
-            });
-
-            // File input
-            document.getElementById('fileInput').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    processFile(file);
-                }
-            });
-
-            // Search box
-            document.getElementById('searchBox').addEventListener('input', applyFilters);
-
-            // Filter buttons
-            document.querySelectorAll('[data-filter]').forEach(button => {
-                button.addEventListener('click', function() {
-                    // Update active state
-                    document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Update filter
-                    currentFilter = this.getAttribute('data-filter');
-                    applyFilters();
-                });
-            });
-
-            // Keyboard support for modal
-            document.addEventListener('keydown', function(event) {
-                const modal = document.getElementById('passwordModal');
-                if (modal.style.display === 'flex') {
-                    if (event.key === 'Enter') {
-                        document.getElementById('accessBtn').click();
-                    }
-                    if (event.key === 'Escape') {
-                        document.getElementById('cancelBtn').click();
-                    }
-                }
-            });
-        }
-
-        // ================================
-        // CONFIGURATION CHECKER - FIXED FOR SUPABASE
-        // ================================
-        function checkConfiguration() {
-            const issues = [];
-            
-            if (!CONFIG.supabase.url || CONFIG.supabase.url === 'YOUR_SUPABASE_URL') {
-                issues.push('Supabase URL not set');
-            }
-            
-            if (!CONFIG.supabase.key || CONFIG.supabase.key === 'YOUR_SUPABASE_ANON_KEY') {
-                issues.push('Supabase API key not set');
-            }
-            
-            if (!CONFIG.supabase.tableName || CONFIG.supabase.tableName === 'YOUR_TABLE_NAME') {
-                issues.push('Table name not set');
-            }
-            
-            return issues;
-        }
-
-        // ================================
-        // INITIALIZATION - FIXED
-        // ================================
-        async function initialize() {
-            // Initialize event handlers
-            initializeEventHandlers();
-            
-            // Check configuration
-            const configIssues = checkConfiguration();
-            
-            if (configIssues.length > 0) {
-                showMessage(`⚠️ <strong>Configuration Required:</strong><br><br>
-                    Please update the CONFIG section in your code:<br>
-                    • ${configIssues.join('<br>• ')}<br><br>
-                    <strong>Find this section at the top of the script:</strong><br>
-                    <code>const CONFIG = { supabase: { ... } }</code><br><br>
-                    <strong>For now, using sample data.</strong>`, 'error');
-                
-                // Use sample data
-                updateStats();
-                renderTable(deliveryData);
-                updateReminders();
-                return;
-            }
-            
-            // Try to load data from database
-            const loadSuccess = await loadDataFromDatabase();
-            
-            if (!loadSuccess) {
-                // Initialize with sample data
-                updateStats();
-                renderTable(deliveryData);
-                updateReminders();
-            }
-            
-            // Show welcome message if everything is working
-            if (loadSuccess) {
-                showMessage(`📊 <strong>Qube-Inventory Delivery Tracker</strong><br><br>
-                    <strong>👨‍💼 Admin:</strong> Click "🔒 Admin Upload" to upload daily data<br>
-                    <strong>👥 Users:</strong> Click "🔄 Refresh Data" to see latest updates<br>
-                    <strong>🔧 Test:</strong> Click "🔧 Test Database" to verify connection<br>
-                    <strong>🔄 Auto-refresh:</strong> Data updates automatically every 30 seconds<br>
-                    <br>
-                    💡 <strong>Real-time updates:</strong> All users see the same data instantly!`, 'info');
-            }
-        }
-
-        // Auto-refresh every 30 seconds - FIXED
-        setInterval(async () => {
-            await loadDataFromDatabase();
-        }, 30000);
-
-        // Start the application
-        document.addEventListener('DOMContentLoaded', initialize);
-    </script>
-</body>
-</html>
