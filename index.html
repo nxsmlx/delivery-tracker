@@ -417,7 +417,8 @@
         <div class="controls">
             <div class="control-group">
                 <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
-                <button class="refresh-btn" onclick="document.getElementById('fileInput').click()">📁 Upload Excel/CSV File</button>
+                <button class="refresh-btn" id="uploadBtn" onclick="checkPassword()">🔒 Admin Upload</button>
+                <button class="refresh-btn" onclick="refreshData()" style="margin-left: 10px;">🔄 Refresh Data</button>
             </div>
             <div class="control-group" style="margin-top: 20px;">
                 <input type="text" class="search-box" id="searchBox" placeholder="Search by Ticket ID or Customer...">
@@ -427,6 +428,19 @@
                 <button class="filter-btn aging-3" onclick="filterByAging('3')">3 Days</button>
                 <button class="filter-btn aging-4" onclick="filterByAging('4')">> 3 Days</button>
                 <button class="filter-btn urgent-btn" onclick="filterByUrgent()">Urgent</button>
+            </div>
+        </div>
+
+        <!-- Password Modal -->
+        <div id="passwordModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+            <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); width: 400px; max-width: 90%;">
+                <h3 style="margin-bottom: 20px; color: #1e3c72;">Admin Access Required</h3>
+                <p style="margin-bottom: 20px; color: #666;">Enter admin password to upload data:</p>
+                <input type="password" id="adminPassword" placeholder="Enter password..." style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; margin-bottom: 20px; font-size: 1em;">
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button onclick="closePasswordModal()" style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; border-radius: 6px; cursor: pointer;">Cancel</button>
+                    <button onclick="verifyPassword()" style="padding: 10px 20px; border: none; background: #3b82f6; color: white; border-radius: 6px; cursor: pointer;">Access</button>
+                </div>
             </div>
         </div>
 
@@ -466,19 +480,91 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        // Data
-        let deliveryData = [
-            { ticketId: '60210', orderReceived: '7/11/2025', type: 'Delivery', urgent: 'Yes', customer: 'Segi University', aging: 1 },
-            { ticketId: '60521', orderReceived: '7/14/2025', type: 'Delivery', urgent: 'No', customer: 'Ingram', aging: 5 },
-            { ticketId: '60570', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'Imazium', aging: 2 },
-            { ticketId: '60572', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'Evoscale', aging: 1 },
-            { ticketId: '60574', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'Yes', customer: 'Ginmaro', aging: 4 },
-            { ticketId: '60584', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'MLINK', aging: 2 },
-            { ticketId: '60585', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'Vstecs', aging: 3 },
-            { ticketId: '60588', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'MR DIY HQ', aging: 1 },
-            { ticketId: '60591', orderReceived: '7/15/2025', type: 'Collection', urgent: 'Yes', customer: 'PC Image', aging: 6 },
-            { ticketId: '60620', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'PKT', aging: 2 }
-        ];
+        // ================================
+        // STEP 4: UPDATE THESE VALUES WITH YOUR GITHUB DETAILS
+        // ================================
+        const GITHUB_CONFIG = {
+            owner: 'nxsmlx',        // Replace with your GitHub username
+            repo: 'delivery-tracker',         // Replace with your repository name  
+            branch: 'main',                       // Usually 'main' or 'master'
+            dataFile: 'data/delivery-data.json', // Keep this as is
+            token: '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'            // Replace with your token from Step 1
+        };
+
+        // Admin password (you can change this)
+        const ADMIN_PASSWORD = "qube2025";
+        // ================================
+        // END OF CONFIGURATION - Don't change anything below this line
+        // ================================
+
+        // Admin password (change this to your preferred password)
+        const ADMIN_PASSWORD = "qube2025";
+        
+        // Data storage key
+        const DATA_STORAGE_KEY = "qubeDeliveryData";
+        const LAST_UPDATE_KEY = "qubeLastUpdate";
+
+        // Load data from localStorage on startup
+        function loadStoredData() {
+            const storedData = localStorage.getItem(DATA_STORAGE_KEY);
+            const lastUpdate = localStorage.getItem(LAST_UPDATE_KEY);
+            
+            if (storedData) {
+                try {
+                    deliveryData = JSON.parse(storedData);
+                    if (lastUpdate) {
+                        showStatusMessage(`📊 Data loaded from: ${lastUpdate}`, 'info');
+                    }
+                } catch (error) {
+                    console.error('Error loading stored data:', error);
+                }
+            }
+        }
+
+        // Save data to localStorage
+        function saveDataToStorage() {
+            localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(deliveryData));
+            localStorage.setItem(LAST_UPDATE_KEY, new Date().toLocaleString());
+        }
+
+        // Password modal functions
+        function checkPassword() {
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('adminPassword').focus();
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function verifyPassword() {
+            const enteredPassword = document.getElementById('adminPassword').value;
+            
+            if (enteredPassword === ADMIN_PASSWORD) {
+                closePasswordModal();
+                document.getElementById('fileInput').click();
+            } else {
+                alert('❌ Incorrect password. Access denied.');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        }
+
+        // Refresh data function for regular users
+        function refreshData() {
+            loadStoredData();
+            updateStats();
+            applyFilters();
+            showStatusMessage('🔄 Data refreshed', 'success');
+        }
+
+        // Add Enter key support for password modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && document.getElementById('passwordModal').style.display === 'flex') {
+                verifyPassword();
+            }
+        });
 
         let currentFilter = 'all';
         let urgentFilter = false;
@@ -889,11 +975,16 @@
                     throw new Error('Unsupported file format. Please use .xlsx, .xls, or .csv files.');
                 }
                 
-                deliveryData = data;
-                updateStats();
-                applyFilters();
+                // Save to GitHub instead of localStorage
+                const saved = await saveDataToGitHub(data);
                 
-                showStatusMessage(`✅ Successfully loaded ${deliveryData.length} records from ${file.name}`, 'success');
+                if (saved) {
+                    deliveryData = data;
+                    updateStats();
+                    applyFilters();
+                    
+                    showStatusMessage(`✅ Successfully uploaded ${data.length} records. All users will see the update!`, 'success');
+                }
                 
             } catch (error) {
                 console.error('Error loading file:', error);
@@ -913,22 +1004,26 @@
 
         // Initialize when page loads
         window.addEventListener('load', () => {
+            loadStoredData(); // Load saved data first
             updateStats();
             renderTable(deliveryData);
             updateDriverReminders();
             
-            showStatusMessage(`
-                📋 <strong>Ready to load your data!</strong><br>
-                <br>
-                <strong>How to use:</strong><br>
-                • Click "📁 Upload Excel/CSV File"<br>
-                • Select your delivery tracking file<br>
-                • Data loads instantly!<br>
-                <br>
-                <strong>Supported formats:</strong> .xlsx, .xls, .csv<br>
-                <br>
-                💡 <strong>Quick Start:</strong> Upload your Excel file for immediate results!
-            `, 'info');
+            const lastUpdate = localStorage.getItem(LAST_UPDATE_KEY);
+            if (lastUpdate) {
+                showStatusMessage(`📊 <strong>Data loaded from: ${lastUpdate}</strong><br><br>
+                    <strong>For Admin:</strong> Click "🔒 Admin Upload" to update data<br>
+                    <strong>For Users:</strong> Click "🔄 Refresh Data" to see latest updates`, 'info');
+            } else {
+                showStatusMessage(`
+                    📋 <strong>Welcome to Qube-Inventory Delivery Tracker!</strong><br>
+                    <br>
+                    <strong>👨‍💼 Admin Users:</strong> Click "🔒 Admin Upload" to upload daily data<br>
+                    <strong>👥 Regular Users:</strong> Click "🔄 Refresh Data" to see latest updates<br>
+                    <br>
+                    💡 <strong>Data is automatically shared with all users after admin upload!</strong>
+                `, 'info');
+            }
         });
     </script>
 </body>
