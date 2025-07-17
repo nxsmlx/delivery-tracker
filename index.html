@@ -520,7 +520,7 @@
         let filteredData = [...deliveryData];
 
         // ================================
-        // SUPABASE CLIENT
+        // SUPABASE CLIENT (Fixed)
         // ================================
         class SupabaseClient {
             constructor(url, key) {
@@ -535,70 +535,147 @@
             }
 
             async query(method, endpoint, data = null) {
-                const response = await fetch(`${this.url}/rest/v1/${endpoint}`, {
+                const url = `${this.url}/rest/v1/${endpoint}`;
+                console.log(`${method} ${url}`, data ? 'with data' : 'no data');
+                
+                const response = await fetch(url, {
                     method,
                     headers: this.headers,
                     body: data ? JSON.stringify(data) : null
                 });
 
+                console.log(`Response: ${response.status} ${response.statusText}`);
+
                 if (!response.ok) {
                     const error = await response.text();
-                    throw new Error(`Supabase error: ${response.status} - ${error}`);
+                    console.error('Supabase error:', error);
+                    throw new Error(`Database error: ${response.status} - ${error}`);
                 }
 
-                return response.json();
+                const result = await response.json();
+                console.log('Response data:', result);
+                return result;
             }
 
             // Get all delivery data
             async getDeliveryData() {
-                return this.query('GET', `${CONFIG.supabase.tableName}?select=*&order=created_at.desc`);
+                try {
+                    const data = await this.query('GET', `${CONFIG.supabase.tableName}?select=*&order=created_at.desc`);
+                    console.log('Loaded delivery data:', data);
+                    return data || [];
+                } catch (error) {
+                    console.error('Error getting delivery data:', error);
+                    return [];
+                }
+            }
+
+            // Clear all existing data
+            async clearDeliveryData() {
+                try {
+                    await this.query('DELETE', `${CONFIG.supabase.tableName}?id=gte.1`);
+                    console.log('Cleared existing delivery data');
+                    return true;
+                } catch (error) {
+                    console.error('Error clearing data:', error);
+                    return false;
+                }
             }
 
             // Save delivery data (replaces all data)
             async saveDeliveryData(data) {
-                // First, delete existing data
-                await this.query('DELETE', `${CONFIG.supabase.tableName}?id=gte.0`);
-                
-                // Then insert new data with metadata
-                const records = data.map((item, index) => ({
-                    id: index + 1,
-                    ticket_id: item.ticketId,
-                    order_received: item.orderReceived,
-                    type: item.type,
-                    urgent: item.urgent,
-                    customer: item.customer,
-                    aging: item.aging,
-                    created_at: new Date().toISOString(),
-                    updated_by: 'Admin'
-                }));
+                try {
+                    console.log('Saving delivery data:', data);
+                    
+                    // First, clear existing data
+                    await this.clearDeliveryData();
+                    
+                    // If no data to save, just update metadata
+                    if (!data || data.length === 0) {
+                        await this.updateMetadata(0);
+                        return true;
+                    }
 
-                return this.query('POST', CONFIG.supabase.tableName, records);
+                    // Prepare records for database
+                    const records = data.map((item, index) => ({
+                        ticket_id: item.ticketId,
+                        order_received: item.orderReceived,
+                        type: item.type || '',
+                        urgent: item.urgent || 'No',
+                        customer: item.customer || '',
+                        aging: parseInt(item.aging) || 0,
+                        updated_by: 'Admin'
+                    }));
+
+                    console.log('Prepared records for database:', records);
+
+                    // Insert new data
+                    const result = await this.query('POST', CONFIG.supabase.tableName, records);
+                    console.log('Insert result:', result);
+
+                    // Update metadata
+                    await this.updateMetadata(data.length);
+
+                    return true;
+                } catch (error) {
+                    console.error('Error saving delivery data:', error);
+                    throw error;
+                }
             }
 
             // Get metadata (last update info)
             async getMetadata() {
                 try {
-                    const result = await this.query('GET', 'delivery_metadata?select=*&limit=1');
-                    return result[0] || { last_update: 'Never', updated_by: 'System' };
+                    const result = await this.query('GET', 'delivery_metadata?select=*&order=id.desc&limit=1');
+                    const metadata = result && result.length > 0 ? result[0] : null;
+                    console.log('Loaded metadata:', metadata);
+                    return metadata || { 
+                        last_update: 'Never', 
+                        updated_by: 'System',
+                        total_records: 0
+                    };
                 } catch (error) {
-                    return { last_update: 'Never', updated_by: 'System' };
+                    console.error('Error getting metadata:', error);
+                    return { 
+                        last_update: 'Never', 
+                        updated_by: 'System',
+                        total_records: 0
+                    };
                 }
             }
 
             // Update metadata
-            async updateMetadata() {
-                const metadata = {
-                    last_update: new Date().toLocaleString(),
-                    updated_by: 'Admin',
-                    updated_at: new Date().toISOString()
-                };
-
+            async updateMetadata(recordCount = 0) {
                 try {
-                    // Try to update existing record
-                    await this.query('POST', 'delivery_metadata', [{ id: 1, ...metadata }]);
+                    const metadata = {
+                        last_update: new Date().toLocaleString(),
+                        updated_by: 'Admin',
+                        total_records: recordCount,
+                        updated_at: new Date().toISOString()
+                    };
+
+                    console.log('Updating metadata:', metadata);
+
+                    // Try to update existing record with id=1
+                    try {
+                        const updateResult = await this.query('PATCH', 'delivery_metadata?id=eq.1', metadata);
+                        console.log('Metadata update result:', updateResult);
+                        
+                        // If no rows were updated, insert a new record
+                        if (!updateResult || updateResult.length === 0) {
+                            const insertResult = await this.query('POST', 'delivery_metadata', [{ id: 1, ...metadata }]);
+                            console.log('Metadata insert result:', insertResult);
+                        }
+                    } catch (updateError) {
+                        console.log('Update failed, trying insert:', updateError);
+                        // If update fails, try insert
+                        const insertResult = await this.query('POST', 'delivery_metadata', [{ id: 1, ...metadata }]);
+                        console.log('Metadata insert result:', insertResult);
+                    }
+
+                    return true;
                 } catch (error) {
-                    // If update fails, insert new record
-                    await this.query('POST', 'delivery_metadata', [metadata]);
+                    console.error('Error updating metadata:', error);
+                    return false;
                 }
             }
         }
@@ -892,7 +969,7 @@
         }
 
         // ================================
-        // DATABASE INTEGRATION
+        // DATABASE INTEGRATION (Fixed)
         // ================================
         async function loadDataFromDatabase() {
             try {
@@ -900,22 +977,33 @@
                 
                 initializeDatabase();
                 
+                console.log('Loading data from database...');
                 const [data, metadata] = await Promise.all([
                     supabase.getDeliveryData(),
                     supabase.getMetadata()
                 ]);
                 
-                // Convert back to original format
-                deliveryData = data.map(item => ({
-                    ticketId: item.ticket_id,
-                    orderReceived: item.order_received,
-                    type: item.type,
-                    urgent: item.urgent,
-                    customer: item.customer,
-                    aging: item.aging
-                }));
+                console.log('Raw data from database:', data);
+                console.log('Metadata from database:', metadata);
                 
-                showMessage(`✅ Data loaded successfully (Last update: ${metadata.last_update})`, 'success');
+                // Convert back to original format
+                if (data && data.length > 0) {
+                    deliveryData = data.map(item => ({
+                        ticketId: item.ticket_id,
+                        orderReceived: item.order_received,
+                        type: item.type,
+                        urgent: item.urgent,
+                        customer: item.customer,
+                        aging: item.aging
+                    }));
+                    
+                    console.log('Converted delivery data:', deliveryData);
+                    
+                    showMessage(`✅ Data loaded successfully (${deliveryData.length} records, Last update: ${metadata.last_update})`, 'success');
+                } else {
+                    deliveryData = [];
+                    showMessage(`ℹ️ No data found in database (Last update: ${metadata.last_update})`, 'info');
+                }
                 
                 updateStats();
                 applyFilters();
@@ -925,7 +1013,8 @@
                 console.error('Error loading data from database:', error);
                 showMessage(`❌ Could not load data from database: ${error.message}`, 'error');
                 
-                // Use sample data as fallback
+                // Keep existing sample data as fallback
+                console.log('Using fallback sample data');
                 updateStats();
                 applyFilters();
                 
@@ -939,10 +1028,18 @@
                 
                 initializeDatabase();
                 
-                await supabase.saveDeliveryData(data);
-                await supabase.updateMetadata();
+                console.log('Saving data to database:', data);
                 
+                await supabase.saveDeliveryData(data);
+                
+                console.log('Data saved successfully');
                 showMessage('✅ Data saved successfully! All users will see the update.', 'success');
+                
+                // Immediately reload to verify the save worked
+                setTimeout(async () => {
+                    await loadDataFromDatabase();
+                }, 1000);
+                
                 return true;
                 
             } catch (error) {
@@ -953,12 +1050,34 @@
         }
 
         // ================================
-        // FILE PROCESSING
+        // FILE PROCESSING (Updated with Date Conversion)
         // ================================
+        
+        // Convert Excel serial number to proper date
+        function convertExcelDate(serialNumber) {
+            if (!serialNumber || isNaN(serialNumber)) {
+                return serialNumber; // Return original if not a number
+            }
+            
+            // Excel epoch starts from January 1, 1900 (but Excel incorrectly treats 1900 as a leap year)
+            const excelEpoch = new Date(1899, 11, 30); // December 30, 1899
+            const days = parseInt(serialNumber);
+            const date = new Date(excelEpoch.getTime() + days * 24 * 60 * 60 * 1000);
+            
+            // Format as DD/MM/YYYY
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            
+            return `${day}/${month}/${year}`;
+        }
+
         function parseCSV(text) {
             const lines = text.split('\n');
             const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
             const rows = lines.slice(1);
+            
+            console.log('CSV Headers found:', headers);
             
             const findColumn = (possibleNames) => {
                 for (const name of possibleNames) {
@@ -968,19 +1087,33 @@
                 return -1;
             };
             
-            const ticketIdCol = findColumn(['Ticket ID', 'TicketID', 'Ticket']) !== -1 ? findColumn(['Ticket ID', 'TicketID', 'Ticket']) : 0;
-            const orderReceivedCol = findColumn(['Order Received', 'OrderReceived', 'Date']) !== -1 ? findColumn(['Order Received', 'OrderReceived', 'Date']) : 1;
-            const typeCol = findColumn(['Type', 'Service Type']) !== -1 ? findColumn(['Type', 'Service Type']) : 4;
-            const urgentCol = findColumn(['Urgent', 'Urgent?']) !== -1 ? findColumn(['Urgent', 'Urgent?']) : 5;
-            const customerCol = findColumn(['Customer', 'Client']) !== -1 ? findColumn(['Customer', 'Client']) : 13;
-            const agingCol = findColumn(['Aging']) !== -1 ? findColumn(['Aging']) : 14;
+            const ticketIdCol = findColumn(['Ticket ID', 'TicketID', 'Ticket', 'TICKET ID']) !== -1 ? findColumn(['Ticket ID', 'TicketID', 'Ticket', 'TICKET ID']) : 0;
+            const orderReceivedCol = findColumn(['Order Received', 'OrderReceived', 'Date', 'ORDER RECEIVED']) !== -1 ? findColumn(['Order Received', 'OrderReceived', 'Date', 'ORDER RECEIVED']) : 1;
+            const typeCol = findColumn(['Type', 'Service Type', 'TYPE']) !== -1 ? findColumn(['Type', 'Service Type', 'TYPE']) : 2;
+            const urgentCol = findColumn(['Urgent', 'Urgent?', 'URGENT?']) !== -1 ? findColumn(['Urgent', 'Urgent?', 'URGENT?']) : 3;
+            const customerCol = findColumn(['Customer', 'Client', 'CUSTOMER']) !== -1 ? findColumn(['Customer', 'Client', 'CUSTOMER']) : 4;
+            const agingCol = findColumn(['Aging', 'AGING']) !== -1 ? findColumn(['Aging', 'AGING']) : 5;
+            
+            console.log('Column mapping:', {
+                ticketId: ticketIdCol,
+                orderReceived: orderReceivedCol,
+                type: typeCol,
+                urgent: urgentCol,
+                customer: customerCol,
+                aging: agingCol
+            });
             
             return rows.map(row => {
                 const cols = row.split(',').map(c => c.trim().replace(/"/g, ''));
                 const aging = parseInt(cols[agingCol]) || 0;
+                const rawDate = cols[orderReceivedCol] || '';
+                
+                // Convert Excel serial number to proper date
+                const convertedDate = convertExcelDate(rawDate);
+                
                 return {
                     ticketId: cols[ticketIdCol] || '',
-                    orderReceived: cols[orderReceivedCol] || '',
+                    orderReceived: convertedDate,
                     type: cols[typeCol] || '',
                     urgent: cols[urgentCol] || 'No',
                     customer: cols[customerCol] || '',
@@ -1012,6 +1145,8 @@
             const headers = jsonData[0];
             const rows = jsonData.slice(1);
             
+            console.log('Excel Headers found:', headers);
+            
             const findColumn = (possibleNames) => {
                 for (const name of possibleNames) {
                     const index = headers.findIndex(h => h.toLowerCase().includes(name.toLowerCase()));
@@ -1020,18 +1155,32 @@
                 return -1;
             };
             
-            const ticketIdCol = findColumn(['Ticket ID', 'TicketID', 'Ticket']) !== -1 ? findColumn(['Ticket ID', 'TicketID', 'Ticket']) : 0;
-            const orderReceivedCol = findColumn(['Order Received', 'OrderReceived', 'Date']) !== -1 ? findColumn(['Order Received', 'OrderReceived', 'Date']) : 1;
-            const typeCol = findColumn(['Type', 'Service Type']) !== -1 ? findColumn(['Type', 'Service Type']) : 4;
-            const urgentCol = findColumn(['Urgent', 'Urgent?']) !== -1 ? findColumn(['Urgent', 'Urgent?']) : 5;
-            const customerCol = findColumn(['Customer', 'Client']) !== -1 ? findColumn(['Customer', 'Client']) : 13;
-            const agingCol = findColumn(['Aging']) !== -1 ? findColumn(['Aging']) : 14;
+            const ticketIdCol = findColumn(['Ticket ID', 'TicketID', 'Ticket', 'TICKET ID']) !== -1 ? findColumn(['Ticket ID', 'TicketID', 'Ticket', 'TICKET ID']) : 0;
+            const orderReceivedCol = findColumn(['Order Received', 'OrderReceived', 'Date', 'ORDER RECEIVED']) !== -1 ? findColumn(['Order Received', 'OrderReceived', 'Date', 'ORDER RECEIVED']) : 1;
+            const typeCol = findColumn(['Type', 'Service Type', 'TYPE']) !== -1 ? findColumn(['Type', 'Service Type', 'TYPE']) : 2;
+            const urgentCol = findColumn(['Urgent', 'Urgent?', 'URGENT?']) !== -1 ? findColumn(['Urgent', 'Urgent?', 'URGENT?']) : 3;
+            const customerCol = findColumn(['Customer', 'Client', 'CUSTOMER']) !== -1 ? findColumn(['Customer', 'Client', 'CUSTOMER']) : 4;
+            const agingCol = findColumn(['Aging', 'AGING']) !== -1 ? findColumn(['Aging', 'AGING']) : 5;
+            
+            console.log('Column mapping:', {
+                ticketId: ticketIdCol,
+                orderReceived: orderReceivedCol,
+                type: typeCol,
+                urgent: urgentCol,
+                customer: customerCol,
+                aging: agingCol
+            });
             
             return rows.map(row => {
                 const aging = parseInt(row[agingCol]) || 0;
+                const rawDate = row[orderReceivedCol] || '';
+                
+                // Convert Excel serial number to proper date
+                const convertedDate = convertExcelDate(rawDate);
+                
                 return {
                     ticketId: row[ticketIdCol] || '',
-                    orderReceived: row[orderReceivedCol] || '',
+                    orderReceived: convertedDate,
                     type: row[typeCol] || '',
                     urgent: row[urgentCol] || 'No',
                     customer: row[customerCol] || '',
