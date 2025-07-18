@@ -648,10 +648,10 @@ tr:hover{background:var(--surface-2)}
                                 <div class="ticket-main-line">
                                     <strong class="ticket-id">${item.ticketId}</strong>
                                     <span class="ticket-separator">|</span>
-                                    <span class="ticket-type">${item.type || 'N/A'}</span>
+                                    <span>${toProperCase(item.customer || '')}</span>
                                 </div>
                                 <div class="ticket-customer">
-                                    <em>${toProperCase(item.customer || '')}</em>
+                                    <em>${item.type || 'N/A'}</em>
                                 </div>
                             </div>
                         </td>
