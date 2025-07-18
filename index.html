@@ -363,7 +363,7 @@
             <div class="stat-card"><div class="stat-number aging-3" id="count-3">0</div><div class="stat-label">3 Days</div></div>
             <div class="stat-card"><div class="stat-number aging-4" id="count-4">0</div><div class="stat-label">> 3 Days</div></div>
             <div class="stat-card"><div class="stat-number" style="color: var(--danger);" id="urgent-count">0</div><div class="stat-label">Urgent</div></div>
-            <div class="stat-card"><div class="stat-number" id="total-count">0</div><div class="stat-label">Total</div></div>
+            <div class="stat-card"><div class="stat-number" id="total-count">0</div><div class="stat-label">Total Pending</div></div>
         </div>
 
         <div id="statusMessage"></div>
@@ -451,20 +451,15 @@
         async function initialize() {
             initializeEventHandlers();
             updateCurrentTime();
-            setInterval(updateCurrentTime, 1000); // Update time every second
+            setInterval(updateCurrentTime, 1000);
 
             try {
                 initializeDatabase();
-                const loadSuccess = await loadDataFromDatabase();
-                if (!loadSuccess) {
-                    renderSampleData();
-                }
+                await loadDataFromDatabase();
             } catch (error) {
-                showMessage(`⚠️ Configuration Error: ${error.message}. Please check the script's CONFIG section.`, 'error');
-                renderSampleData();
+                showMessage(`⚠️ Configuration Error: ${error.message}.`, 'error');
             }
             
-            // Auto-refresh data every 30 seconds
             setInterval(loadDataFromDatabase, 30000);
         }
 
@@ -472,58 +467,58 @@
         // TIME & DATE UTILITIES
         // ================================
         function updateCurrentTime() {
-            const currentTimeElement = document.getElementById('currentTime');
-            if (currentTimeElement) {
-                currentTimeElement.textContent = new Date().toLocaleTimeString('en-MY', {
-                    timeZone: CONFIG.timezone,
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
+            const el = document.getElementById('currentTime');
+            if (el) {
+                el.textContent = new Date().toLocaleTimeString('en-MY', {
+                    timeZone: CONFIG.timezone, hour: '2-digit', minute: '2-digit', second: '2-digit'
                 });
             }
         }
+        
+        function parseAndFormatDate(dateInput) {
+            if (!dateInput) return { dateObj: null, formatted: '' };
 
-        function calculateAging(orderReceivedDateStr) {
-            if (!orderReceivedDateStr || typeof orderReceivedDateStr !== 'string') {
-                return NaN;
-            }
-
-            let orderDate;
-            const parts = orderReceivedDateStr.split(/[/.-]/);
-
-            if (parts.length === 3) {
-                // Assuming DD/MM/YYYY format, common in Malaysia.
-                // It can also handle MM/DD/YYYY if the year is clearly specified.
-                const day = parseInt(parts[0], 10);
-                const month = parseInt(parts[1], 10);
-                const year = parseInt(parts[2], 10);
-
-                if (year > 1900) { // DD/MM/YYYY
-                    orderDate = new Date(year, month - 1, day);
-                } else { // MM/DD/YY
-                    orderDate = new Date(2000 + year, day - 1, month);
-                }
+            let dateObj;
+            // Handle Excel serial numbers first
+            if (typeof dateInput === 'number' && dateInput > 1) {
+                 const excelEpoch = new Date(1899, 11, 30);
+                 dateObj = new Date(excelEpoch.getTime() + dateInput * 86400000);
             } else {
-                // Fallback for other formats like YYYY-MM-DD
-                orderDate = new Date(orderReceivedDateStr);
+                // Handle various string formats
+                const parts = dateInput.toString().split(/[/.-]/);
+                if (parts.length === 3) {
+                    const p1 = parseInt(parts[0]), p2 = parseInt(parts[1]), p3 = parseInt(parts[2]);
+                    // DD/MM/YYYY or DD.MM.YYYY
+                    if (p2 > 12 && p1 <= 12) { // Likely MM/DD/YYYY
+                         dateObj = new Date(p3 < 100 ? 2000+p3 : p3, p1 - 1, p2);
+                    } else { // Assume DD/MM/YYYY
+                        dateObj = new Date(p3 < 100 ? 2000+p3 : p3, p2 - 1, p1);
+                    }
+                } else {
+                    dateObj = new Date(dateInput); // Fallback for ISO etc.
+                }
             }
+            
+            if (isNaN(dateObj.getTime())) return { dateObj: null, formatted: '' };
 
-            // Check for invalid date
-            if (isNaN(orderDate.getTime())) {
-                return NaN;
-            }
+            const day = dateObj.getDate().toString().padStart(2, '0');
+            const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+            const year = dateObj.getFullYear();
+            return { dateObj, formatted: `${day}/${month}/${year}` };
+        }
+
+        function calculateAging(dateObj) {
+            if (!dateObj || isNaN(dateObj.getTime())) return NaN;
 
             const today = new Date();
             const todayInTimezone = new Date(today.toLocaleString('en-US', { timeZone: CONFIG.timezone }));
-
-            // Set both dates to midnight for accurate day difference
+            
+            const orderDate = new Date(dateObj); // Create a copy
             orderDate.setHours(0, 0, 0, 0);
             todayInTimezone.setHours(0, 0, 0, 0);
 
             const diffTime = todayInTimezone.getTime() - orderDate.getTime();
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-            return Math.max(0, diffDays);
+            return Math.max(0, Math.floor(diffTime / 86400000));
         }
         
         // ================================
@@ -533,105 +528,84 @@
             constructor(url, key) {
                 this.url = url;
                 this.headers = {
-                    'apikey': key,
-                    'Authorization': `Bearer ${key}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
+                    'apikey': key, 'Authorization': `Bearer ${key}`,
+                    'Content-Type': 'application/json', 'Prefer': 'return=representation'
                 };
             }
-
             async query(method, endpoint, data = null) {
-                const url = `${this.url}/rest/v1/${endpoint}`;
-                const response = await fetch(url, {
-                    method,
-                    headers: this.headers,
+                const response = await fetch(`${this.url}/rest/v1/${endpoint}`, {
+                    method, headers: this.headers,
                     body: data ? JSON.stringify(data) : null
                 });
-
                 if (!response.ok) {
                     const error = await response.text();
-                    throw new Error(`Database error: ${response.status} - ${error}`);
+                    throw new Error(`DB Error: ${response.status} - ${error}`);
                 }
-                // DELETE might not return a body, handle it gracefully
                 return response.status === 204 ? [] : response.json();
             }
-
-            getDeliveryData() {
-                return this.query('GET', `${CONFIG.supabase.tableName}?select=*&order=created_at.desc`);
-            }
-
+            getDeliveryData() { return this.query('GET', `${CONFIG.supabase.tableName}?select=*&order=created_at.desc`); }
             async saveDeliveryData(data) {
                 await this.query('DELETE', `${CONFIG.supabase.tableName}?id=gte.1`);
                 if (!data || data.length === 0) return;
                 
                 const records = data.map(item => ({
-                    ticket_id: item.ticketId,
-                    order_received: item.orderReceived,
-                    type: item.type || '',
-                    urgent: item.urgent || 'No',
-                    customer: item.customer || '',
-                    aging: item.aging,
+                    ticket_id: item.ticketId, order_received: item.orderReceived,
+                    type: item.type, urgent: item.urgent, customer: item.customer,
+                    status: item.status
                 }));
-                
                 await this.query('POST', CONFIG.supabase.tableName, records);
             }
         }
         
         function initializeDatabase() {
-            if (!CONFIG.supabase.url || !CONFIG.supabase.key) {
-                throw new Error('Supabase URL or API key is not configured.');
-            }
+            if (!CONFIG.supabase.url || !CONFIG.supabase.key) throw new Error('Supabase URL/Key missing.');
             supabase = new SupabaseClient(CONFIG.supabase.url, CONFIG.supabase.key);
         }
         
         // ================================
-        // DATA HANDLING
+        // DATA PROCESSING & FILTERING
         // ================================
-        async function loadDataFromDatabase() {
-            try {
-                showMessage('🔄 Loading latest data from the cloud...', 'info');
-                const data = await supabase.getDeliveryData();
-                
-                // Process and clean data
-                deliveryData = (data || []).map(item => ({
-                    ticketId: item.ticket_id,
-                    orderReceived: item.order_received,
+        function processRawData(rawData) {
+            return rawData.map(item => {
+                const status = (item.status || item.Status || '').trim();
+                if (status.toLowerCase() === 'done') return null;
+
+                const { dateObj, formatted } = parseAndFormatDate(item.order_received || item.orderReceived);
+                if (!dateObj) return null;
+
+                return {
+                    ticketId: item.ticket_id || item.ticketId,
+                    orderReceived: formatted,
                     type: item.type,
                     urgent: item.urgent,
                     customer: item.customer,
-                    aging: calculateAging(item.order_received)
-                })).filter(item => !isNaN(item.aging)); // Filter out items with invalid aging
-                
+                    status: status,
+                    aging: calculateAging(dateObj)
+                };
+            }).filter(Boolean); // Removes null entries
+        }
+
+        async function loadDataFromDatabase() {
+            try {
+                showMessage('🔄 Loading latest data from the cloud...', 'info');
+                const rawData = await supabase.getDeliveryData();
+                deliveryData = processRawData(rawData);
                 updateAllUI();
-                showMessage(`✅ Data loaded successfully. Displaying ${deliveryData.length} pending items.`, 'success');
-                return true;
+                showMessage(`✅ Data loaded. Displaying ${deliveryData.length} pending items.`, 'success');
             } catch (error) {
-                showMessage(`❌ Could not load data from database: ${error.message}`, 'error');
-                return false;
+                showMessage(`❌ Could not load data: ${error.message}`, 'error');
             }
         }
 
         async function saveDataToDatabase(data) {
             try {
-                showMessage('📤 Uploading and saving new data to the cloud...', 'info');
+                showMessage('📤 Uploading and saving new data...', 'info');
                 await supabase.saveDeliveryData(data);
-                showMessage('✅ Data saved successfully! Refreshing view.', 'success');
-                // Immediately reload to show the new data
+                showMessage('✅ Data saved! Refreshing view.', 'success');
                 setTimeout(loadDataFromDatabase, 1000);
             } catch (error) {
                 showMessage(`❌ Failed to save data: ${error.message}`, 'error');
             }
-        }
-
-        function renderSampleData() {
-             deliveryData = [
-                { ticketId: '60210', orderReceived: '11/7/2025', type: 'Delivery', urgent: 'Yes', customer: 'Segi University' },
-                { ticketId: '60521', orderReceived: '14/7/2025', type: 'Delivery', urgent: 'No', customer: 'Ingram' },
-                { ticketId: '60570', orderReceived: '15/7/2025', type: 'Delivery', urgent: 'No', customer: 'Imazium' },
-             ].map(item => ({...item, aging: calculateAging(item.orderReceived) }))
-              .filter(item => !isNaN(item.aging));
-             
-             updateAllUI();
         }
 
         // ================================
@@ -639,59 +613,42 @@
         // ================================
         function updateAllUI() {
             updateStats();
-            applyFilters(); // This will call renderTable and updateReminders
+            applyFilters();
         }
 
         function showMessage(message, type = 'info') {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
-            setTimeout(() => {
-                if (statusDiv.innerHTML.includes(message)) {
-                    statusDiv.innerHTML = '';
-                }
-            }, 5000);
+            const el = document.getElementById('statusMessage');
+            el.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            setTimeout(() => { if (el.innerHTML.includes(message)) el.innerHTML = ''; }, 5000);
         }
 
         function updateStats() {
             const stats = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
             let urgentCount = 0;
-            
             deliveryData.forEach(item => {
-                const aging = item.aging;
-                if (aging <= 3) stats[aging]++;
-                else stats[4]++;
-                if (item.urgent && item.urgent.toLowerCase() === 'yes') urgentCount++;
+                if (item.aging <= 3) stats[item.aging]++; else stats[4]++;
+                if (item.urgent?.toLowerCase() === 'yes') urgentCount++;
             });
-
-            for (let i = 0; i <= 4; i++) {
-                document.getElementById(`count-${i}`).textContent = stats[i];
-            }
+            for (let i = 0; i <= 4; i++) document.getElementById(`count-${i}`).textContent = stats[i];
             document.getElementById('urgent-count').textContent = urgentCount;
             document.getElementById('total-count').textContent = deliveryData.length;
         }
         
         function applyFilters() {
             let filtered = [...deliveryData];
-
             if (currentFilter === 'urgent') {
-                filtered = filtered.filter(item => item.urgent && item.urgent.toLowerCase() === 'yes');
+                filtered = filtered.filter(item => item.urgent?.toLowerCase() === 'yes');
             } else if (currentFilter !== 'all') {
-                const targetAging = parseInt(currentFilter, 10);
-                if (targetAging === 4) {
-                    filtered = filtered.filter(item => item.aging > 3);
-                } else {
-                    filtered = filtered.filter(item => item.aging === targetAging);
-                }
+                const target = parseInt(currentFilter, 10);
+                filtered = filtered.filter(item => (target === 4 ? item.aging > 3 : item.aging === target));
             }
-
-            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-            if (searchTerm) {
+            const term = document.getElementById('searchBox').value.toLowerCase();
+            if (term) {
                 filtered = filtered.filter(item => 
-                    item.ticketId.toLowerCase().includes(searchTerm) || 
-                    item.customer.toLowerCase().includes(searchTerm)
+                    item.ticketId.toLowerCase().includes(term) || 
+                    item.customer?.toLowerCase().includes(term)
                 );
             }
-            
             renderTable(filtered);
             updateReminders(filtered);
         }
@@ -709,7 +666,6 @@
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">No items match your current filter.</td></tr>';
                 return;
             }
-
             tbody.innerHTML = data.map(item => {
                 const priority = getPriority(item);
                 return `
@@ -722,140 +678,79 @@
                         <td>${item.urgent === 'Yes' ? '<span class="badge badge-urgent">URGENT</span>' : 'No'}</td>
                         <td><span class="badge badge-aging-${item.aging <= 3 ? item.aging : 4}">${item.aging} Day${item.aging !== 1 ? 's' : ''}</span></td>
                         <td><span class="badge badge-priority-${priority.class}">${priority.text}</span></td>
-                    </tr>
-                `;
+                    </tr>`;
             }).join('');
         }
         
         function updateReminders(data = deliveryData) {
-            const reminderContent = document.getElementById('reminderContent');
             const overdue = data.filter(item => item.aging > 3);
             const today = data.filter(item => item.aging === 3);
             const tomorrow = data.filter(item => item.aging === 2);
-            
-            let html = '';
-            
-            if (overdue.length > 0) html += createReminderSection('🚨 Overdue - Urgent Action!', overdue);
-            if (today.length > 0) html += createReminderSection('📅 Due Today (Last Day)', today);
-            if (tomorrow.length > 0) html += createReminderSection('📋 Plan for Tomorrow', tomorrow);
-            
-            if (html === '') {
-                 html = `<div style="text-align: center; color: var(--success); padding: 2rem;">✅ Great job! No immediate actions required.</div>`;
-            }
-
-            reminderContent.innerHTML = html;
+            let html = [
+                { title: '🚨 Overdue - Urgent Action!', items: overdue },
+                { title: '📅 Due Today (Last Day)', items: today },
+                { title: '📋 Plan for Tomorrow', items: tomorrow }
+            ].map(sec => sec.items.length > 0 ? createReminderSection(sec.title, sec.items) : '').join('');
+            if (html === '') html = `<div style="text-align: center; color: var(--success); padding: 2rem;">✅ Great job! No immediate actions required.</div>`;
+            document.getElementById('reminderContent').innerHTML = html;
         }
         
         function createReminderSection(title, items) {
-             return `
-                <div class="reminder-section">
-                    <div class="reminder-title">${title}</div>
-                    <ul class="reminder-list">
-                        ${items.map(item => `
-                            <li class="reminder-item">
-                                <div><strong>${item.ticketId}</strong> - ${item.customer}</div>
-                                <span class="badge badge-aging-${item.aging <=3 ? item.aging : 4}">${item.aging} Days</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>`;
+             return `<div class="reminder-section"><div class="reminder-title">${title}</div><ul class="reminder-list">${items.map(item => `<li class="reminder-item"><div><strong>${item.ticketId}</strong> - ${item.customer}</div><span class="badge badge-aging-${item.aging <= 3 ? item.aging : 4}">${item.aging} Days</span></li>`).join('')}</ul></div>`;
         }
 
         // ================================
-        // FILE PROCESSING
+        // FILE PARSING
         // ================================
-        function convertExcelDate(serial) {
-            if (!serial || isNaN(serial)) return serial; // Return original if not a number
-            const excelEpoch = new Date(1899, 11, 30);
-            const date = new Date(excelEpoch.getTime() + parseInt(serial, 10) * 86400000);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        }
-        
         function processFile(file) {
             const reader = new FileReader();
             reader.onload = async (e) => {
                 try {
-                    let data;
+                    let rawJsonData;
                     const fileName = file.name.toLowerCase();
-                    const arrayBuffer = e.target.result;
-                    
                     if (fileName.endsWith('.csv')) {
-                        const text = new TextDecoder("utf-8").decode(arrayBuffer);
-                        data = parseDelimitedText(text);
+                        const text = new TextDecoder("utf-8").decode(e.target.result);
+                        rawJsonData = XLSX.utils.sheet_to_json(XLSX.read(text, {type:'string'}).Sheets.Sheet1, { header: 1, raw: false, defval: '' });
                     } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-                        data = parseExcel(arrayBuffer);
+                        const workbook = XLSX.read(e.target.result, { type: 'array' });
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        rawJsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
                     } else {
                         throw new Error('Unsupported file. Please use .xlsx, .xls, or .csv.');
                     }
                     
-                    if (data.length === 0) {
-                        throw new Error('No valid data found in the file.');
-                    }
+                    const headers = rawJsonData[0].map(h => h.toString().toLowerCase().trim());
+                    const rows = rawJsonData.slice(1);
+                    const findIndex = names => {
+                        for (const name of names) { if (headers.includes(name)) return headers.indexOf(name); } return -1;
+                    };
+                    const cols = {
+                        ticketId: findIndex(['ticket id', 'ticketid', 'ticket']),
+                        orderReceived: findIndex(['order received', 'orderreceived', 'date']),
+                        type: findIndex(['type', 'service type']),
+                        urgent: findIndex(['urgent', 'urgent?']),
+                        customer: findIndex(['customer', 'client']),
+                        status: findIndex(['status'])
+                    };
+                    if (cols.ticketId === -1 || cols.orderReceived === -1) throw new Error("File must contain 'Ticket ID' and 'Order Received' columns.");
+
+                    const parsedData = processRawData(rows.map(row => ({
+                        ticketId: row[cols.ticketId],
+                        orderReceived: row[cols.orderReceived],
+                        type: row[cols.type],
+                        urgent: row[cols.urgent],
+                        customer: row[cols.customer],
+                        status: row[cols.status]
+                    })));
+
+                    if (parsedData.length === 0) throw new Error('No actionable data found in the file (check for "Done" status or invalid dates).');
                     
-                    await saveDataToDatabase(data);
+                    await saveDataToDatabase(parsedData);
                 } catch (error) {
                     showMessage(`❌ Error processing file: ${error.message}`, 'error');
                 }
             };
             reader.readAsArrayBuffer(file);
-        }
-        
-        function parseData(jsonData) {
-             const headers = jsonData[0].map(h => h.toString().toLowerCase().trim());
-             const rows = jsonData.slice(1);
-             
-             const findIndex = (names) => {
-                 for (const name of names) {
-                     const index = headers.indexOf(name);
-                     if (index !== -1) return index;
-                 }
-                 return -1;
-             };
-             
-             const cols = {
-                ticketId: findIndex(['ticket id', 'ticketid', 'ticket']),
-                orderReceived: findIndex(['order received', 'orderreceived', 'date']),
-                type: findIndex(['type', 'service type']),
-                urgent: findIndex(['urgent', 'urgent?']),
-                customer: findIndex(['customer', 'client']),
-             };
-
-            if (cols.ticketId === -1 || cols.orderReceived === -1) {
-                throw new Error("File must contain 'Ticket ID' and 'Order Received' columns.");
-            }
-
-            return rows.map(row => {
-                const rawDate = row[cols.orderReceived];
-                const convertedDate = (typeof rawDate === 'number') ? convertExcelDate(rawDate) : rawDate;
-                const aging = calculateAging(convertedDate);
-
-                // Skip rows with invalid aging
-                if (isNaN(aging)) return null;
-
-                return {
-                    ticketId: row[cols.ticketId].toString(),
-                    orderReceived: convertedDate,
-                    type: row[cols.type] || 'N/A',
-                    urgent: row[cols.urgent] || 'No',
-                    customer: row[cols.customer] || 'N/A',
-                    aging: aging,
-                };
-            }).filter(Boolean); // Filter out null items
-        }
-
-        function parseExcel(arrayBuffer) {
-            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
-            return parseData(jsonData);
-        }
-
-        function parseDelimitedText(text) {
-            const jsonData = text.split('\n').map(line => line.split(',').map(cell => cell.trim()));
-            return parseData(jsonData);
         }
         
         // ================================
@@ -866,14 +761,11 @@
                 document.getElementById('passwordModal').style.display = 'flex';
                 document.getElementById('adminPassword').focus();
             });
-            
             document.getElementById('refreshBtn').addEventListener('click', loadDataFromDatabase);
-
             document.getElementById('cancelBtn').addEventListener('click', () => {
                 document.getElementById('passwordModal').style.display = 'none';
                 document.getElementById('adminPassword').value = '';
             });
-
             document.getElementById('accessBtn').addEventListener('click', () => {
                 if (document.getElementById('adminPassword').value === CONFIG.adminPassword) {
                     document.getElementById('passwordModal').style.display = 'none';
@@ -884,23 +776,19 @@
                     document.getElementById('adminPassword').focus();
                 }
             });
-
             document.getElementById('fileInput').addEventListener('change', (e) => {
                 if (e.target.files.length > 0) processFile(e.target.files[0]);
-                e.target.value = null; // Reset input
+                e.target.value = null;
             });
-            
             document.getElementById('searchBox').addEventListener('input', applyFilters);
-
             document.querySelectorAll('[data-filter]').forEach(button => {
                 button.addEventListener('click', function() {
-                    document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.remove('active'));
+                    document.querySelector('[data-filter].active')?.classList.remove('active');
                     this.classList.add('active');
                     currentFilter = this.dataset.filter;
                     applyFilters();
                 });
             });
-
             document.addEventListener('keydown', (e) => {
                 const modal = document.getElementById('passwordModal');
                 if (modal.style.display === 'flex') {
