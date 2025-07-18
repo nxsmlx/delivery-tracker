@@ -7,7 +7,7 @@
     <link rel="icon" href="favicon.ico" type="image/png">
     <style>
 :root{
-    --bg:linear-gradient(135deg, #f7fafc, #edf2f7);
+    --bg:#f7fafc;
     --surface:#ffffff;
     --surface-2:#edf2f7;
     --accent:#4f46e5;
@@ -44,9 +44,6 @@ body{
     padding:36px 32px;
     text-align:center;
     border-bottom:1px solid var(--border);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
 }
 .header h1{
     font-size:2rem;
@@ -257,18 +254,15 @@ tr:hover{background:var(--surface-2)}
     .stats{grid-template-columns:1fr 1fr}
     .control-group{flex-direction:column;align-items:stretch}
 }
-    </style>
+</style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div>
-                <h1>Qube-Inventory Delivery Aging Tracker</h1>
-                <p>Monitor delivery performance and aging statistics</p>
-            </div>
-            <div>
-                <button class="btn btn-primary" id="adminBtn">🔒 Admin Upload</button>
-                <button class="btn btn-primary" id="refreshBtn">🔄 Refresh Data</button>
+            <h1>Qube-Inventory Delivery Aging Tracker</h1>
+            <p>Monitor delivery performance and aging statistics</p>
+            <div class="target-notice">
+                <strong>📋 Target:</strong> All deliveries to be completed within 3 days
             </div>
         </div>
 
@@ -304,6 +298,12 @@ tr:hover{background:var(--surface-2)}
         </div>
 
         <div class="controls">
+            <div class="control-group">
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
+                <button class="btn btn-primary" id="adminBtn">🔒 Admin Upload</button>
+                <button class="btn btn-primary" id="refreshBtn">🔄 Refresh Data</button>
+                <button class="btn btn-secondary" id="testBtn">🔧 Test Database</button>
+            </div>
             <div class="control-group">
                 <input type="text" class="search-box" id="searchBox" placeholder="Search by Ticket ID or Customer...">
                 <button class="btn btn-secondary active" data-filter="all">All</button>
@@ -376,16 +376,16 @@ tr:hover{background:var(--surface-2)}
 
         // Sample data (will be replaced by database data)
         let deliveryData = [
-            { ticketId: '60210', orderReceived: '11/07/2025', type: 'Delivery', urgent: 'Yes', customer: 'Segi University', aging: 1 },
-            { ticketId: '60521', orderReceived: '14/07/2025', type: 'Delivery', urgent: 'No', customer: 'Ingram', aging: 5 },
-            { ticketId: '60570', orderReceived: '15/07/2025', type: 'Delivery', urgent: 'No', customer: 'Imazium', aging: 2 },
-            { ticketId: '60572', orderReceived: '15/07/2025', type: 'Collection', urgent: 'No', customer: 'Evoscale', aging: 1 },
-            { ticketId: '60574', orderReceived: '15/07/2025', type: 'Delivery', urgent: 'Yes', customer: 'Ginmaro', aging: 4 },
-            { ticketId: '60584', orderReceived: '15/07/2025', type: 'Collection', urgent: 'No', customer: 'MLINK', aging: 2 },
-            { ticketId: '60585', orderReceived: '15/07/2025', type: 'Collection', urgent: 'No', customer: 'Vstecs', aging: 3 },
-            { ticketId: '60588', orderReceived: '15/07/2025', type: 'Delivery', urgent: 'No', customer: 'MR DIY HQ', aging: 1 },
-            { ticketId: '60591', orderReceived: '15/07/2025', type: 'Collection', urgent: 'Yes', customer: 'PC Image', aging: 6 },
-            { ticketId: '60620', orderReceived: '15/07/2025', type: 'Delivery', urgent: 'No', customer: 'PKT', aging: 2 }
+            { ticketId: '60210', orderReceived: '7/11/2025', type: 'Delivery', urgent: 'Yes', customer: 'Segi University', aging: 1 },
+            { ticketId: '60521', orderReceived: '7/14/2025', type: 'Delivery', urgent: 'No', customer: 'Ingram', aging: 5 },
+            { ticketId: '60570', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'Imazium', aging: 2 },
+            { ticketId: '60572', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'Evoscale', aging: 1 },
+            { ticketId: '60574', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'Yes', customer: 'Ginmaro', aging: 4 },
+            { ticketId: '60584', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'MLINK', aging: 2 },
+            { ticketId: '60585', orderReceived: '7/15/2025', type: 'Collection', urgent: 'No', customer: 'Vstecs', aging: 3 },
+            { ticketId: '60588', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'MR DIY HQ', aging: 1 },
+            { ticketId: '60591', orderReceived: '7/15/2025', type: 'Collection', urgent: 'Yes', customer: 'PC Image', aging: 6 },
+            { ticketId: '60620', orderReceived: '7/15/2025', type: 'Delivery', urgent: 'No', customer: 'PKT', aging: 2 }
         ];
 
         let currentFilter = 'all';
@@ -563,6 +563,62 @@ tr:hover{background:var(--surface-2)}
             }
 
             supabase = new SupabaseClient(CONFIG.supabase.url, CONFIG.supabase.key);
+        }
+
+        // ================================
+        // DATABASE TEST FUNCTION
+        // ================================
+        async function testDatabaseConnection() {
+            try {
+                showMessage('🔧 Testing database connection...', 'info');
+                
+                initializeDatabase();
+                
+                // Test 1: Basic connection
+                console.log('Test 1: Testing basic connection...');
+                const testData = await supabase.query('GET', 'delivery_data?limit=1');
+                console.log('✅ Basic connection works, got:', testData);
+                
+                // Test 2: Insert a test record
+                console.log('Test 2: Testing insert...');
+                const testRecord = {
+                    ticket_id: 'TEST123',
+                    order_received: '01/01/2025',
+                    type: 'Test',
+                    urgent: 'No',
+                    customer: 'Test Customer',
+                    aging: 1,
+                    updated_by: 'Test'
+                };
+                
+                const insertResult = await supabase.query('POST', 'delivery_data', [testRecord]);
+                console.log('✅ Insert works, got:', insertResult);
+                
+                // Test 3: Read the data back
+                console.log('Test 3: Testing read...');
+                const readResult = await supabase.query('GET', 'delivery_data?ticket_id=eq.TEST123');
+                console.log('✅ Read works, got:', readResult);
+                
+                // Test 4: Delete the test record
+                console.log('Test 4: Testing delete...');
+                const deleteResult = await supabase.query('DELETE', 'delivery_data?ticket_id=eq.TEST123');
+                console.log('✅ Delete works, got:', deleteResult);
+                
+                showMessage('✅ Database connection test successful! All operations work.', 'success');
+                
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Database test failed:', error);
+                showMessage(`❌ Database test failed: ${error.message}<br><br>
+                    <strong>Common issues:</strong><br>
+                    • Wrong Supabase URL or API key<br>
+                    • Tables don't exist<br>
+                    • Row Level Security is enabled<br>
+                    • Network connectivity issues`, 'error');
+                
+                return false;
+            }
         }
 
         // ================================
@@ -1161,6 +1217,11 @@ tr:hover{background:var(--surface-2)}
                 await loadDataFromDatabase();
             });
 
+            // Test database button
+            document.getElementById('testBtn').addEventListener('click', async function() {
+                await testDatabaseConnection();
+            });
+
             // Modal buttons
             document.getElementById('cancelBtn').addEventListener('click', function() {
                 document.getElementById('passwordModal').style.display = 'none';
@@ -1274,7 +1335,23 @@ tr:hover{background:var(--surface-2)}
                 renderTable(deliveryData);
                 updateReminders();
             }
+            
+            // Show welcome message if everything is working
+            if (loadSuccess) {
+                showMessage(`📊 <strong>Qube-Inventory Delivery Tracker</strong><br><br>
+                    <strong>👨‍💼 Admin:</strong> Click "🔒 Admin Upload" to upload daily data<br>
+                    <strong>👥 Users:</strong> Click "🔄 Refresh Data" to see latest updates<br>
+                    <strong>🔧 Test:</strong> Click "🔧 Test Database" to verify connection<br>
+                    <strong>🔄 Auto-refresh:</strong> Data updates automatically every 30 seconds<br>
+                    <br>
+                    💡 <strong>Real-time updates:</strong> All users see the same data instantly!`, 'info');
+            }
         }
+
+        // Auto-refresh every 30 seconds
+        setInterval(async () => {
+            await loadDataFromDatabase();
+        }, 30000);
 
         // Start the application
         document.addEventListener('DOMContentLoaded', initialize);
