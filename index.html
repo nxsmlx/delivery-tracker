@@ -5,365 +5,417 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Qube-Inventory Delivery Aging Tracker</title>
     <link rel="icon" href="favicon.ico" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-:root{
-    --bg:#f7fafc;
-    --surface:#ffffff;
-    --surface-2:#edf2f7;
-    --accent:#4f46e5;
-    --accent-hover:#4338ca;
-    --text:#1e293b;
-    --text-muted:#64748b;
-    --border:#e2e8f0;
-    --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);
-    --radius:12px;
-    --success:#10b981;
-    --warning:#f59e0b;
-    --error:#ef4444;
-    --same-day:#3b82f6;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    min-height:100vh;
-    padding:24px;
-}
-.container{
-    max-width:1200px;
-    margin:0 auto;
-    border-radius:var(--radius);
-    overflow:hidden;
-    background:var(--surface);
-    box-shadow:var(--shadow);
-    border:1px solid var(--border);
-}
-.header{
-    background:linear-gradient(135deg,#f9fafb,#e2e8f0);
-    padding:36px 32px;
-    text-align:center;
-    border-bottom:1px solid var(--border);
-}
-.header h1{
-    font-size:2rem;
-    font-weight:700;
-    letter-spacing:.5px;
-    color:var(--accent);
-}
-.header h1::before{content:"📈";margin-right:8px}
-.header p{margin-top:8px;color:var(--text-muted)}
-.target-notice{
-    margin-top:16px;
-    padding:12px 20px;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    font-size:.875rem;
-    display:inline-block;
-}
-.timezone-info{
-    margin-top:8px;
-    padding:8px 16px;
-    background:#e0f2fe;
-    border:1px solid #81d4fa;
-    border-radius:var(--radius);
-    font-size:.75rem;
-    color:#0277bd;
-}
-.stats{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-    gap:16px;
-    padding:24px;
-}
-.stat-card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:20px;
-    text-align:center;
-    transition:transform .15s,box-shadow .15s;
-}
-.stat-card:hover{
-    transform:translateY(-2px);
-    box-shadow:var(--shadow);
-}
-.stat-number{
-    font-size:2.25rem;
-    font-weight:700;
-    margin-bottom:4px;
-}
-.stat-label{
-    font-size:.75rem;
-    color:var(--text-muted);
-    text-transform:uppercase;
-    letter-spacing:.5px;
-}
-.aging-0{color:var(--same-day)}
-.aging-1{color:var(--success)}
-.aging-2{color:var(--warning)}
-.aging-3{color:var(--error)}
-.aging-4{color:#8b5cf6}
+        :root {
+            --bg-light: #f8f9fa;
+            --bg-dark: #f1f3f5;
+            --surface: #ffffff;
+            --border: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.05) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+            --radius: 0.75rem;
+            --text-primary: #212529;
+            --text-secondary: #495057;
+            --text-muted: #868e96;
+            --accent-start: #4c6ef5;
+            --accent-end: #748ffc;
+            --accent-text: #ffffff;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --purple: #845ef7;
+        }
 
-.controls{
-    padding:24px;
-    display:flex;
-    flex-direction:column;
-    gap:16px;
-    background:var(--surface-2);
-    border-top:1px solid var(--border);
-    border-bottom:1px solid var(--border);
-}
-.control-group{
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    align-items:center;
-}
-.btn{
-    padding:10px 20px;
-    border:none;
-    border-radius:var(--radius);
-    font-size:.875rem;
-    font-weight:600;
-    cursor:pointer;
-    transition:background .2s,color .2s;
-}
-.btn-primary{
-    background:var(--accent);
-    color:#fff;
-}
-.btn-primary:hover{background:var(--accent-hover)}
-.btn-secondary{
-    background:var(--surface);
-    color:var(--text);
-    border:1px solid var(--border);
-}
-.btn-secondary:hover,
-.btn-secondary.active{
-    background:var(--accent);
-    border-color:var(--accent);
-    color:#fff;
-}
-.btn-secondary.aging-0.active{background:var(--same-day);border-color:var(--same-day)}
-.btn-secondary.aging-1.active{background:var(--success);border-color:var(--success)}
-.btn-secondary.aging-2.active{background:var(--warning);border-color:var(--warning)}
-.btn-secondary.aging-3.active{background:var(--error);border-color:var(--error)}
-.btn-secondary.aging-4.active{background:#8b5cf6;border-color:#8b5cf6}
-.btn-secondary.urgent.active{background:var(--warning);border-color:var(--warning)}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.search-box{
-    flex:1 1 280px;
-    padding:10px 14px;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    color:var(--text);
-    outline:none;
-}
-.search-box:focus{border-color:var(--accent)}
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            padding: 2rem;
+        }
 
-.status-message{
-    margin:0 24px 24px;
-    padding:14px 18px;
-    border-radius:var(--radius);
-    font-size:.875rem;
-}
-.status-info{background:#e0e7ff;border:1px solid #c7d2fe;color:var(--accent)}
-.status-success{background:#d1fae5;border:1px solid #a7f3d0;color:var(--success)}
-.status-error{background:#fee2e2;border:1px solid #fecaca;color:var(--error)}
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-.reminders{
-    margin:0 24px 24px;
-    padding:24px;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-}
-.reminders h3{color:var(--accent);margin-bottom:16px;font-size:1.125rem}
-.reminder-section{background:var(--surface-2);border-radius:8px;padding:16px;margin-bottom:12px}
-.reminder-title{font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.reminder-list{list-style:none}
-.reminder-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
-.reminder-item:last-child{border-bottom:none}
-.performance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:12px}
-.performance-card{background:var(--surface-2);padding:12px;border-radius:8px;text-align:center;border:1px solid var(--border)}
-.performance-number{font-size:1.5rem;font-weight:700;margin-bottom:4px}
-.performance-label{font-size:.75rem;color:var(--text-muted)}
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+            color: var(--accent-text);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
 
-.data-table{padding:0 24px 24px}
-.table-wrapper{overflow-x:auto;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse}
-th,td{padding:12px 16px;text-align:left;font-size:.875rem}
-th{background:var(--surface-2);color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
-tr:hover{background:var(--surface-2)}
-.badge{padding:4px 8px;border-radius:4px;font-size:.625rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#fff}
-.badge-aging-0{background:var(--same-day)}
-.badge-aging-1{background:var(--success)}
-.badge-aging-2{background:var(--warning)}
-.badge-aging-3{background:var(--error)}
-.badge-aging-4{background:#8b5cf6}
-.badge-urgent{background:var(--error)}
-.badge-priority-critical{background:var(--error)}
-.badge-priority-high{background:var(--warning)}
-.badge-priority-medium{background:var(--accent)}
-.badge-priority-low{background:var(--success)}
+        .header-content h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
 
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.35);
-    z-index:1000;
-    align-items:center;
-    justify-content:center;
-}
-.modal-content{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:32px;
-    width:400px;
-    max-width:90%;
-    color:var(--text);
-    box-shadow:var(--shadow);
-}
-.modal h3{margin-bottom:16px;color:var(--accent)}
-.modal p{margin-bottom:20px;color:var(--text-muted)}
-.modal input{
-    width:100%;
-    padding:10px 12px;
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    background:var(--surface-2);
-    color:var(--text);
-    margin-bottom:20px;
-}
-.modal-buttons{display:flex;gap:8px;justify-content:flex-end}
+        .header-content p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
 
-.no-data{padding:40px;text-align:center;color:var(--text-muted);font-size:.875rem}
+        .header-info {
+            text-align: right;
+            font-size: 0.875rem;
+        }
+        
+        #adminBtn {
+            margin-bottom: 0.75rem;
+        }
 
-.ticket-info{
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-}
-.ticket-main{
-    font-weight:600;
-    color:var(--text);
-}
-.ticket-details{
-    font-size:.8em;
-    color:var(--text-muted);
-}
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
 
-@media(max-width:768px){
-    body{padding:12px}
-    .stats{grid-template-columns:1fr 1fr}
-    .control-group{flex-direction:column;align-items:stretch}
-}
-</style>
+        .stat-card {
+            background-color: var(--surface);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+        }
+
+        .aging-0 { color: var(--info); }
+        .aging-1 { color: var(--success); }
+        .aging-2 { color: var(--warning); }
+        .aging-3 { color: var(--danger); }
+        .aging-4 { color: var(--purple); }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        .controls-and-reminders {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .card {
+             background-color: var(--surface);
+             padding: 1.5rem;
+             border-radius: var(--radius);
+             border: 1px solid var(--border);
+             box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .controls .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .filter-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent-start);
+            box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.2);
+        }
+        
+        .btn {
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-start);
+            color: var(--accent-text);
+        }
+        .btn-primary:hover {
+            background-color: #364fc7;
+        }
+        
+        .btn-secondary {
+            background-color: var(--bg-dark);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+        }
+        
+        .btn-filter {
+            background-color: var(--surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-filter:hover {
+            background-color: var(--bg-light);
+            border-color: #adb5bd;
+        }
+        .btn-filter.active {
+            background: var(--accent-start);
+            color: var(--accent-text);
+            border-color: var(--accent-start);
+        }
+        .btn-filter.active.aging-0 { background: var(--info); border-color: var(--info); }
+        .btn-filter.active.aging-1 { background: var(--success); border-color: var(--success); }
+        .btn-filter.active.aging-2 { background: var(--warning); border-color: var(--warning); }
+        .btn-filter.active.aging-3 { background: var(--danger); border-color: var(--danger); }
+        .btn-filter.active.aging-4 { background: var(--purple); border-color: var(--purple); }
+        .btn-filter.active.urgent { background: var(--danger); border-color: var(--danger); }
+
+        #reminderContent .reminder-section {
+            padding: 1rem;
+            background-color: var(--bg-light);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+        #reminderContent .reminder-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #reminderContent .reminder-list {
+            list-style: none;
+        }
+        #reminderContent .reminder-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+        #reminderContent .reminder-item:last-child {
+            border-bottom: none;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background-color: var(--bg-dark);
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        tbody tr:hover {
+            background-color: var(--bg-light);
+        }
+        
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent-text);
+        }
+        .badge-aging-0 { background-color: var(--info); }
+        .badge-aging-1 { background-color: var(--success); }
+        .badge-aging-2 { background-color: var(--warning); }
+        .badge-aging-3 { background-color: var(--danger); }
+        .badge-aging-4 { background-color: var(--purple); }
+        .badge-urgent { background-color: var(--danger); }
+        .badge-priority-critical { background-color: var(--danger); }
+        .badge-priority-high { background-color: var(--warning); }
+        .badge-priority-medium { background-color: var(--accent-start); }
+        .badge-priority-low { background-color: var(--success); }
+        
+        #statusMessage { margin: 0 0 1.5rem 0; }
+        .status-message {
+            padding: 1rem;
+            border-radius: var(--radius);
+            border: 1px solid;
+        }
+        .status-info { background-color: #e7f5ff; border-color: #a5d8ff; color: #1971c2; }
+        .status-success { background-color: #d3f9d8; border-color: #96f2ab; color: #2f9e44; }
+        .status-error { background-color: #ffe3e3; border-color: #ffc9c9; color: #c92a2a; }
+
+        .modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: var(--surface); border-radius: var(--radius); padding: 2rem;
+            width: 400px; max-width: 90%; box-shadow: var(--shadow);
+        }
+        .modal h3 { margin-bottom: 1rem; color: var(--text-primary); }
+        .modal p { margin-bottom: 1.5rem; color: var(--text-secondary); }
+        .modal input {
+            width: 100%; padding: 0.75rem; border: 1px solid var(--border);
+            border-radius: var(--radius); margin-bottom: 1.5rem; font-size: 1rem;
+        }
+        .modal-buttons { display: flex; gap: 0.5rem; justify-content: flex-end; }
+        
+        @media (max-width: 1024px) {
+            .main-content { grid-template-columns: 1fr; }
+            .controls-and-reminders { position: static; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .header { flex-direction: column; gap: 1rem; text-align: center; }
+            .header-info { text-align: center; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .filter-buttons { grid-template-columns: 1fr 1fr; }
+        }
+
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Qube-Inventory Delivery Aging Tracker</h1>
-            <p>Monitor delivery performance and aging statistics</p>
-            <div class="target-notice">
-                <strong>📋 Target:</strong> All deliveries to be completed within 3 days
+            <div class="header-content">
+                <h1>Delivery Aging Tracker</h1>
+                <p>Real-time dashboard for monitoring delivery performance.</p>
             </div>
-            <div class="timezone-info" id="timezoneInfo">
-                🕐 Current Time (GMT+8): <span id="currentTime"></span>
-            </div>
-        </div>
-
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number aging-0" id="count-0">0</div>
-                <div class="stat-label">Same Day</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number aging-1" id="count-1">0</div>
-                <div class="stat-label">1 Day Aging</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number aging-2" id="count-2">0</div>
-                <div class="stat-label">2 Days Aging</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number aging-3" id="count-3">0</div>
-                <div class="stat-label">3 Days Aging</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number aging-4" id="count-4">0</div>
-                <div class="stat-label">> 3 Days Aging</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" style="color: #f39c12;" id="urgent-count">0</div>
-                <div class="stat-label">Urgent Tickets</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="total-count">0</div>
-                <div class="stat-label">Total Pending</div>
-            </div>
-        </div>
-
-        <div class="controls">
-            <div class="control-group">
+            <div class="header-info">
                 <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
                 <button class="btn btn-primary" id="adminBtn">🔒 Admin Upload</button>
-                <button class="btn btn-primary" id="refreshBtn">🔄 Refresh Data</button>
-                <button class="btn btn-secondary" id="testBtn">🔧 Test Database</button>
-            </div>
-            <div class="control-group">
-                <input type="text" class="search-box" id="searchBox" placeholder="Search by Ticket ID or Customer...">
-                <button class="btn btn-secondary active" data-filter="all">All</button>
-                <button class="btn btn-secondary aging-0" data-filter="0">Same Day</button>
-                <button class="btn btn-secondary aging-1" data-filter="1">1 Day</button>
-                <button class="btn btn-secondary aging-2" data-filter="2">2 Days</button>
-                <button class="btn btn-secondary aging-3" data-filter="3">3 Days</button>
-                <button class="btn btn-secondary aging-4" data-filter="4">> 3 Days</button>
-                <button class="btn btn-secondary urgent" data-filter="urgent">Urgent</button>
-            </div>
-        </div>
-
-        <div id="statusMessage"></div>
-
-        <div class="reminders">
-            <h3>📋 Driver Action Items</h3>
-            <div id="reminderContent">
-                <div style="text-align: center; color: #666; padding: 20px;">
-                    Upload your delivery data to see action items
+                 <div id="timezoneInfo" style="margin-top: 0.5rem;">
+                    🕐 MYT: <span id="currentTime"></span>
                 </div>
             </div>
         </div>
 
-        <div class="data-table">
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ticket Info</th>
-                            <th>Order Received</th>
-                            <th>Urgent?</th>
-                            <th>Aging</th>
-                            <th>Priority</th>
-                            <th>Action Required</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                    </tbody>
-                </table>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-number aging-0" id="count-0">0</div><div class="stat-label">Same Day</div></div>
+            <div class="stat-card"><div class="stat-number aging-1" id="count-1">0</div><div class="stat-label">1 Day</div></div>
+            <div class="stat-card"><div class="stat-number aging-2" id="count-2">0</div><div class="stat-label">2 Days</div></div>
+            <div class="stat-card"><div class="stat-number aging-3" id="count-3">0</div><div class="stat-label">3 Days</div></div>
+            <div class="stat-card"><div class="stat-number aging-4" id="count-4">0</div><div class="stat-label">> 3 Days</div></div>
+            <div class="stat-card"><div class="stat-number" style="color: var(--danger);" id="urgent-count">0</div><div class="stat-label">Urgent</div></div>
+            <div class="stat-card"><div class="stat-number" id="total-count">0</div><div class="stat-label">Total</div></div>
+        </div>
+
+        <div id="statusMessage"></div>
+        
+        <div class="main-content">
+            <div class="controls-and-reminders">
+                <div class="card controls">
+                    <div class="card-header">Filter & Search</div>
+                    <div class="control-group">
+                        <input type="text" class="search-box" id="searchBox" placeholder="Search by Ticket ID or Customer...">
+                        <div class="filter-buttons">
+                            <button class="btn btn-filter active" data-filter="all">All</button>
+                            <button class="btn btn-filter aging-0" data-filter="0">Same Day</button>
+                            <button class="btn btn-filter aging-1" data-filter="1">1 Day</button>
+                            <button class="btn btn-filter aging-2" data-filter="2">2 Days</button>
+                            <button class="btn btn-filter aging-3" data-filter="3">3 Days</button>
+                            <button class="btn btn-filter aging-4" data-filter="4">> 3 Days</button>
+                            <button class="btn btn-filter urgent" data-filter="urgent">Urgent</button>
+                        </div>
+                         <button class="btn btn-secondary" id="refreshBtn" style="width: 100%;">🔄 Refresh Data</button>
+                    </div>
+                </div>
+
+                <div class="card reminders">
+                    <div class="card-header">📋 Driver Action Items</div>
+                    <div id="reminderContent"><div style="text-align: center; color: var(--text-muted); padding: 2rem;">Upload data to see action items.</div></div>
+                </div>
+            </div>
+
+            <div class="card data-table">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ticket Info</th>
+                                <th>Order Received</th>
+                                <th>Urgent</th>
+                                <th>Aging</th>
+                                <th>Priority</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Password Modal -->
     <div id="passwordModal" class="modal">
         <div class="modal-content">
             <h3>Admin Access Required</h3>
-            <p>Enter admin password to upload data:</p>
+            <p>Enter the admin password to upload new delivery data.</p>
             <input type="password" id="adminPassword" placeholder="Enter password...">
             <div class="modal-buttons">
                 <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
@@ -374,8 +426,10 @@ tr:hover{background:var(--surface-2)}
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', initialize);
+
         // ================================
-        // CONFIGURATION - UPDATE WITH YOUR SUPABASE DETAILS
+        // CONFIGURATION - DO NOT CHANGE
         // ================================
         const CONFIG = {
             supabase: {
@@ -387,106 +441,97 @@ tr:hover{background:var(--surface-2)}
             timezone: 'Asia/Kuala_Lumpur' // GMT+8
         };
 
-        // ================================
-        // TIMEZONE UTILITIES
-        // ================================
-        function getCurrentTimeInTimezone() {
-            return new Date().toLocaleString('en-MY', {
-                timeZone: CONFIG.timezone,
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-        }
+        let deliveryData = [];
+        let currentFilter = 'all';
+        let supabase;
 
-        function getTodayInTimezone() {
-            return new Date().toLocaleDateString('en-MY', {
-                timeZone: CONFIG.timezone,
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-        }
+        // ================================
+        // INITIALIZATION
+        // ================================
+        async function initialize() {
+            initializeEventHandlers();
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000); // Update time every second
 
-        function calculateAging(orderReceivedDate) {
-            // Parse various date formats
-            let orderDate;
-            
-            // Try different date formats
-            if (orderReceivedDate.includes('/')) {
-                // Handle DD/MM/YYYY or MM/DD/YYYY or YYYY/MM/DD
-                const parts = orderReceivedDate.split('/');
-                if (parts.length === 3) {
-                    // Assume DD/MM/YYYY format (Malaysian standard)
-                    if (parts[2].length === 4) {
-                        orderDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                    } else {
-                        // MM/DD/YY format
-                        orderDate = new Date(2000 + parseInt(parts[2]), parts[0] - 1, parts[1]);
-                    }
+            try {
+                initializeDatabase();
+                const loadSuccess = await loadDataFromDatabase();
+                if (!loadSuccess) {
+                    renderSampleData();
                 }
-            } else if (orderReceivedDate.includes('-')) {
-                // Handle YYYY-MM-DD format
-                orderDate = new Date(orderReceivedDate);
-            } else {
-                // Try to parse as-is
-                orderDate = new Date(orderReceivedDate);
+            } catch (error) {
+                showMessage(`⚠️ Configuration Error: ${error.message}. Please check the script's CONFIG section.`, 'error');
+                renderSampleData();
             }
-
-            // Get current date in GMT+8
-            const today = new Date();
-            const todayInTimezone = new Date(today.toLocaleString('en-US', {timeZone: CONFIG.timezone}));
             
-            // Reset time to start of day for accurate day calculation
-            orderDate.setHours(0, 0, 0, 0);
-            todayInTimezone.setHours(0, 0, 0, 0);
-            
-            // Calculate difference in days
-            const diffTime = todayInTimezone.getTime() - orderDate.getTime();
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
-            console.log(`Date calculation: Order date: ${orderDate}, Today: ${todayInTimezone}, Diff: ${diffDays} days`);
-            
-            return Math.max(0, diffDays);
+            // Auto-refresh data every 30 seconds
+            setInterval(loadDataFromDatabase, 30000);
         }
 
-        // Update current time display
+        // ================================
+        // TIME & DATE UTILITIES
+        // ================================
         function updateCurrentTime() {
             const currentTimeElement = document.getElementById('currentTime');
             if (currentTimeElement) {
-                currentTimeElement.textContent = getCurrentTimeInTimezone();
+                currentTimeElement.textContent = new Date().toLocaleTimeString('en-MY', {
+                    timeZone: CONFIG.timezone,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
             }
         }
 
-        // Sample data (will be replaced by database data)
-        // Only showing PENDING deliveries (not completed ones)
-        let deliveryData = [
-            { ticketId: '60210', orderReceived: '11/7/2025', type: 'Delivery', urgent: 'Yes', customer: 'Segi University', status: 'Pending', deliveryDate: '', aging: null },
-            { ticketId: '60521', orderReceived: '14/7/2025', type: 'Delivery', urgent: 'No', customer: 'Ingram', status: 'Pending', deliveryDate: '', aging: null },
-            { ticketId: '60570', orderReceived: '15/7/2025', type: 'Delivery', urgent: 'No', customer: 'Imazium', status: 'Pending', deliveryDate: '', aging: null },
-            { ticketId: '60572', orderReceived: '15/7/2025', type: 'Collection', urgent: 'No', customer: 'Evoscale', status: 'Pending', deliveryDate: '', aging: null },
-            { ticketId: '60574', orderReceived: '15/7/2025', type: 'Delivery', urgent: 'Yes', customer: 'Ginmaro', status: 'Pending', deliveryDate: '', aging: null },
-            { ticketId: '60584', orderReceived: '15/7/2025', type: 'Collection', urgent: 'No', customer: 'MLINK', status: 'Pending', deliveryDate: '', aging: null },
-            { ticketId: '60585', orderReceived: '15/7/2025', type: 'Collection', urgent: 'No', customer: 'Vstecs', status: 'Pending', deliveryDate: '', aging: null },
-            { ticketId: '60588', orderReceived: '15/7/2025', type: 'Delivery', urgent: 'No', customer: 'MR DIY HQ', status: 'Pending', deliveryDate: '', aging: null },
-            { ticketId: '60591', orderReceived: '15/7/2025', type: 'Collection', urgent: 'Yes', customer: 'PC Image', status: 'Pending', deliveryDate: '', aging: null },
-            { ticketId: '60620', orderReceived: '15/7/2025', type: 'Delivery', urgent: 'No', customer: 'PKT', status: 'Pending', deliveryDate: '', aging: null }
-        ];
+        function calculateAging(orderReceivedDateStr) {
+            if (!orderReceivedDateStr || typeof orderReceivedDateStr !== 'string') {
+                return NaN;
+            }
 
-        let currentFilter = 'all';
-        let filteredData = [...deliveryData];
+            let orderDate;
+            const parts = orderReceivedDateStr.split(/[/.-]/);
 
+            if (parts.length === 3) {
+                // Assuming DD/MM/YYYY format, common in Malaysia.
+                // It can also handle MM/DD/YYYY if the year is clearly specified.
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10);
+                const year = parseInt(parts[2], 10);
+
+                if (year > 1900) { // DD/MM/YYYY
+                    orderDate = new Date(year, month - 1, day);
+                } else { // MM/DD/YY
+                    orderDate = new Date(2000 + year, day - 1, month);
+                }
+            } else {
+                // Fallback for other formats like YYYY-MM-DD
+                orderDate = new Date(orderReceivedDateStr);
+            }
+
+            // Check for invalid date
+            if (isNaN(orderDate.getTime())) {
+                return NaN;
+            }
+
+            const today = new Date();
+            const todayInTimezone = new Date(today.toLocaleString('en-US', { timeZone: CONFIG.timezone }));
+
+            // Set both dates to midnight for accurate day difference
+            orderDate.setHours(0, 0, 0, 0);
+            todayInTimezone.setHours(0, 0, 0, 0);
+
+            const diffTime = todayInTimezone.getTime() - orderDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            return Math.max(0, diffDays);
+        }
+        
         // ================================
         // SUPABASE CLIENT
         // ================================
         class SupabaseClient {
             constructor(url, key) {
                 this.url = url;
-                this.key = key;
                 this.headers = {
                     'apikey': key,
                     'Authorization': `Bearer ${key}`,
@@ -497,35 +542,373 @@ tr:hover{background:var(--surface-2)}
 
             async query(method, endpoint, data = null) {
                 const url = `${this.url}/rest/v1/${endpoint}`;
-                console.log(`${method} ${url}`, data ? 'with data' : 'no data');
-                
                 const response = await fetch(url, {
                     method,
                     headers: this.headers,
                     body: data ? JSON.stringify(data) : null
                 });
 
-                console.log(`Response: ${response.status} ${response.statusText}`);
-
                 if (!response.ok) {
                     const error = await response.text();
-                    console.error('Supabase error:', error);
                     throw new Error(`Database error: ${response.status} - ${error}`);
                 }
-
-                const result = await response.json();
-                console.log('Response data:', result);
-                return result;
+                // DELETE might not return a body, handle it gracefully
+                return response.status === 204 ? [] : response.json();
             }
 
-            // Get all delivery data
-            async getDeliveryData() {
-                try {
-                    const data = await this.query('GET', `${CONFIG.supabase.tableName}?select=*&order=created_at.desc`);
-                    console.log('Loaded delivery data:', data);
-                    return data || [];
-                } catch (error) {
-                    console.error('Error getting delivery data:', error);
-                    return [];
+            getDeliveryData() {
+                return this.query('GET', `${CONFIG.supabase.tableName}?select=*&order=created_at.desc`);
+            }
+
+            async saveDeliveryData(data) {
+                await this.query('DELETE', `${CONFIG.supabase.tableName}?id=gte.1`);
+                if (!data || data.length === 0) return;
+                
+                const records = data.map(item => ({
+                    ticket_id: item.ticketId,
+                    order_received: item.orderReceived,
+                    type: item.type || '',
+                    urgent: item.urgent || 'No',
+                    customer: item.customer || '',
+                    aging: item.aging,
+                }));
+                
+                await this.query('POST', CONFIG.supabase.tableName, records);
+            }
+        }
+        
+        function initializeDatabase() {
+            if (!CONFIG.supabase.url || !CONFIG.supabase.key) {
+                throw new Error('Supabase URL or API key is not configured.');
+            }
+            supabase = new SupabaseClient(CONFIG.supabase.url, CONFIG.supabase.key);
+        }
+        
+        // ================================
+        // DATA HANDLING
+        // ================================
+        async function loadDataFromDatabase() {
+            try {
+                showMessage('🔄 Loading latest data from the cloud...', 'info');
+                const data = await supabase.getDeliveryData();
+                
+                // Process and clean data
+                deliveryData = (data || []).map(item => ({
+                    ticketId: item.ticket_id,
+                    orderReceived: item.order_received,
+                    type: item.type,
+                    urgent: item.urgent,
+                    customer: item.customer,
+                    aging: calculateAging(item.order_received)
+                })).filter(item => !isNaN(item.aging)); // Filter out items with invalid aging
+                
+                updateAllUI();
+                showMessage(`✅ Data loaded successfully. Displaying ${deliveryData.length} pending items.`, 'success');
+                return true;
+            } catch (error) {
+                showMessage(`❌ Could not load data from database: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function saveDataToDatabase(data) {
+            try {
+                showMessage('📤 Uploading and saving new data to the cloud...', 'info');
+                await supabase.saveDeliveryData(data);
+                showMessage('✅ Data saved successfully! Refreshing view.', 'success');
+                // Immediately reload to show the new data
+                setTimeout(loadDataFromDatabase, 1000);
+            } catch (error) {
+                showMessage(`❌ Failed to save data: ${error.message}`, 'error');
+            }
+        }
+
+        function renderSampleData() {
+             deliveryData = [
+                { ticketId: '60210', orderReceived: '11/7/2025', type: 'Delivery', urgent: 'Yes', customer: 'Segi University' },
+                { ticketId: '60521', orderReceived: '14/7/2025', type: 'Delivery', urgent: 'No', customer: 'Ingram' },
+                { ticketId: '60570', orderReceived: '15/7/2025', type: 'Delivery', urgent: 'No', customer: 'Imazium' },
+             ].map(item => ({...item, aging: calculateAging(item.orderReceived) }))
+              .filter(item => !isNaN(item.aging));
+             
+             updateAllUI();
+        }
+
+        // ================================
+        // UI UPDATES & RENDERING
+        // ================================
+        function updateAllUI() {
+            updateStats();
+            applyFilters(); // This will call renderTable and updateReminders
+        }
+
+        function showMessage(message, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            setTimeout(() => {
+                if (statusDiv.innerHTML.includes(message)) {
+                    statusDiv.innerHTML = '';
                 }
-     
+            }, 5000);
+        }
+
+        function updateStats() {
+            const stats = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
+            let urgentCount = 0;
+            
+            deliveryData.forEach(item => {
+                const aging = item.aging;
+                if (aging <= 3) stats[aging]++;
+                else stats[4]++;
+                if (item.urgent && item.urgent.toLowerCase() === 'yes') urgentCount++;
+            });
+
+            for (let i = 0; i <= 4; i++) {
+                document.getElementById(`count-${i}`).textContent = stats[i];
+            }
+            document.getElementById('urgent-count').textContent = urgentCount;
+            document.getElementById('total-count').textContent = deliveryData.length;
+        }
+        
+        function applyFilters() {
+            let filtered = [...deliveryData];
+
+            if (currentFilter === 'urgent') {
+                filtered = filtered.filter(item => item.urgent && item.urgent.toLowerCase() === 'yes');
+            } else if (currentFilter !== 'all') {
+                const targetAging = parseInt(currentFilter, 10);
+                if (targetAging === 4) {
+                    filtered = filtered.filter(item => item.aging > 3);
+                } else {
+                    filtered = filtered.filter(item => item.aging === targetAging);
+                }
+            }
+
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(item => 
+                    item.ticketId.toLowerCase().includes(searchTerm) || 
+                    item.customer.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderTable(filtered);
+            updateReminders(filtered);
+        }
+        
+        function getPriority(item) {
+            if (item.urgent === 'Yes' || item.aging > 3) return { class: 'critical', text: 'Critical' };
+            if (item.aging === 3) return { class: 'high', text: 'High' };
+            if (item.aging === 2) return { class: 'medium', text: 'Medium' };
+            return { class: 'low', text: 'Low' };
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">No items match your current filter.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => {
+                const priority = getPriority(item);
+                return `
+                    <tr>
+                        <td>
+                            <div><strong>${item.ticketId}</strong></div>
+                            <small style="color:var(--text-muted);">${item.customer || 'N/A'}</small>
+                        </td>
+                        <td>${item.orderReceived}</td>
+                        <td>${item.urgent === 'Yes' ? '<span class="badge badge-urgent">URGENT</span>' : 'No'}</td>
+                        <td><span class="badge badge-aging-${item.aging <= 3 ? item.aging : 4}">${item.aging} Day${item.aging !== 1 ? 's' : ''}</span></td>
+                        <td><span class="badge badge-priority-${priority.class}">${priority.text}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function updateReminders(data = deliveryData) {
+            const reminderContent = document.getElementById('reminderContent');
+            const overdue = data.filter(item => item.aging > 3);
+            const today = data.filter(item => item.aging === 3);
+            const tomorrow = data.filter(item => item.aging === 2);
+            
+            let html = '';
+            
+            if (overdue.length > 0) html += createReminderSection('🚨 Overdue - Urgent Action!', overdue);
+            if (today.length > 0) html += createReminderSection('📅 Due Today (Last Day)', today);
+            if (tomorrow.length > 0) html += createReminderSection('📋 Plan for Tomorrow', tomorrow);
+            
+            if (html === '') {
+                 html = `<div style="text-align: center; color: var(--success); padding: 2rem;">✅ Great job! No immediate actions required.</div>`;
+            }
+
+            reminderContent.innerHTML = html;
+        }
+        
+        function createReminderSection(title, items) {
+             return `
+                <div class="reminder-section">
+                    <div class="reminder-title">${title}</div>
+                    <ul class="reminder-list">
+                        ${items.map(item => `
+                            <li class="reminder-item">
+                                <div><strong>${item.ticketId}</strong> - ${item.customer}</div>
+                                <span class="badge badge-aging-${item.aging <=3 ? item.aging : 4}">${item.aging} Days</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>`;
+        }
+
+        // ================================
+        // FILE PROCESSING
+        // ================================
+        function convertExcelDate(serial) {
+            if (!serial || isNaN(serial)) return serial; // Return original if not a number
+            const excelEpoch = new Date(1899, 11, 30);
+            const date = new Date(excelEpoch.getTime() + parseInt(serial, 10) * 86400000);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    let data;
+                    const fileName = file.name.toLowerCase();
+                    const arrayBuffer = e.target.result;
+                    
+                    if (fileName.endsWith('.csv')) {
+                        const text = new TextDecoder("utf-8").decode(arrayBuffer);
+                        data = parseDelimitedText(text);
+                    } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                        data = parseExcel(arrayBuffer);
+                    } else {
+                        throw new Error('Unsupported file. Please use .xlsx, .xls, or .csv.');
+                    }
+                    
+                    if (data.length === 0) {
+                        throw new Error('No valid data found in the file.');
+                    }
+                    
+                    await saveDataToDatabase(data);
+                } catch (error) {
+                    showMessage(`❌ Error processing file: ${error.message}`, 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        
+        function parseData(jsonData) {
+             const headers = jsonData[0].map(h => h.toString().toLowerCase().trim());
+             const rows = jsonData.slice(1);
+             
+             const findIndex = (names) => {
+                 for (const name of names) {
+                     const index = headers.indexOf(name);
+                     if (index !== -1) return index;
+                 }
+                 return -1;
+             };
+             
+             const cols = {
+                ticketId: findIndex(['ticket id', 'ticketid', 'ticket']),
+                orderReceived: findIndex(['order received', 'orderreceived', 'date']),
+                type: findIndex(['type', 'service type']),
+                urgent: findIndex(['urgent', 'urgent?']),
+                customer: findIndex(['customer', 'client']),
+             };
+
+            if (cols.ticketId === -1 || cols.orderReceived === -1) {
+                throw new Error("File must contain 'Ticket ID' and 'Order Received' columns.");
+            }
+
+            return rows.map(row => {
+                const rawDate = row[cols.orderReceived];
+                const convertedDate = (typeof rawDate === 'number') ? convertExcelDate(rawDate) : rawDate;
+                const aging = calculateAging(convertedDate);
+
+                // Skip rows with invalid aging
+                if (isNaN(aging)) return null;
+
+                return {
+                    ticketId: row[cols.ticketId].toString(),
+                    orderReceived: convertedDate,
+                    type: row[cols.type] || 'N/A',
+                    urgent: row[cols.urgent] || 'No',
+                    customer: row[cols.customer] || 'N/A',
+                    aging: aging,
+                };
+            }).filter(Boolean); // Filter out null items
+        }
+
+        function parseExcel(arrayBuffer) {
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
+            return parseData(jsonData);
+        }
+
+        function parseDelimitedText(text) {
+            const jsonData = text.split('\n').map(line => line.split(',').map(cell => cell.trim()));
+            return parseData(jsonData);
+        }
+        
+        // ================================
+        // EVENT HANDLERS
+        // ================================
+        function initializeEventHandlers() {
+            document.getElementById('adminBtn').addEventListener('click', () => {
+                document.getElementById('passwordModal').style.display = 'flex';
+                document.getElementById('adminPassword').focus();
+            });
+            
+            document.getElementById('refreshBtn').addEventListener('click', loadDataFromDatabase);
+
+            document.getElementById('cancelBtn').addEventListener('click', () => {
+                document.getElementById('passwordModal').style.display = 'none';
+                document.getElementById('adminPassword').value = '';
+            });
+
+            document.getElementById('accessBtn').addEventListener('click', () => {
+                if (document.getElementById('adminPassword').value === CONFIG.adminPassword) {
+                    document.getElementById('passwordModal').style.display = 'none';
+                    document.getElementById('adminPassword').value = '';
+                    document.getElementById('fileInput').click();
+                } else {
+                    alert('❌ Incorrect password.');
+                    document.getElementById('adminPassword').focus();
+                }
+            });
+
+            document.getElementById('fileInput').addEventListener('change', (e) => {
+                if (e.target.files.length > 0) processFile(e.target.files[0]);
+                e.target.value = null; // Reset input
+            });
+            
+            document.getElementById('searchBox').addEventListener('input', applyFilters);
+
+            document.querySelectorAll('[data-filter]').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    applyFilters();
+                });
+            });
+
+            document.addEventListener('keydown', (e) => {
+                const modal = document.getElementById('passwordModal');
+                if (modal.style.display === 'flex') {
+                    if (e.key === 'Enter') document.getElementById('accessBtn').click();
+                    if (e.key === 'Escape') document.getElementById('cancelBtn').click();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
