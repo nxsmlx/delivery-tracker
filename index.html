@@ -319,7 +319,6 @@ tr:hover{background:var(--surface-2)}
                 <div class="stat-number aging-0" id="count-0">0</div>
                 <div class="stat-label">Same Day</div>
             </div>
-            </div>
             <div class="stat-card">
                 <div class="stat-number aging-1" id="count-1">0</div>
                 <div class="stat-label">1 Day Aging</div>
@@ -693,7 +692,7 @@ tr:hover{background:var(--surface-2)}
     );
     
     if (otherUrgentTickets.length > 0) {
-        html += `<div class="reminder-section"><div class="reminder-title">⚡ <span style="color: #e74c3c;">Urgent Items - Please Complete Today</span></div><ul class="reminder-list">${otherUrgentTickets.map(item => `<li class="reminder-item"><div><strong>${item.ticketId}</strong> - ${toProperCase(item.customer)}</div><span class="badge badge-urgent">URGENT</span></li>`).join('')}</ul></div>`;
+        html += `<div class="reminder-section"><div class="reminder-title">⚡ <span style="color: #e74c3c;">Urgent Items -Complete ASAP❗</span></div><ul class="reminder-list">${otherUrgentTickets.map(item => `<li class="reminder-item"><div><strong>${item.ticketId}</strong> - ${toProperCase(item.customer)}</div><span class="badge badge-urgent">URGENT</span></li>`).join('')}</ul></div>`;
     } else {
         html = `<div style="text-align: center; color: #27ae60; padding: 20px;">✅ <strong>Great job!</strong> No urgent actions required.</div>`;
     }
