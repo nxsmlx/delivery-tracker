@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Qube-Inventory Delivery Statistics</title>
     <link rel="icon" href="favicon.ico" type="image/png">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
     <style>
 :root{
     --bg-gradient: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
@@ -295,6 +294,38 @@ tr:hover {
     font-size: .875rem;
 }
 
+/* Status Messages */
+.status-message {
+    margin: 0 1.5rem 1.5rem;
+    padding: 0.875rem 1.125rem;
+    border-radius: var(--radius);
+    font-size: .875rem;
+}
+
+.status-info {
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    color: var(--accent);
+}
+
+.status-success {
+    background: #d1fae5;
+    border: 1px solid #a7f3d0;
+    color: var(--success);
+}
+
+.status-error {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: var(--error);
+}
+
+.status-warning {
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    color: var(--warning);
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .charts-grid {
@@ -376,557 +407,7 @@ tr:hover {
                 <div>
                     <h1>Delivery Performance Analytics</h1>
                     <p>Key insights into delivery operations and performance metrics</p>
-                <script>
-        // Supabase Configuration - Same as aging tracker
-        const SUPABASE_CONFIG = {
-            url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
-            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
-            tableName: 'delivery_data'
-        };
-
-        // Global variables
-        let chartsData = {};
-        let allCharts = {};
-
-        // Sample data for fallback
-        const sampleData = {
-            trends: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Daily Deliveries',
-                    data: [45, 52, 48, 61, 58, 43, 35],
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    borderWidth: 3
-                }]
-            },
-            services: {
-                labels: ['Installation', 'Maintenance', 'Repair', 'Delivery', 'Consultation'],
-                datasets: [{
-                    data: [30, 25, 20, 15, 10],
-                    backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-                    borderWidth: 0
-                }]
-            },
-            targets: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                datasets: [{
-                    label: 'Target',
-                    data: [100, 105, 110, 115],
-                    borderColor: '#94a3b8',
-                    backgroundColor: 'transparent',
-                    borderDash: [5, 5],
-                    tension: 0,
-                    borderWidth: 2
-                }, {
-                    label: 'Actual',
-                    data: [95, 108, 102, 118],
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    tension: 0.4,
-                    fill: '+1',
-                    borderWidth: 3
-                }]
-            },
-            monthly: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'This Year',
-                    data: [385, 445, 425, 478, 495, 520],
-                    backgroundColor: '#4f46e5',
-                    borderRadius: 8
-                }, {
-                    label: 'Last Year',
-                    data: [360, 420, 400, 450, 470, 480],
-                    backgroundColor: '#94a3b8',
-                    borderRadius: 8
-                }]
-            }
-        };
-
-        // Chart configurations
-        const chartConfigs = {
-            common: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 15,
-                            usePointStyle: true,
-                            font: {
-                                size: 11,
-                                weight: 'bold'
-                            }
-                        }
-                    }
-                }
-            }
-        };
-
-        // Load data from Supabase - USES ALL ROWS INCLUDING AGING=0 FOR STATISTICS
-        async function loadDataFromSupabase() {
-            try {
-                console.log('📊 Loading data from Supabase...');
-                
-                const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?select=*&order=created_at.desc`, {
-                    headers: {
-                        'apikey': SUPABASE_CONFIG.key,
-                        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Database error: ${response.status}`);
-                }
-
-                const rawData = await response.json();
-                console.log(`✅ Loaded ${rawData.length} delivery records`);
-
-                // Process ALL data (including completed deliveries for statistics)
-                const analyticsData = processAnalyticsData(rawData);
-                updateDashboardWithRealData(analyticsData);
-                updateAllCharts(analyticsData);
-                
-                return analyticsData;
-            } catch (error) {
-                console.error('❌ Error loading data:', error);
-                showNotification('Using sample data - database connection issue', 'info');
-                chartsData = sampleData;
-                updateAllCharts(sampleData);
-                return sampleData;
-            }
-        }
-
-        // Process analytics data from raw delivery data - INCLUDES ALL RECORDS
-        function processAnalyticsData(rawData) {
-            if (!rawData || rawData.length === 0) {
-                console.log('⚠️ No data available, using sample data');
-                return sampleData;
-            }
-
-            // Calculate KPIs from ALL deliveries (completed + pending)
-            const totalDeliveries = rawData.length;
-            const avgDeliveryTime = (rawData.reduce((sum, d) => sum + (d.aging || 0), 0) / totalDeliveries).toFixed(1);
-
-            // Calculate trends (last 7 days) - ALL deliveries
-            const last7Days = getLastNDays(7);
-            const trendsData = last7Days.map(date => {
-                const dayData = rawData.filter(d => {
-                    const orderDate = new Date(d.order_received);
-                    return orderDate.toDateString() === date.toDateString();
-                });
-                return {
-                    date: date.toLocaleDateString('en-MY', { weekday: 'short' }),
-                    total: dayData.length
-                };
-            });
-
-            // Calculate service type distribution - ALL records
-            const serviceTypes = {};
-            rawData.forEach(delivery => {
-                const type = delivery.type || 'Unknown';
-                serviceTypes[type] = (serviceTypes[type] || 0) + 1;
-            });
-
-            // Calculate weekly targets vs actual - ALL deliveries
-            const last4Weeks = getLastNWeeks(4);
-            const weeklyData = last4Weeks.map((week, index) => {
-                const weekData = rawData.filter(d => {
-                    const orderDate = new Date(d.order_received);
-                    return orderDate >= week.start && orderDate <= week.end;
-                });
-                return {
-                    week: `Week ${index + 1}`,
-                    actual: weekData.length,
-                    target: 100 + (index * 5) // Mock target progression
-                };
-            });
-
-            // Calculate monthly comparison (last 6 months) - ALL deliveries
-            const last6Months = getLastNMonths(6);
-            const monthlyData = last6Months.map(month => {
-                const monthData = rawData.filter(d => {
-                    const orderDate = new Date(d.order_received);
-                    return orderDate.getMonth() === month.month && orderDate.getFullYear() === month.year;
-                });
-                return {
-                    month: month.name,
-                    thisYear: monthData.length,
-                    lastYear: Math.max(0, monthData.length - Math.floor(Math.random() * 20)) // Mock last year data
-                };
-            });
-
-            // Calculate customer performance - ALL records
-            const customerStats = {};
-            rawData.forEach(delivery => {
-                const customer = delivery.customer || 'Unknown';
-                if (!customerStats[customer]) {
-                    customerStats[customer] = { total: 0, onTime: 0, totalAging: 0 };
-                }
-                customerStats[customer].total++;
-                if (delivery.aging <= 3) customerStats[customer].onTime++;
-                customerStats[customer].totalAging += delivery.aging || 0;
-            });
-
-            const topCustomers = Object.entries(customerStats)
-                .filter(([_, stats]) => stats.total >= 3) // Only customers with 3+ orders
-                .sort((a, b) => b[1].total - a[1].total)
-                .slice(0, 10)
-                .map(([customer, stats]) => ({
-                    customer,
-                    totalOrders: stats.total,
-                    onTimeRate: ((stats.onTime / stats.total) * 100).toFixed(1),
-                    avgDeliveryTime: (stats.totalAging / stats.total).toFixed(1),
-                    status: (stats.onTime / stats.total) > 0.95 ? 'Excellent' : 
-                           (stats.onTime / stats.total) > 0.90 ? 'Good' : 'Needs Improvement'
-                }));
-
-            chartsData = {
-                kpis: {
-                    totalDeliveries,
-                    avgDeliveryTime
-                },
-                trends: {
-                    labels: trendsData.map(d => d.date),
-                    datasets: [{
-                        label: 'Daily Deliveries',
-                        data: trendsData.map(d => d.total),
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3
-                    }]
-                },
-                services: {
-                    labels: Object.keys(serviceTypes).slice(0, 5),
-                    datasets: [{
-                        data: Object.values(serviceTypes).slice(0, 5),
-                        backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-                        borderWidth: 0
-                    }]
-                },
-                targets: {
-                    labels: weeklyData.map(w => w.week),
-                    datasets: [{
-                        label: 'Target',
-                        data: weeklyData.map(w => w.target),
-                        borderColor: '#94a3b8',
-                        backgroundColor: 'transparent',
-                        borderDash: [5, 5],
-                        tension: 0,
-                        borderWidth: 2
-                    }, {
-                        label: 'Actual',
-                        data: weeklyData.map(w => w.actual),
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        tension: 0.4,
-                        fill: '+1',
-                        borderWidth: 3
-                    }]
-                },
-                monthly: {
-                    labels: monthlyData.map(m => m.month),
-                    datasets: [{
-                        label: 'This Year',
-                        data: monthlyData.map(m => m.thisYear),
-                        backgroundColor: '#4f46e5',
-                        borderRadius: 8
-                    }, {
-                        label: 'Last Year',
-                        data: monthlyData.map(m => m.lastYear),
-                        backgroundColor: '#94a3b8',
-                        borderRadius: 8
-                    }]
-                },
-                customers: topCustomers
-            };
-
-            return chartsData;
-        }
-
-        // Helper functions
-        function getLastNDays(n) {
-            const days = [];
-            for (let i = n - 1; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                days.push(date);
-            }
-            return days;
-        }
-
-        function getLastNWeeks(n) {
-            const weeks = [];
-            for (let i = n - 1; i >= 0; i--) {
-                const endDate = new Date();
-                endDate.setDate(endDate.getDate() - (i * 7));
-                const startDate = new Date(endDate);
-                startDate.setDate(startDate.getDate() - 6);
-                weeks.push({ start: startDate, end: endDate });
-            }
-            return weeks;
-        }
-
-        function getLastNMonths(n) {
-            const months = [];
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            for (let i = n - 1; i >= 0; i--) {
-                const date = new Date();
-                date.setMonth(date.getMonth() - i);
-                months.push({
-                    month: date.getMonth(),
-                    year: date.getFullYear(),
-                    name: monthNames[date.getMonth()]
-                });
-            }
-            return months;
-        }
-
-        function updateDashboardWithRealData(analyticsData) {
-            // Update KPI cards
-            document.getElementById('totalDeliveries').textContent = analyticsData.kpis.totalDeliveries.toLocaleString();
-            document.getElementById('avgDeliveryTime').textContent = analyticsData.kpis.avgDeliveryTime;
-
-            // Update customer table
-            updateCustomerTable(analyticsData.customers);
-
-            console.log('📈 Dashboard updated with real data');
-        }
-
-        function updateCustomerTable(customers) {
-            const tableBody = document.getElementById('customerTable');
-            if (!customers || customers.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="5" class="no-data">No customer data available</td></tr>';
-                return;
-            }
-
-            tableBody.innerHTML = customers.map(customer => `
-                <tr>
-                    <td><strong>${customer.customer}</strong></td>
-                    <td>${customer.totalOrders}</td>
-                    <td>${customer.onTimeRate}%</td>
-                    <td>${customer.avgDeliveryTime} days</td>
-                    <td><span class="status-badge status-${customer.status.toLowerCase().replace(' ', '-')}">${customer.status}</span></td>
-                </tr>
-            `).join('');
-        }
-
-        // Initialize charts
-        function initCharts() {
-            // Delivery Volume Trends Chart
-            const trendsCtx = document.getElementById('trendsChart').getContext('2d');
-            allCharts.trends = new Chart(trendsCtx, {
-                type: 'line',
-                data: chartsData.trends || sampleData.trends,
-                options: {
-                    ...chartConfigs.common,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(0,0,0,0.05)' },
-                            ticks: { font: { weight: 'bold' } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { weight: 'bold' } }
-                        }
-                    }
-                }
-            });
-
-            // Service Type Performance (Pie Chart)
-            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
-            allCharts.services = new Chart(serviceCtx, {
-                type: 'pie',
-                data: chartsData.services || sampleData.services,
-                options: {
-                    ...chartConfigs.common,
-                    plugins: {
-                        ...chartConfigs.common.plugins,
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Performance vs Targets Chart
-            const targetCtx = document.getElementById('targetChart').getContext('2d');
-            allCharts.targets = new Chart(targetCtx, {
-                type: 'line',
-                data: chartsData.targets || sampleData.targets,
-                options: {
-                    ...chartConfigs.common,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            min: 80,
-                            grid: { color: 'rgba(0,0,0,0.05)' },
-                            ticks: { font: { weight: 'bold' } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { weight: 'bold' } }
-                        }
-                    }
-                }
-            });
-
-            // Monthly Comparison Chart
-            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
-            allCharts.monthly = new Chart(monthlyCtx, {
-                type: 'bar',
-                data: chartsData.monthly || sampleData.monthly,
-                options: {
-                    ...chartConfigs.common,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(0,0,0,0.05)' },
-                            ticks: { font: { weight: 'bold' } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { weight: 'bold' } }
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateAllCharts(newData) {
-            if (allCharts.trends && newData.trends) {
-                allCharts.trends.data = newData.trends;
-                allCharts.trends.update();
-            }
-            if (allCharts.services && newData.services) {
-                allCharts.services.data = newData.services;
-                allCharts.services.update();
-            }
-            if (allCharts.targets && newData.targets) {
-                allCharts.targets.data = newData.targets;
-                allCharts.targets.update();
-            }
-            if (allCharts.monthly && newData.monthly) {
-                allCharts.monthly.data = newData.monthly;
-                allCharts.monthly.update();
-            }
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#4f46e5'};
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 0.5rem;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-                z-index: 1000;
-                opacity: 0;
-                transform: translateX(100%);
-                transition: all 0.3s ease;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.opacity = '1';
-                notification.style.transform = 'translateX(0)';
-            }, 100);
-
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 300);
-            }, 4000);
-        }
-
-        function showLoadingState() {
-            document.querySelectorAll('.chart-canvas').forEach(canvas => {
-                canvas.innerHTML = '<div class="loading">Loading chart data...</div>';
-            });
-        }
-
-        function hideLoadingState() {
-            console.log('Charts updated with new data');
-        }
-
-        // Event handlers
-        function setupEventHandlers() {
-            document.querySelectorAll('.nav-pill').forEach(pill => {
-                pill.addEventListener('click', (e) => {
-                    if (e.target.getAttribute('href') === '/aging.html') return; // Skip for navigation link
-                    
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
-                    e.target.classList.add('active');
-                    
-                    showNotification(`Filtering data for ${e.target.textContent}`, 'info');
-                    // Here you would filter data based on the selected period
-                });
-            });
-        }
-
-        // Auto-refresh functionality
-        function setupAutoRefresh() {
-            setInterval(async () => {
-                console.log('Auto-refreshing dashboard data...');
-                await loadDataFromSupabase();
-                showNotification('Dashboard data refreshed', 'success');
-            }, 5 * 60 * 1000); // 5 minutes
-        }
-
-        // Initialize everything when the page loads
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 Initializing Delivery Statistics Dashboard...');
-            
-            // Set up the interface
-            setupEventHandlers();
-            
-            // Load initial data from Supabase
-            showLoadingState();
-            const initialData = await loadDataFromSupabase();
-            hideLoadingState();
-            
-            // Initialize charts with real data
-            initCharts();
-            
-            // Set up auto-refresh
-            setupAutoRefresh();
-            
-            // Add animation delays for staggered loading effect
-            document.querySelectorAll('.slide-up').forEach((element, index) => {
-                element.style.animationDelay = `${index * 0.1}s`;
-            });
-            
-            console.log('✅ Dashboard initialization complete!');
-            showNotification('Dashboard loaded successfully!', 'success');
-        });
-    </script>
-</body>
-</html>
+                </div>
             </div>
             
             <div class="header-actions">
@@ -940,70 +421,125 @@ tr:hover {
             </div>
         </div>
 
+        <!-- Status Messages -->
+        <div id="statusMessage"></div>
+
         <!-- KPI Cards - Only 2 -->
         <div class="kpi-grid slide-up">
             <div class="kpi-card">
-                <div class="kpi-number" id="totalDeliveries">1,247</div>
+                <div class="kpi-number" id="totalDeliveries">-</div>
                 <div class="kpi-label">Total Deliveries</div>
             </div>
             
             <div class="kpi-card">
-                <div class="kpi-number" id="avgDeliveryTime">2.1</div>
+                <div class="kpi-number" id="avgDeliveryTime">-</div>
                 <div class="kpi-label">Average Delivery Days</div>
             </div>
         </div>
 
-        <!-- Charts Grid - 2x2 -->
+        <!-- Charts Grid - Now Cards with Tables -->
         <div class="charts-grid slide-up">
-            <!-- Delivery Volume Trends Chart -->
+            <!-- Volume Trends Card -->
             <div class="chart-container">
                 <div class="chart-header">
                     <div>
-                        <div class="chart-title">Delivery Volume Trends</div>
-                        <div class="chart-subtitle">Daily delivery completions over time</div>
+                        <div class="chart-title">Daily Volume (Last 7 Days)</div>
+                        <div class="chart-subtitle">Delivery volume by day</div>
                     </div>
                 </div>
                 <div class="chart-canvas">
-                    <canvas id="trendsChart"></canvas>
+                    <div id="volumeTable">
+                        <table style="width: 100%; font-size: 0.875rem;">
+                            <thead>
+                                <tr style="background: var(--surface-2);">
+                                    <th style="padding: 0.5rem; text-align: left;">Day</th>
+                                    <th style="padding: 0.5rem; text-align: right;">Deliveries</th>
+                                    <th style="padding: 0.5rem; text-align: right;">vs Prev Week</th>
+                                </tr>
+                            </thead>
+                            <tbody id="volumeTableBody">
+                                <tr><td colspan="3" class="loading">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             
-            <!-- Service Type Performance (Pie Chart) -->
+            <!-- Service Types Card -->
             <div class="chart-container">
                 <div class="chart-header">
                     <div>
-                        <div class="chart-title">Service Type Performance</div>
-                        <div class="chart-subtitle">Volume breakdown by service type</div>
+                        <div class="chart-title">Service Types</div>
+                        <div class="chart-subtitle">Volume by service category</div>
                     </div>
                 </div>
                 <div class="chart-canvas">
-                    <canvas id="serviceChart"></canvas>
+                    <div id="serviceTable">
+                        <table style="width: 100%; font-size: 0.875rem;">
+                            <thead>
+                                <tr style="background: var(--surface-2);">
+                                    <th style="padding: 0.5rem; text-align: left;">Service Type</th>
+                                    <th style="padding: 0.5rem; text-align: right;">Count</th>
+                                    <th style="padding: 0.5rem; text-align: right;">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="serviceTableBody">
+                                <tr><td colspan="3" class="loading">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- Performance vs Targets -->
+            <!-- Monthly Performance Card -->
             <div class="chart-container">
                 <div class="chart-header">
                     <div>
-                        <div class="chart-title">Performance vs Targets</div>
-                        <div class="chart-subtitle">Actual vs target deliveries</div>
+                        <div class="chart-title">Monthly Performance</div>
+                        <div class="chart-subtitle">Current vs previous month</div>
                     </div>
                 </div>
                 <div class="chart-canvas">
-                    <canvas id="targetChart"></canvas>
+                    <div id="monthlyCard" style="text-align: center; padding: 2rem;">
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.25rem;" id="thisMonthCount">-</div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">This Month</div>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 0.25rem;" id="lastMonthCount">-</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Previous Month</div>
+                        </div>
+                        <div id="monthlyChange" style="font-size: 0.875rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 999px; display: inline-block;">
+                            Loading...
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <!-- Monthly Comparison -->
+            <!-- Weekly Targets Card -->
             <div class="chart-container">
                 <div class="chart-header">
                     <div>
-                        <div class="chart-title">Monthly Comparison</div>
-                        <div class="chart-subtitle">Month-over-month performance</div>
+                        <div class="chart-title">Weekly Targets</div>
+                        <div class="chart-subtitle">Performance vs targets</div>
                     </div>
                 </div>
                 <div class="chart-canvas">
-                    <canvas id="monthlyChart"></canvas>
+                    <div id="targetsTable">
+                        <table style="width: 100%; font-size: 0.875rem;">
+                            <thead>
+                                <tr style="background: var(--surface-2);">
+                                    <th style="padding: 0.5rem; text-align: left;">Week</th>
+                                    <th style="padding: 0.5rem; text-align: right;">Target</th>
+                                    <th style="padding: 0.5rem; text-align: right;">Actual</th>
+                                    <th style="padding: 0.5rem; text-align: right;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="targetsTableBody">
+                                <tr><td colspan="4" class="loading">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1025,41 +561,7 @@ tr:hover {
                         </tr>
                     </thead>
                     <tbody id="customerTable">
-                        <tr>
-                            <td><strong>Acme Corporation</strong></td>
-                            <td>156</td>
-                            <td>97.4%</td>
-                            <td>1.8 days</td>
-                            <td><span class="status-badge status-excellent">Excellent</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Tech Solutions Ltd</strong></td>
-                            <td>89</td>
-                            <td>94.7%</td>
-                            <td>2.1 days</td>
-                            <td><span class="status-badge status-good">Good</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Global Industries</strong></td>
-                            <td>124</td>
-                            <td>89.5%</td>
-                            <td>2.6 days</td>
-                            <td><span class="status-badge status-needs-improvement">Needs Improvement</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>StartUp Inc</strong></td>
-                            <td>67</td>
-                            <td>95.5%</td>
-                            <td>2.0 days</td>
-                            <td><span class="status-badge status-excellent">Excellent</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Enterprise Corp</strong></td>
-                            <td>203</td>
-                            <td>92.1%</td>
-                            <td>2.3 days</td>
-                            <td><span class="status-badge status-good">Good</span></td>
-                        </tr>
+                        <tr><td colspan="5" class="loading">Loading customer data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1067,222 +569,34 @@ tr:hover {
     </div>
 
     <script>
-        // Supabase Configuration
+        // Supabase Configuration - Uses SEPARATE table for complete delivery data
         const SUPABASE_CONFIG = {
             url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
             key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
-            tableName: 'delivery_data'
+            tableName: 'delivery_analytics', // MAIN table for complete data
+            agingTableName: 'delivery_data'  // Fallback aging tracker table
         };
 
-        // Global variables
-        let chartsData = {};
-
-        // Sample data for fallback
-        const sampleData = {
-            trends: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Daily Deliveries',
-                    data: [45, 52, 48, 61, 58, 43, 35],
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    borderWidth: 3
-                }]
-            },
-            services: {
-                labels: ['Installation', 'Maintenance', 'Repair', 'Delivery', 'Consultation'],
-                datasets: [{
-                    data: [30, 25, 20, 15, 10],
-                    backgroundColor: [
-                        '#4f46e5',
-                        '#10b981', 
-                        '#f59e0b',
-                        '#ef4444',
-                        '#8b5cf6'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            targets: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                datasets: [{
-                    label: 'Target',
-                    data: [100, 105, 110, 115],
-                    borderColor: '#94a3b8',
-                    backgroundColor: 'transparent',
-                    borderDash: [5, 5],
-                    tension: 0,
-                    borderWidth: 2
-                }, {
-                    label: 'Actual',
-                    data: [95, 108, 102, 118],
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    tension: 0.4,
-                    fill: '+1',
-                    borderWidth: 3
-                }]
-            },
-            monthly: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'This Year',
-                    data: [385, 445, 425, 478, 495, 520],
-                    backgroundColor: '#4f46e5',
-                    borderRadius: 8
-                }, {
-                    label: 'Last Year',
-                    data: [360, 420, 400, 450, 470, 480],
-                    backgroundColor: '#94a3b8',
-                    borderRadius: 8
-                }]
+        // Show status messages
+        function showMessage(message, type = 'info', duration = 5000) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+            
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, duration);
             }
-        };
-
-        // Chart configurations
-        const chartConfigs = {
-            common: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true,
-                            font: {
-                                size: 12,
-                                weight: 'bold'
-                            }
-                        }
-                    }
-                }
-            }
-        };
-
-        // Initialize charts
-        function initCharts() {
-            // Delivery Volume Trends Chart
-            const trendsCtx = document.getElementById('trendsChart').getContext('2d');
-            new Chart(trendsCtx, {
-                type: 'line',
-                data: chartsData.trends || sampleData.trends,
-                options: {
-                    ...chartConfigs.common,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            },
-                            ticks: {
-                                font: { weight: 'bold' }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                font: { weight: 'bold' }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Service Type Performance (Pie Chart)
-            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
-            new Chart(serviceCtx, {
-                type: 'pie',
-                data: chartsData.services || sampleData.services,
-                options: {
-                    ...chartConfigs.common,
-                    plugins: {
-                        ...chartConfigs.common.plugins,
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Performance vs Targets Chart
-            const targetCtx = document.getElementById('targetChart').getContext('2d');
-            new Chart(targetCtx, {
-                type: 'line',
-                data: chartsData.targets || sampleData.targets,
-                options: {
-                    ...chartConfigs.common,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            min: 80,
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            },
-                            ticks: {
-                                font: { weight: 'bold' }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                font: { weight: 'bold' }
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Monthly Comparison Chart
-            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
-            new Chart(monthlyCtx, {
-                type: 'bar',
-                data: chartsData.monthly || sampleData.monthly,
-                options: {
-                    ...chartConfigs.common,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            },
-                            ticks: {
-                                font: { weight: 'bold' }
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                font: { weight: 'bold' }
-                            }
-                        }
-                    }
-                }
-            });
         }
 
-        // Load data from Supabase
+        // Load data from separate analytics database
         async function loadDataFromSupabase() {
             try {
-                console.log('📊 Loading data from Supabase...');
+                console.log('📊 Loading complete analytics data...');
+                showMessage('🔄 Loading analytics data...', 'info', 3000);
                 
-                const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?select=*&order=created_at.desc`, {
+                // Try to load from analytics table first
+                let response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?select=*&order=created_at.desc`, {
                     headers: {
                         'apikey': SUPABASE_CONFIG.key,
                         'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
@@ -1290,146 +604,354 @@ tr:hover {
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Database error: ${response.status}`);
+                let rawData = [];
+                
+                if (response.ok) {
+                    rawData = await response.json();
+                    if (rawData.length > 0) {
+                        console.log(`✅ Loaded ${rawData.length} records from analytics database`);
+                        showMessage(`✅ Analytics data loaded (${rawData.length} records)`, 'success');
+                    } else {
+                        throw new Error('Analytics table is empty');
+                    }
+                } else {
+                    throw new Error(`Analytics table error: ${response.status}`);
                 }
 
-                const rawData = await response.json();
-                console.log(`✅ Loaded ${rawData.length} delivery records`);
-
-                const analyticsData = processAnalyticsData(rawData);
+                // Process the complete data
+                const analyticsData = processCompleteAnalyticsData(rawData);
                 updateDashboardWithRealData(analyticsData);
                 
                 return analyticsData;
             } catch (error) {
-                console.error('❌ Error loading data:', error);
-                showNotification('Using sample data - database connection issue', 'info');
-                chartsData = sampleData;
-                return sampleData;
+                console.error('❌ Analytics database error:', error);
+                
+                // Fallback: try to use aging data but inform user about limitation
+                try {
+                    console.log('🔄 Falling back to aging tracker data (limited analytics)...');
+                    const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.agingTableName}?select=*&order=created_at.desc`, {
+                        headers: {
+                            'apikey': SUPABASE_CONFIG.key,
+                            'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const agingData = await response.json();
+                        console.log(`⚠️ Using ${agingData.length} filtered records (incomplete analytics)`);
+                        showMessage(`⚠️ Using limited data from aging tracker (${agingData.length} records). Please set up complete analytics database for full statistics.`, 'warning', 8000);
+                        
+                        const analyticsData = processCompleteAnalyticsData(agingData);
+                        updateDashboardWithRealData(analyticsData);
+                        return analyticsData;
+                    }
+                } catch (fallbackError) {
+                    console.error('❌ Fallback also failed:', fallbackError);
+                }
+                
+                // Final fallback to sample data
+                showMessage(`❌ Database connection failed: ${error.message}. Using sample data.`, 'error');
+                const analyticsData = generateSampleAnalytics();
+                updateDashboardWithRealData(analyticsData);
+                return analyticsData;
             }
         }
 
-        // Process analytics data from raw delivery data
-        function processAnalyticsData(rawData) {
+        // Process complete analytics data
+        function processCompleteAnalyticsData(rawData) {
             if (!rawData || rawData.length === 0) {
-                console.log('⚠️ No data available, using sample data');
-                return sampleData;
+                return generateSampleAnalytics();
             }
+
+            console.log(`📊 Processing ${rawData.length} complete delivery records`);
 
             // Calculate KPIs
             const totalDeliveries = rawData.length;
-            const avgDeliveryTime = (rawData.reduce((sum, d) => sum + (d.aging || 0), 0) / totalDeliveries).toFixed(1);
+            const recordsWithAging = rawData.filter(d => d.aging !== null && d.aging !== undefined && d.aging > 0);
+            const avgDeliveryTime = recordsWithAging.length > 0 
+                ? (recordsWithAging.reduce((sum, d) => sum + d.aging, 0) / recordsWithAging.length).toFixed(1)
+                : '0.0';
 
-            // Calculate trends (last 7 days)
+            // Calculate monthly performance (current vs previous)
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            const thisMonthData = rawData.filter(d => {
+                if (!d.order_received) return false;
+                const orderDate = new Date(d.order_received);
+                return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+            });
+            
+            const lastMonthData = rawData.filter(d => {
+                if (!d.order_received) return false;
+                const orderDate = new Date(d.order_received);
+                const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+                return orderDate.getMonth() === lastMonth && orderDate.getFullYear() === lastMonthYear;
+            });
+
+            const thisMonthCount = thisMonthData.length;
+            const lastMonthCount = lastMonthData.length;
+            const monthlyChangePercent = lastMonthCount > 0 
+                ? (((thisMonthCount - lastMonthCount) / lastMonthCount) * 100).toFixed(1)
+                : '0.0';
+
+            // Calculate last 7 days volume
             const last7Days = getLastNDays(7);
-            const trendsData = last7Days.map(date => {
+            const volumeData = last7Days.map((date, index) => {
                 const dayData = rawData.filter(d => {
-                    const orderDate = new Date(d.order_received).toDateString();
-                    return orderDate === date.toDateString();
+                    if (!d.order_received) return false;
+                    const orderDate = new Date(d.order_received);
+                    return orderDate.toDateString() === date.toDateString();
                 });
+                
+                // Calculate previous week same day for comparison
+                const prevWeekDate = new Date(date);
+                prevWeekDate.setDate(prevWeekDate.getDate() - 7);
+                const prevWeekData = rawData.filter(d => {
+                    if (!d.order_received) return false;
+                    const orderDate = new Date(d.order_received);
+                    return orderDate.toDateString() === prevWeekDate.toDateString();
+                });
+                
+                const change = prevWeekData.length > 0 ? dayData.length - prevWeekData.length : 0;
+                
                 return {
-                    date: date.toLocaleDateString('en-MY', { weekday: 'short' }),
-                    total: dayData.length
+                    day: date.toLocaleDateString('en-MY', { weekday: 'short' }),
+                    count: dayData.length,
+                    change: change,
+                    changePercent: prevWeekData.length > 0 ? (((dayData.length - prevWeekData.length) / prevWeekData.length) * 100).toFixed(1) : '0'
                 };
             });
 
-            // Calculate service type distribution
+            // Calculate service types
             const serviceTypes = {};
             rawData.forEach(delivery => {
                 const type = delivery.type || 'Unknown';
                 serviceTypes[type] = (serviceTypes[type] || 0) + 1;
             });
 
-            // Calculate weekly targets vs actual
+            const serviceData = Object.entries(serviceTypes)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 6)
+                .map(([type, count]) => ({
+                    type,
+                    count,
+                    percentage: ((count / totalDeliveries) * 100).toFixed(1)
+                }));
+
+            // Calculate weekly targets
             const last4Weeks = getLastNWeeks(4);
             const weeklyData = last4Weeks.map((week, index) => {
                 const weekData = rawData.filter(d => {
+                    if (!d.order_received) return false;
                     const orderDate = new Date(d.order_received);
                     return orderDate >= week.start && orderDate <= week.end;
                 });
+                
+                const target = 80 + (index * 10); // Progressive targets
+                const actual = weekData.length;
+                const status = actual >= target ? 'Met' : 'Below';
+                
                 return {
                     week: `Week ${index + 1}`,
-                    actual: weekData.length,
-                    target: 100 + (index * 5) // Mock target progression
+                    target,
+                    actual,
+                    status,
+                    percentage: target > 0 ? ((actual / target) * 100).toFixed(1) : '0'
                 };
             });
 
-            // Calculate monthly comparison (last 6 months)
-            const last6Months = getLastNMonths(6);
-            const monthlyData = last6Months.map(month => {
-                const monthData = rawData.filter(d => {
-                    const orderDate = new Date(d.order_received);
-                    return orderDate.getMonth() === month.month && orderDate.getFullYear() === month.year;
+            // Calculate customer performance
+            const customerStats = {};
+            rawData.forEach(delivery => {
+                const customer = delivery.customer || 'Unknown';
+                if (!customerStats[customer]) {
+                    customerStats[customer] = { total: 0, onTime: 0, totalAging: 0, agingCount: 0 };
+                }
+                customerStats[customer].total++;
+                
+                if (delivery.aging !== null && delivery.aging !== undefined && delivery.aging > 0) {
+                    customerStats[customer].agingCount++;
+                    customerStats[customer].totalAging += delivery.aging;
+                    if (delivery.aging <= 3) customerStats[customer].onTime++;
+                }
+            });
+
+            const topCustomers = Object.entries(customerStats)
+                .filter(([_, stats]) => stats.total >= 2)
+                .sort((a, b) => b[1].total - a[1].total)
+                .slice(0, 10)
+                .map(([customer, stats]) => {
+                    const onTimeRate = stats.agingCount > 0 ? ((stats.onTime / stats.agingCount) * 100).toFixed(1) : 'N/A';
+                    const avgDeliveryTime = stats.agingCount > 0 ? (stats.totalAging / stats.agingCount).toFixed(1) : 'N/A';
+                    
+                    let status = 'Unknown';
+                    if (stats.agingCount > 0) {
+                        const rate = stats.onTime / stats.agingCount;
+                        status = rate > 0.95 ? 'Excellent' : rate > 0.90 ? 'Good' : 'Needs Improvement';
+                    }
+                    
+                    return {
+                        customer,
+                        totalOrders: stats.total,
+                        onTimeRate,
+                        avgDeliveryTime,
+                        status
+                    };
                 });
-                return {
-                    month: month.name,
-                    thisYear: monthData.length,
-                    lastYear: monthData.length - Math.floor(Math.random() * 50) // Mock last year data
-                };
-            });
 
-            chartsData = {
+            return {
                 kpis: {
                     totalDeliveries,
                     avgDeliveryTime
                 },
-                trends: {
-                    labels: trendsData.map(d => d.date),
-                    datasets: [{
-                        label: 'Daily Deliveries',
-                        data: trendsData.map(d => d.total),
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3
-                    }]
+                monthly: {
+                    thisMonth: thisMonthCount,
+                    lastMonth: lastMonthCount,
+                    change: monthlyChangePercent
                 },
-                services: {
-                    labels: Object.keys(serviceTypes).slice(0, 5),
-                    datasets: [{
-                        data: Object.values(serviceTypes).slice(0, 5),
-                        backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-                        borderWidth: 0
-                    }]
-                },
-                targets: {
-                    labels: weeklyData.map(w => w.week),
-                    datasets: [{
-                        label: 'Target',
-                        data: weeklyData.map(w => w.target),
-                        borderColor: '#94a3b8',
-                        backgroundColor: 'transparent',
-                        borderDash: [5, 5],
-                        tension: 0,
-                        borderWidth: 2
-                    }, {
-                        label: 'Actual',
-                        data: weeklyData.map(w => w.actual),
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        tension: 0.4,
-                        fill: '+1',
-                        borderWidth: 3
-                    }]
+                volume: volumeData,
+                services: serviceData,
+                targets: weeklyData,
+                customers: topCustomers
+            };
+        }
+
+        function generateSampleAnalytics() {
+            return {
+                kpis: {
+                    totalDeliveries: 1247,
+                    avgDeliveryTime: '2.1'
                 },
                 monthly: {
-                    labels: monthlyData.map(m => m.month),
-                    datasets: [{
-                        label: 'This Year',
-                        data: monthlyData.map(m => m.thisYear),
-                        backgroundColor: '#4f46e5',
-                        borderRadius: 8
-                    }, {
-                        label: 'Last Year',
-                        data: monthlyData.map(m => m.lastYear),
-                        backgroundColor: '#94a3b8',
-                        borderRadius: 8
-                    }]
-                }
+                    thisMonth: 342,
+                    lastMonth: 298,
+                    change: '14.8'
+                },
+                volume: [
+                    { day: 'Mon', count: 45, change: 3, changePercent: '7.1' },
+                    { day: 'Tue', count: 52, change: -2, changePercent: '-3.7' },
+                    { day: 'Wed', count: 48, change: 5, changePercent: '11.6' },
+                    { day: 'Thu', count: 61, change: 8, changePercent: '15.1' },
+                    { day: 'Fri', count: 58, change: -1, changePercent: '-1.7' },
+                    { day: 'Sat', count: 43, change: 2, changePercent: '4.9' },
+                    { day: 'Sun', count: 35, change: -3, changePercent: '-7.9' }
+                ],
+                services: [
+                    { type: 'Installation', count: 450, percentage: '36.1' },
+                    { type: 'Maintenance', count: 320, percentage: '25.7' },
+                    { type: 'Repair', count: 280, percentage: '22.5' },
+                    { type: 'Delivery', count: 150, percentage: '12.0' },
+                    { type: 'Consultation', count: 47, percentage: '3.7' }
+                ],
+                targets: [
+                    { week: 'Week 1', target: 80, actual: 95, status: 'Met', percentage: '118.8' },
+                    { week: 'Week 2', target: 90, actual: 108, status: 'Met', percentage: '120.0' },
+                    { week: 'Week 3', target: 100, actual: 89, status: 'Below', percentage: '89.0' },
+                    { week: 'Week 4', target: 110, actual: 118, status: 'Met', percentage: '107.3' }
+                ],
+                customers: [
+                    { customer: 'Acme Corporation', totalOrders: 156, onTimeRate: '97.4', avgDeliveryTime: '1.8', status: 'Excellent' },
+                    { customer: 'Tech Solutions Ltd', totalOrders: 89, onTimeRate: '94.7', avgDeliveryTime: '2.1', status: 'Good' },
+                    { customer: 'Global Industries', totalOrders: 124, onTimeRate: '89.5', avgDeliveryTime: '2.6', status: 'Needs Improvement' }
+                ]
             };
+        }
 
-            return chartsData;
+        function updateDashboardWithRealData(analyticsData) {
+            // Update KPI cards
+            document.getElementById('totalDeliveries').textContent = analyticsData.kpis.totalDeliveries.toLocaleString();
+            document.getElementById('avgDeliveryTime').textContent = analyticsData.kpis.avgDeliveryTime;
+
+            // Update volume table
+            updateVolumeTable(analyticsData.volume);
+            
+            // Update service table
+            updateServiceTable(analyticsData.services);
+            
+            // Update monthly card
+            updateMonthlyCard(analyticsData.monthly);
+            
+            // Update targets table
+            updateTargetsTable(analyticsData.targets);
+            
+            // Update customer table
+            updateCustomerTable(analyticsData.customers);
+
+            console.log('📈 Dashboard updated with analytics data');
+        }
+
+        function updateVolumeTable(volumeData) {
+            const tbody = document.getElementById('volumeTableBody');
+            tbody.innerHTML = volumeData.map(item => `
+                <tr>
+                    <td style="padding: 0.5rem;">${item.day}</td>
+                    <td style="padding: 0.5rem; text-align: right; font-weight: 600;">${item.count}</td>
+                    <td style="padding: 0.5rem; text-align: right; color: ${item.change >= 0 ? 'var(--success)' : 'var(--error)'};">
+                        ${item.change >= 0 ? '+' : ''}${item.change} (${item.changePercent}%)
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateServiceTable(serviceData) {
+            const tbody = document.getElementById('serviceTableBody');
+            tbody.innerHTML = serviceData.map(item => `
+                <tr>
+                    <td style="padding: 0.5rem;">${item.type}</td>
+                    <td style="padding: 0.5rem; text-align: right; font-weight: 600;">${item.count}</td>
+                    <td style="padding: 0.5rem; text-align: right;">${item.percentage}%</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateMonthlyCard(monthlyData) {
+            document.getElementById('thisMonthCount').textContent = monthlyData.thisMonth.toLocaleString();
+            document.getElementById('lastMonthCount').textContent = monthlyData.lastMonth.toLocaleString();
+            
+            const changeElement = document.getElementById('monthlyChange');
+            const change = parseFloat(monthlyData.change);
+            const isPositive = change >= 0;
+            
+            changeElement.textContent = `${isPositive ? '+' : ''}${monthlyData.change}% vs previous month`;
+            changeElement.style.background = isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+            changeElement.style.color = isPositive ? 'var(--success)' : 'var(--error)';
+        }
+
+        function updateTargetsTable(targetsData) {
+            const tbody = document.getElementById('targetsTableBody');
+            tbody.innerHTML = targetsData.map(item => `
+                <tr>
+                    <td style="padding: 0.5rem;">${item.week}</td>
+                    <td style="padding: 0.5rem; text-align: right;">${item.target}</td>
+                    <td style="padding: 0.5rem; text-align: right; font-weight: 600;">${item.actual}</td>
+                    <td style="padding: 0.5rem; text-align: right;">
+                        <span style="color: ${item.status === 'Met' ? 'var(--success)' : 'var(--error)'}; font-weight: 600;">
+                            ${item.status} (${item.percentage}%)
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateCustomerTable(customers) {
+            const tableBody = document.getElementById('customerTable');
+            if (!customers || customers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="no-data">No customer data available</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = customers.map(customer => `
+                <tr>
+                    <td><strong>${customer.customer}</strong></td>
+                    <td>${customer.totalOrders}</td>
+                    <td>${customer.onTimeRate === 'N/A' ? 'N/A' : customer.onTimeRate + '%'}</td>
+                    <td>${customer.avgDeliveryTime === 'N/A' ? 'N/A' : customer.avgDeliveryTime + ' days'}</td>
+                    <td><span class="status-badge status-${customer.status.toLowerCase().replace(' ', '-')}">${customer.status}</span></td>
+                </tr>
+            `).join('');
         }
 
         // Helper functions
@@ -1455,70 +977,18 @@ tr:hover {
             return weeks;
         }
 
-        function getLastNMonths(n) {
-            const months = [];
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            for (let i = n - 1; i >= 0; i--) {
-                const date = new Date();
-                date.setMonth(date.getMonth() - i);
-                months.push({
-                    month: date.getMonth(),
-                    year: date.getFullYear(),
-                    name: monthNames[date.getMonth()]
-                });
-            }
-            return months;
-        }
-
-        function updateDashboardWithRealData(analyticsData) {
-            // Update KPI cards
-            document.getElementById('totalDeliveries').textContent = analyticsData.kpis.totalDeliveries.toLocaleString();
-            document.getElementById('avgDeliveryTime').textContent = analyticsData.kpis.avgDeliveryTime;
-
-            console.log('📈 Dashboard updated with real data');
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#4f46e5'};
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 0.5rem;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-                z-index: 1000;
-                opacity: 0;
-                transform: translateX(100%);
-                transition: all 0.3s ease;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.opacity = '1';
-                notification.style.transform = 'translateX(0)';
-            }, 100);
-
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 4000);
-        }
-
         function showLoadingState() {
-            document.querySelectorAll('.chart-canvas').forEach(canvas => {
-                canvas.innerHTML = '<div class="loading">Loading chart data...</div>';
-            });
+            document.getElementById('volumeTableBody').innerHTML = '<tr><td colspan="3" class="loading">Loading volume data...</td></tr>';
+            document.getElementById('serviceTableBody').innerHTML = '<tr><td colspan="3" class="loading">Loading service data...</td></tr>';
+            document.getElementById('targetsTableBody').innerHTML = '<tr><td colspan="4" class="loading">Loading targets data...</td></tr>';
+            document.getElementById('customerTable').innerHTML = '<tr><td colspan="5" class="loading">Loading customer data...</td></tr>';
+            document.getElementById('thisMonthCount').textContent = '-';
+            document.getElementById('lastMonthCount').textContent = '-';
+            document.getElementById('monthlyChange').textContent = 'Loading...';
         }
 
         function hideLoadingState() {
-            console.log('Charts updated with new data');
+            console.log('Data loading complete');
         }
 
         // Event handlers
@@ -1531,7 +1001,7 @@ tr:hover {
                     document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
                     e.target.classList.add('active');
                     
-                    showNotification(`Filtering data for ${e.target.textContent}`, 'info');
+                    showMessage(`Filtering data for ${e.target.textContent}`, 'info', 2000);
                     // Here you would filter data based on the selected period
                 });
             });
@@ -1542,7 +1012,6 @@ tr:hover {
             setInterval(async () => {
                 console.log('Auto-refreshing dashboard data...');
                 await loadDataFromSupabase();
-                showNotification('Dashboard data refreshed', 'success');
             }, 5 * 60 * 1000); // 5 minutes
         }
 
@@ -1553,13 +1022,10 @@ tr:hover {
             // Set up the interface
             setupEventHandlers();
             
-            // Load initial data from Supabase
+            // Load initial data
             showLoadingState();
             const initialData = await loadDataFromSupabase();
             hideLoadingState();
-            
-            // Initialize charts with real data
-            initCharts();
             
             // Set up auto-refresh
             setupAutoRefresh();
@@ -1570,7 +1036,6 @@ tr:hover {
             });
             
             console.log('✅ Dashboard initialization complete!');
-            showNotification('Dashboard loaded successfully!', 'success');
         });
     </script>
 </body>
