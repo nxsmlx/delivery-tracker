@@ -310,8 +310,8 @@ tr:hover{background:var(--surface-2)}
     <button class="btn btn-secondary" id="refreshBtn">🔄 Refresh Data</button>
     <a href="/" class="btn btn-secondary">📊 Statistics</a>
     <button class="btn-icon" id="adminBtn" title="Admin Panel">
-            <!-- existing SVG -->
-        </button>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    </button>
         </div>
 
         <div class="stats">
@@ -408,13 +408,14 @@ tr:hover{background:var(--surface-2)}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         // ================================
-        // CONFIGURATION - UPDATE WITH YOUR SUPABASE DETAILS
+        // CONFIGURATION - DUAL DATABASE SUPPORT
         // ================================
         const CONFIG = {
             supabase: {
                 url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
                 key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
-                tableName: 'delivery_data'
+                tableName: 'delivery_data',        // Aging tracker table (filtered data)
+                analyticsTable: 'delivery_analytics' // Statistics table (complete data)
             },
             adminPassword: 'qube2025'
         };
@@ -425,7 +426,7 @@ tr:hover{background:var(--surface-2)}
         let filteredData = [];
 
         // ================================
-        // SUPABASE CLIENT
+        // SUPABASE CLIENT - UPDATED WITH DUAL DATABASE SUPPORT
         // ================================
         class SupabaseClient {
             constructor(url, key) {
@@ -478,15 +479,52 @@ tr:hover{background:var(--surface-2)}
                 }
             }
 
+            // UPDATED: Save filtered data to aging tracker table (aging >= 1 only)
             async saveDeliveryData(data) {
                 try {
                     await this.clearDeliveryData();
                     
                     if (!data || data.length === 0) {
-                        await this.updateMetadata(0);
+                        await this.updateMetadata(0, 0);
                         return true;
                     }
 
+                    // Filter only pending deliveries (aging >= 1)
+                    const filteredRecords = data
+                        .filter(item => item.aging >= 1)
+                        .map((item) => ({
+                            ticket_id: item.ticketId,
+                            order_received: item.orderReceived,
+                            type: item.type || '',
+                            urgent: item.urgent || 'No',
+                            customer: item.customer || '',
+                            aging: parseInt(item.aging) || 0,
+                            updated_by: 'Admin'
+                        }));
+
+                    if (filteredRecords.length > 0) {
+                        await this.query('POST', CONFIG.supabase.tableName, filteredRecords);
+                    }
+                    
+                    console.log(`✅ Saved ${filteredRecords.length} pending records to aging tracker`);
+                    return true;
+                } catch (error) {
+                    console.error('Error saving delivery data:', error);
+                    throw error;
+                }
+            }
+
+            // NEW: Save complete data to analytics table (ALL records)
+            async saveCompleteAnalyticsData(data) {
+                try {
+                    // Clear existing analytics data
+                    await this.query('DELETE', `${CONFIG.supabase.analyticsTable}?id=gte.1`);
+                    
+                    if (!data || data.length === 0) {
+                        return true;
+                    }
+
+                    // Save ALL records to analytics table (including completed deliveries)
                     const records = data.map((item) => ({
                         ticket_id: item.ticketId,
                         order_received: item.orderReceived,
@@ -494,15 +532,15 @@ tr:hover{background:var(--surface-2)}
                         urgent: item.urgent || 'No',
                         customer: item.customer || '',
                         aging: parseInt(item.aging) || 0,
+                        status: parseInt(item.aging) >= 1 ? 'Pending' : 'Completed',
                         updated_by: 'Admin'
                     }));
 
-                    await this.query('POST', CONFIG.supabase.tableName, records);
-                    await this.updateMetadata(data.length);
-
+                    await this.query('POST', CONFIG.supabase.analyticsTable, records);
+                    console.log(`✅ Saved ${records.length} records to analytics database`);
                     return true;
                 } catch (error) {
-                    console.error('Error saving delivery data:', error);
+                    console.error('Error saving analytics data:', error);
                     throw error;
                 }
             }
@@ -517,12 +555,14 @@ tr:hover{background:var(--surface-2)}
                 }
             }
 
-            async updateMetadata(recordCount = 0) {
+            // UPDATED: Include analytics record count
+            async updateMetadata(recordCount = 0, analyticsCount = 0) {
                 try {
                     const metadata = {
                         last_update: new Date().toLocaleString(),
                         updated_by: 'Admin',
                         total_records: recordCount,
+                        analytics_records: analyticsCount,
                         updated_at: new Date().toISOString()
                     };
 
@@ -647,7 +687,6 @@ tr:hover{background:var(--surface-2)}
                             <div class="ticket-info">
                                 <div class="ticket-main-line">
                                     <strong class="ticket-id">${item.ticketId}</strong>
-                                    <span class="ticket-separator">|</span>
                                     <span>${toProperCase(item.customer || '')}</span>
                                 </div>
                                 <div class="ticket-customer">
@@ -685,18 +724,18 @@ tr:hover{background:var(--surface-2)}
             }
             
             if (html === '' && data.length > 0) {
-    // Check if there are any urgent tickets that don't fall into overdue/today/tomorrow categories
-    const otherUrgentTickets = data.filter(item => 
-        item.urgent && item.urgent.toLowerCase() === 'yes' && 
-        (item.aging - 1) < 2 && (item.aging - 1) >= 0
-    );
-    
-    if (otherUrgentTickets.length > 0) {
-        html += `<div class="reminder-section"><div class="reminder-title">⚡ <span style="color: #e74c3c;">Urgent Items -Complete ASAP❗</span></div><ul class="reminder-list">${otherUrgentTickets.map(item => `<li class="reminder-item"><div><strong>${item.ticketId}</strong> - ${toProperCase(item.customer)}</div><span class="badge badge-urgent">URGENT</span></li>`).join('')}</ul></div>`;
-    } else {
-        html = `<div style="text-align: center; color: #27ae60; padding: 20px;">✅ <strong>Great job!</strong> No urgent actions required.</div>`;
-    }
-} else if (data.length === 0) {
+                // Check if there are any urgent tickets that don't fall into overdue/today/tomorrow categories
+                const otherUrgentTickets = data.filter(item => 
+                    item.urgent && item.urgent.toLowerCase() === 'yes' && 
+                    (item.aging - 1) < 2 && (item.aging - 1) >= 0
+                );
+                
+                if (otherUrgentTickets.length > 0) {
+                    html += `<div class="reminder-section"><div class="reminder-title">⚡ <span style="color: #e74c3c;">Urgent Items - Complete ASAP❗</span></div><ul class="reminder-list">${otherUrgentTickets.map(item => `<li class="reminder-item"><div><strong>${item.ticketId}</strong> - ${toProperCase(item.customer)}</div><span class="badge badge-urgent">URGENT</span></li>`).join('')}</ul></div>`;
+                } else {
+                    html = `<div style="text-align: center; color: #27ae60; padding: 20px;">✅ <strong>Great job!</strong> No urgent actions required.</div>`;
+                }
+            } else if (data.length === 0) {
                 html = `<div style="text-align: center; color: #666; padding: 20px;">Upload data to see action items.</div>`;
             }
             
@@ -735,7 +774,7 @@ tr:hover{background:var(--surface-2)}
         }
 
         // ================================
-        // DATABASE INTEGRATION
+        // DATABASE INTEGRATION - UPDATED WITH DUAL DATABASE SUPPORT
         // ================================
         async function loadDataFromDatabase() {
             try {
@@ -774,24 +813,36 @@ tr:hover{background:var(--surface-2)}
             }
         }
 
+        // UPDATED: Save to both databases
         async function saveDataToDatabase(data) {
             try {
-                showMessage('📤 Saving data to database...', 'info', 10000);
+                showMessage('📤 Saving data to both databases...', 'info', 10000);
                 initializeDatabase();
-                await supabase.saveDeliveryData(data);
-                showMessage('✅ Data saved successfully! Refreshing...', 'success');
                 
+                // 1. Save ALL data to analytics table (complete dataset)
+                await supabase.saveCompleteAnalyticsData(data);
+                showMessage('✅ Complete data saved to analytics database', 'success', 2000);
+                
+                // 2. Save filtered data to aging tracker table (aging >= 1 only)
+                const filteredData = data.filter(item => item.aging >= 1);
+                await supabase.saveDeliveryData(filteredData);
+                showMessage('✅ Filtered data saved to aging tracker', 'success', 2000);
+                
+                // 3. Update metadata with both counts
+                await supabase.updateMetadata(filteredData.length, data.length);
+                
+                showMessage('🎉 Data saved to both databases! Refreshing...', 'success');
                 setTimeout(loadDataFromDatabase, 1000);
                 return true;
             } catch (error) {
-                console.error('Error saving data to database:', error);
+                console.error('Error saving data to databases:', error);
                 showMessage(`❌ Failed to save data: ${error.message}`, 'error');
                 return false;
             }
         }
 
         // ================================
-        // FILE PROCESSING
+        // FILE PROCESSING - UPDATED TO INCLUDE ALL RECORDS
         // ================================
         function convertExcelDate(serialNumber) {
             if (!serialNumber || isNaN(serialNumber)) return serialNumber;
@@ -803,6 +854,7 @@ tr:hover{background:var(--surface-2)}
             return `${day}/${month}/${year}`;
         }
 
+        // UPDATED: Parse ALL data (including aging = 0)
         function parseData(jsonData) {
             if (jsonData.length === 0) throw new Error('No data found in file');
             
@@ -822,6 +874,7 @@ tr:hover{background:var(--surface-2)}
                 throw new Error('File must contain "Ticket ID" and "Aging" columns.');
             }
 
+            // UPDATED: Include ALL records (aging >= 0) for complete analytics
             return rows.map(row => ({
                 ticketId: String(row[ticketIdCol] || ''),
                 orderReceived: convertExcelDate(row[orderReceivedCol] || ''),
@@ -829,7 +882,7 @@ tr:hover{background:var(--surface-2)}
                 urgent: String(row[urgentCol] || 'No'),
                 customer: String(row[customerCol] || ''),
                 aging: parseInt(row[agingCol]) || 0
-            })).filter(item => item.ticketId && item.aging >= 1);
+            })).filter(item => item.ticketId && item.aging >= 0); // Include completed deliveries
         }
 
         async function processFile(file) {
@@ -851,6 +904,7 @@ tr:hover{background:var(--surface-2)}
                 }
                 
                 const data = parseData(jsonData);
+                console.log(`📊 Parsed ${data.length} total records (including completed deliveries)`);
                 await saveDataToDatabase(data);
                 
             } catch (error) {
