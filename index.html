@@ -40,6 +40,10 @@
         .header h1{font-size:1.75rem;font-weight:700;color:var(--text);}
         .header h1::before{content:"📊";margin-right:8px}
         .header p{margin-top:4px;color:var(--text-muted)}
+        .header-actions { margin-top: 1.5rem; display: flex; justify-content: center; }
+        .nav-pills { display: inline-flex; background: var(--surface-2); padding: 0.5rem; border-radius: var(--radius); border: 1px solid var(--border); }
+        .nav-pill { padding: 0.625rem 1.25rem; border-radius: calc(var(--radius) - 0.25rem); color: var(--text); font-size: .875rem; font-weight: 600; cursor: pointer; transition: background-color .2s, color .2s; text-decoration: none; }
+        .nav-pill:hover { background: var(--accent-hover); color: #fff; }
         
         .filters-container {
             background: var(--surface-2);
@@ -65,7 +69,7 @@
         .kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
         .kpi-number{font-size:2.5rem;font-weight:700;margin-bottom:4px;}
         .kpi-label{font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;}
-        .kpi-change { font-size: 0.875rem; font-weight: 600; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.25rem; }
+        .kpi-change { font-size: 0.875rem; font-weight: 600; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.25rem; height: 1.25rem; /* Reserve space */ }
         .kpi-change.up { color: var(--success); }
         .kpi-change.down { color: var(--error); }
         
@@ -87,7 +91,7 @@
         .loading::before{content:'';width:24px;height:24px;border:3px solid var(--border);border-top:3px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin-right:0.75rem;}
         @keyframes spin{to{transform:rotate(360deg)}}
         
-        .status-message{margin:1rem 1.5rem 0;padding:.875rem 1.125rem;border-radius:var(--radius);font-size:.875rem;border:1px solid transparent;}
+        .status-message{margin:1rem 1.5rem 0;padding:.875rem 1.125rem;border-radius:var(--radius);font-size:.875rem;border:1px solid transparent; transition: opacity 0.5s ease-out;}
         .status-info{background:#eef2ff;border-color:#c7d2fe;color:var(--accent);}
         .status-error{background:#fee2e2;border-color:#fecaca;color:var(--error);}
         
@@ -100,6 +104,11 @@
         <header class="header">
             <h1>Delivery Performance Analytics</h1>
             <p>Key insights into delivery operations and performance metrics</p>
+            <div class="header-actions">
+                <div class="nav-pills">
+                    <a href="http://qubedeliver.site/aging.html" class="nav-pill" target="_blank">📈 Track Aging</a>
+                </div>
+            </div>
         </header>
 
         <div id="statusMessage"></div>
@@ -121,6 +130,7 @@
                 <div class="kpi-card">
                     <div class="kpi-number" id="pendingDeliveries" style="color: var(--warning);">-</div>
                     <div class="kpi-label">Pending Orders</div>
+                    <div class="kpi-change"></div> <!-- Placeholder for alignment -->
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-number" id="ticketsDone" style="color: var(--success);">-</div>
@@ -186,8 +196,13 @@
     const endDateInput = document.getElementById('endDate');
 
     // --- UTILITY FUNCTIONS ---
-    const showMessage = (message, type = 'info') => {
+    const showMessage = (message, type = 'info', autoClear = false, duration = 4000) => {
         statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+        if (autoClear) {
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, duration);
+        }
     };
 
     const toProperCase = (str) => {
@@ -226,7 +241,7 @@
                 type: d.type ? (d.type.toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
             })).filter(d => d.order_date && d.customer);
 
-            showMessage(`Successfully loaded ${allData.length} records.`, 'info');
+            showMessage(`Successfully loaded ${allData.length} records.`, 'info', true);
             return true;
         } catch (error) {
             console.error('Data loading failed:', error);
@@ -256,7 +271,7 @@
 
     // --- DASHBOARD UPDATE & RENDERING ---
     function updateDashboard(data, currentStartDate, currentEndDate) {
-        // --- Previous Period Calculation (Corrected Logic) ---
+        // --- Previous Period Calculation ---
         const prevStartDate = new Date(currentStartDate);
         prevStartDate.setMonth(prevStartDate.getMonth() - 1);
         
