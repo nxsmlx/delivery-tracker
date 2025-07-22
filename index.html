@@ -163,7 +163,7 @@
     </div>
 
 <script>
-     // --- CONFIGURATION ---
+    // --- CONFIGURATION ---
     const SUPABASE_CONFIG = {
         url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
         key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
@@ -190,6 +190,15 @@
         statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
     };
 
+    const toProperCase = (str) => {
+        if (!str || typeof str !== 'string') return 'Unknown';
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    };
+
     // --- DATA FETCHING & PROCESSING ---
     async function loadDataFromSupabase() {
         showMessage('Loading all delivery records...', 'info');
@@ -211,6 +220,7 @@
 
             allData = rawData.map(d => ({
                 ...d,
+                customer: toProperCase(d.customer), // Format customer name to Proper Case
                 order_date: d.order_received ? new Date(d.order_received) : null,
                 is_pending: d.status ? d.status.toLowerCase().includes('pending') : true,
                 type: d.type ? (d.type.toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
@@ -229,43 +239,49 @@
         const startDate = startDateInput.valueAsDate;
         const endDate = endDateInput.valueAsDate;
 
-        if (startDate) startDate.setHours(0, 0, 0, 0);
-        if (endDate) endDate.setHours(23, 59, 59, 999);
+        if (!startDate || !endDate) return;
+
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
 
         const filteredData = allData.filter(d => {
             if (!d.order_date) return false;
-            const isAfterStart = startDate ? d.order_date >= startDate : true;
-            const isBeforeEnd = endDate ? d.order_date <= endDate : true;
+            const isAfterStart = d.order_date >= startDate;
+            const isBeforeEnd = d.order_date <= endDate;
             return isAfterStart && isBeforeEnd;
         });
         
-        updateDashboard(filteredData, endDate);
+        updateDashboard(filteredData, startDate, endDate);
     }
 
     // --- DASHBOARD UPDATE & RENDERING ---
-    function updateDashboard(data, currentEndDate) {
-        // --- KPI Calculations ---
+    function updateDashboard(data, currentStartDate, currentEndDate) {
+        // --- Previous Period Calculation (Corrected Logic) ---
+        const prevStartDate = new Date(currentStartDate);
+        prevStartDate.setMonth(prevStartDate.getMonth() - 1);
+        
+        const prevEndDate = new Date(currentEndDate);
+        prevEndDate.setMonth(prevEndDate.getMonth() - 1);
+
+        if (prevEndDate.getDate() !== currentEndDate.getDate()) {
+            prevEndDate.setDate(0);
+        }
+
+        const prevPeriodData = allData.filter(d => d.order_date >= prevStartDate && d.order_date <= prevEndDate);
+        const prevPeriodTotalOrders = prevPeriodData.length;
+        const prevPeriodTicketsDone = prevPeriodTotalOrders - prevPeriodData.filter(d => d.is_pending).length;
+
+        // --- Current Period Calculations ---
         const totalOrders = data.length;
         const ticketsDone = totalOrders - data.filter(d => d.is_pending).length;
         
-        // Previous month calculation
-        const prevMonthEndDate = new Date(currentEndDate);
-        prevMonthEndDate.setMonth(prevMonthEndDate.getMonth() - 1);
-        const prevMonthStartDate = new Date(prevMonthEndDate);
-        prevMonthStartDate.setDate(1);
-        prevMonthStartDate.setHours(0,0,0,0);
-        
-        const prevMonthData = allData.filter(d => d.order_date >= prevMonthStartDate && d.order_date <= prevMonthEndDate);
-        const prevMonthTotalOrders = prevMonthData.length;
-        const prevMonthTicketsDone = prevMonthTotalOrders - prevMonthData.filter(d => d.is_pending).length;
-
         // --- Render KPIs ---
         document.getElementById('totalDeliveries').textContent = totalOrders.toLocaleString();
         document.getElementById('pendingDeliveries').textContent = data.filter(d => d.is_pending).length.toLocaleString();
         document.getElementById('ticketsDone').textContent = ticketsDone.toLocaleString();
         
-        updateKpiChange('totalOrdersChange', totalOrders, prevMonthTotalOrders);
-        updateKpiChange('ticketsDoneChange', ticketsDone, prevMonthTicketsDone, true); // `true` because fewer tickets done is bad
+        updateKpiChange('totalOrdersChange', totalOrders, prevPeriodTotalOrders);
+        updateKpiChange('ticketsDoneChange', ticketsDone, prevPeriodTicketsDone);
 
         // --- Chart & Table Data Aggregation ---
         const serviceTypeCounts = data.reduce((acc, d) => {
@@ -307,17 +323,21 @@
         renderCustomerTable(Object.values(customerPerformance));
     }
 
-    function updateKpiChange(elementId, currentValue, previousValue, isLowerBetter = false) {
+    function updateKpiChange(elementId, currentValue, previousValue) {
         const changeElement = document.getElementById(elementId);
         if (previousValue === 0) {
-            changeElement.innerHTML = `<span>-</span>`;
+            if (currentValue > 0) {
+                 changeElement.innerHTML = `<span>(vs 0)</span>`;
+            } else {
+                 changeElement.innerHTML = `<span>-</span>`;
+            }
             changeElement.className = 'kpi-change';
             return;
         }
 
         const percentChange = ((currentValue - previousValue) / previousValue) * 100;
         const isPositive = percentChange >= 0;
-        const trendClass = (isPositive && !isLowerBetter) || (!isPositive && isLowerBetter) ? 'up' : 'down';
+        const trendClass = isPositive ? 'up' : 'down';
         const icon = trendClass === 'up' ? '▲' : '▼';
         
         changeElement.className = `kpi-change ${trendClass}`;
@@ -350,6 +370,7 @@
                         font: { weight: 'bold' },
                         formatter: (value, ctx) => {
                             let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            if (sum === 0) return '';
                             let percentage = (value*100 / sum).toFixed(1)+"%";
                             return value > 0 ? percentage : '';
                         }
@@ -452,4 +473,4 @@
 
 </script>
 </body>
-</html>   
+</html>
