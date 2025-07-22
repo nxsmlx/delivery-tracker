@@ -483,7 +483,7 @@ tr:hover{background:var(--surface-2)}
                 }
             }
 
-            // UPDATED: Save filtered data to aging tracker table (aging >= 1 only)
+            // Save filtered data to aging tracker table (aging >= 1 only)
             async saveDeliveryData(data) {
                 try {
                     await this.clearDeliveryData();
@@ -518,7 +518,7 @@ tr:hover{background:var(--surface-2)}
                 }
             }
 
-            // NEW: Save complete data to analytics table (ALL records)
+            // Save complete data to analytics table (ALL records)
             async saveCompleteAnalyticsData(data) {
                 try {
                     // Clear existing analytics data
@@ -559,11 +559,20 @@ tr:hover{background:var(--surface-2)}
                 }
             }
 
-            // UPDATED: Include analytics record count
+            // Include analytics record count
             async updateMetadata(recordCount = 0, analyticsCount = 0) {
                 try {
                     const metadata = {
-                        last_update: new Date().toLocaleString(),
+                        last_update: new Date().toLocaleString('en-MY', {
+                            timeZone: 'Asia/Kuala_Lumpur',
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true
+                        }),
                         updated_by: 'Admin',
                         total_records: recordCount,
                         analytics_records: analyticsCount,
@@ -785,23 +794,12 @@ tr:hover{background:var(--surface-2)}
                 showMessage('🔄 Loading latest data...', 'info', 2000);
                 initializeDatabase();
                 
-                // Check both databases to get the most recent data
-                const [agingData, analyticsData] = await Promise.all([
+                // Check both databases to get the most recent data and metadata
+                const [agingData, analyticsData, metadata] = await Promise.all([
                     supabase.getDeliveryData(), // From delivery_data (filtered aging >= 1)
-                    supabase.query('GET', `${CONFIG.supabase.analyticsTable}?select=*&order=created_at.desc`).catch(() => []) // From delivery_analytics (complete data)
+                    supabase.query('GET', `${CONFIG.supabase.analyticsTable}?select=*&order=created_at.desc`).catch(() => []), // From delivery_analytics (complete data)
+                    supabase.getMetadata()
                 ]);
-                
-                // Simple solution: Show current time as "last refreshed"
-                const currentTime = new Date().toLocaleString('en-MY', {
-                    timeZone: 'Asia/Kuala_Lumpur',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true
-                });
                 
                 // Use aging data for display (since this is the aging tracker)
                 if (agingData && agingData.length > 0) {
@@ -814,24 +812,27 @@ tr:hover{background:var(--surface-2)}
                         aging: item.aging
                     }));
                     
-                    // Show simple, clear message with current time
+                    // Show message with ACTUAL upload time from database
                     const analyticsCount = analyticsData ? analyticsData.length : 0;
                     const agingCount = agingData.length;
+                    const lastUpdate = metadata.last_update || 'Never';
                     
                     if (analyticsCount > agingCount) {
-                        showMessage(`✅ Data loaded - ${agingCount} pending items (${analyticsCount} total records processed) • Refreshed: ${currentTime}`, 'success');
+                        showMessage(`✅ Data loaded - ${agingCount} pending items (${analyticsCount} total records processed, Last update: ${lastUpdate})`, 'success');
                     } else {
-                        showMessage(`✅ Data loaded (${agingCount} records) • Refreshed: ${currentTime}`, 'success');
+                        showMessage(`✅ Data loaded (${agingCount} records, Last update: ${lastUpdate})`, 'success');
                     }
                 } else {
                     deliveryData = [];
                     
                     // Check if there's data in analytics but none in aging (all completed)
                     const analyticsCount = analyticsData ? analyticsData.length : 0;
+                    const lastUpdate = metadata.last_update || 'Never';
+                    
                     if (analyticsCount > 0) {
-                        showMessage(`ℹ️ No pending deliveries! All ${analyticsCount} deliveries completed • Refreshed: ${currentTime}`, 'info');
+                        showMessage(`ℹ️ No pending deliveries! All ${analyticsCount} deliveries completed (Last update: ${lastUpdate})`, 'info');
                     } else {
-                        showMessage(`ℹ️ No data in database • Refreshed: ${currentTime}`, 'info');
+                        showMessage(`ℹ️ No data in database (Last update: ${lastUpdate})`, 'info');
                     }
                 }
                 
@@ -847,7 +848,7 @@ tr:hover{background:var(--surface-2)}
             }
         }
 
-        // UPDATED: Save to both databases
+        // Save to both databases
         async function saveDataToDatabase(data) {
             try {
                 showMessage('📤 Saving data to both databases...', 'info', 10000);
@@ -888,7 +889,7 @@ tr:hover{background:var(--surface-2)}
             return `${day}/${month}/${year}`;
         }
 
-        // UPDATED: Parse ALL data (including aging = 0)
+        // Parse ALL data (including aging = 0)
         function parseData(jsonData) {
             if (jsonData.length === 0) throw new Error('No data found in file');
             
@@ -908,7 +909,7 @@ tr:hover{background:var(--surface-2)}
                 throw new Error('File must contain "Ticket ID" and "Aging" columns.');
             }
 
-            // UPDATED: Include ALL records (aging >= 0) for complete analytics
+            // Include ALL records (aging >= 0) for complete analytics
             return rows.map(row => ({
                 ticketId: String(row[ticketIdCol] || ''),
                 orderReceived: convertExcelDate(row[orderReceivedCol] || ''),
