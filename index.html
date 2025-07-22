@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Qube-Inventory Delivery Statistics</title>
     <link rel="icon" href="favicon.ico" type="image/png">
-    <!-- Include Chart.js for creating charts -->
+    <!-- Include Chart.js and the datalabels plugin -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         :root{
             --bg-gradient: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
@@ -163,6 +164,14 @@
         key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
         tableName: 'delivery_analytics',
     };
+    
+    // Chart Colors
+    const CHART_COLORS = {
+        urgent: '#f97316',
+        notUrgent: '#3b82f6',
+        delivery: '#6366f1',
+        collection: '#14b8a6'
+    };
 
     // --- GLOBAL STATE ---
     let allData = [];
@@ -176,14 +185,6 @@
     // --- UTILITY FUNCTIONS ---
     const showMessage = (message, type = 'info') => {
         statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
-    };
-
-    const cleanDept = (dept) => {
-        if (!dept || typeof dept !== 'string' || dept.trim() === '') return 'N/A';
-        const lowerDept = dept.trim().toLowerCase();
-        if (lowerDept.startsWith('proc')) return 'Procurement';
-        // Capitalize first letter
-        return lowerDept.charAt(0).toUpperCase() + lowerDept.slice(1);
     };
 
     // --- DATA FETCHING & PROCESSING ---
@@ -208,7 +209,6 @@
             allData = rawData.map(d => ({
                 ...d,
                 order_date: d.order_received ? new Date(d.order_received) : null,
-                dept_cleaned: cleanDept(d.dept),
                 is_pending: d.status ? d.status.toLowerCase().includes('pending') : true,
                 is_urgent: d.urgent ? d.urgent.toLowerCase().includes('urgent') : false,
                 type: d.type ? (d.type.toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
@@ -299,12 +299,32 @@
                 labels: ['Urgent', 'Not Urgent'],
                 datasets: [{
                     data: [data['Urgent'], data['Not Urgent']],
-                    backgroundColor: ['var(--warning)', 'var(--info)'],
-                    borderColor: 'var(--surface)',
+                    backgroundColor: [CHART_COLORS.urgent, CHART_COLORS.notUrgent],
+                    borderColor: '#ffffff',
                     borderWidth: 4,
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold' },
+                        formatter: (value, ctx) => {
+                            let sum = 0;
+                            let dataArr = ctx.chart.data.datasets[0].data;
+                            dataArr.map(data => {
+                                sum += data;
+                            });
+                            let percentage = (value*100 / sum).toFixed(1)+"%";
+                            return value > 0 ? percentage : '';
+                        }
+                    }
+                } 
+            },
+            plugins: [ChartDataLabels],
         });
     }
 
@@ -323,18 +343,33 @@
                     {
                         label: 'Delivery',
                         data: labels.map(day => (data[day] && data[day].Delivery) || 0),
-                        backgroundColor: 'var(--accent)',
+                        backgroundColor: CHART_COLORS.delivery,
                         borderRadius: 4,
                     },
                     {
                         label: 'Collection',
                         data: labels.map(day => (data[day] && data[day].Collection) || 0),
-                        backgroundColor: 'var(--secondary)',
+                        backgroundColor: CHART_COLORS.collection,
                         borderRadius: 4,
                     }
                 ]
             },
-            options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }, plugins: { legend: { position: 'bottom' } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }, 
+                plugins: { 
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold' },
+                        formatter: (value) => {
+                           return value > 0 ? value : '';
+                        }
+                    }
+                } 
+            },
+            plugins: [ChartDataLabels],
         });
     }
 
