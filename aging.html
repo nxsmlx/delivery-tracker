@@ -785,15 +785,25 @@ tr:hover{background:var(--surface-2)}
                 showMessage('🔄 Loading latest data...', 'info', 2000);
                 initializeDatabase();
                 
-                // Check both databases to get the most recent data and metadata
-                const [agingData, analyticsData, metadata] = await Promise.all([
+                // Check both databases to get the most recent data
+                const [agingData, analyticsData] = await Promise.all([
                     supabase.getDeliveryData(), // From delivery_data (filtered aging >= 1)
-                    supabase.query('GET', `${CONFIG.supabase.analyticsTable}?select=*&order=created_at.desc`).catch(() => []), // From delivery_analytics (complete data)
-                    supabase.getMetadata()
+                    supabase.query('GET', `${CONFIG.supabase.analyticsTable}?select=*&order=created_at.desc`).catch(() => []) // From delivery_analytics (complete data)
                 ]);
                 
+                // Simple solution: Show current time as "last refreshed"
+                const currentTime = new Date().toLocaleString('en-MY', {
+                    timeZone: 'Asia/Kuala_Lumpur',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                });
+                
                 // Use aging data for display (since this is the aging tracker)
-                // But check analytics data for update info
                 if (agingData && agingData.length > 0) {
                     deliveryData = agingData.map(item => ({
                         ticketId: item.ticket_id,
@@ -804,14 +814,14 @@ tr:hover{background:var(--surface-2)}
                         aging: item.aging
                     }));
                     
-                    // Show comprehensive update info
+                    // Show simple, clear message with current time
                     const analyticsCount = analyticsData ? analyticsData.length : 0;
                     const agingCount = agingData.length;
                     
                     if (analyticsCount > agingCount) {
-                        showMessage(`✅ Data loaded - ${agingCount} pending items (${analyticsCount} total records processed, Last update: ${metadata.last_update})`, 'success');
+                        showMessage(`✅ Data loaded - ${agingCount} pending items (${analyticsCount} total records processed) • Refreshed: ${currentTime}`, 'success');
                     } else {
-                        showMessage(`✅ Data loaded (${agingCount} records, Last update: ${metadata.last_update})`, 'success');
+                        showMessage(`✅ Data loaded (${agingCount} records) • Refreshed: ${currentTime}`, 'success');
                     }
                 } else {
                     deliveryData = [];
@@ -819,9 +829,9 @@ tr:hover{background:var(--surface-2)}
                     // Check if there's data in analytics but none in aging (all completed)
                     const analyticsCount = analyticsData ? analyticsData.length : 0;
                     if (analyticsCount > 0) {
-                        showMessage(`ℹ️ No pending deliveries! All ${analyticsCount} deliveries completed. (Last update: ${metadata.last_update})`, 'info');
+                        showMessage(`ℹ️ No pending deliveries! All ${analyticsCount} deliveries completed • Refreshed: ${currentTime}`, 'info');
                     } else {
-                        showMessage(`ℹ️ No data in database. (Last update: ${metadata.last_update})`, 'info');
+                        showMessage(`ℹ️ No data in database • Refreshed: ${currentTime}`, 'info');
                     }
                 }
                 
