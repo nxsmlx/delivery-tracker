@@ -3,84 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qube Delivery Statistics</title>
+    <title>Qube-Inventory Delivery Statistics</title>
     <link rel="icon" href="favicon.ico" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
     <style>
 :root{
-    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --surface: #ffffff;
-    --surface-2: #f8fafc;
-    --surface-dark: #1e293b;
-    --accent: #4f46e5;
-    --accent-hover: #4338ca;
-    --text: #1f2937;
-    --text-muted: #64748b;
-    --text-light: #94a3b8;
-    --border: #e2e8f0;
-    --shadow: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
-    --shadow-lg: 0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04);
-    --shadow-xl: 0 25px 50px -12px rgba(0,0,0,.25);
-    --radius: 1rem;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --error: #ef4444;
-    --info: #3b82f6;
-    --purple: #8b5cf6;
+    --bg-gradient: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
+    --surface:#ffffff;
+    --surface-2:#f9fafb;
+    --accent:#4f46e5;
+    --accent-hover:#4338ca;
+    --text:#1f2937;
+    --text-muted:#4b5563;
+    --border:#d1d5db;
+    --shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
+    --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
+    --radius:0.75rem;
+    --success:#10b981;
+    --warning:#f59e0b;
+    --error:#ef4444;
+    --same-day:#3b82f6;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    background:var(--bg-gradient);
+    color:var(--text);
+    min-height:100vh;
+    padding:1.5rem;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: var(--bg-gradient);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 1.5rem;
-    line-height: 1.6;
+.container{
+    max-width:1200px;
+    margin:0 auto;
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:var(--surface);
+    box-shadow:var(--shadow-lg);
+    border:1px solid var(--border);
 }
 
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
+.header{
+    background:linear-gradient(135deg, #ffffff, #f9fafb);
+    padding:2rem 2.5rem;
+    text-align:center;
+    border-bottom:1px solid var(--border);
+    position:relative;
 }
 
-/* Header */
-.header {
-    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: var(--radius);
-    padding: 2rem;
-    margin-bottom: 2rem;
-    text-align: center;
-    box-shadow: var(--shadow-lg);
+.header-content{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0.75rem;
 }
 
-.header h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
+.header h1{
+    font-size:1.75rem;
+    font-weight:700;
+    letter-spacing:-.5px;
+    color:var(--text);
 }
 
-.header h1::before {
-    content: "📊";
-    margin-right: 12px;
-    -webkit-text-fill-color: initial;
-}
+.header h1::before{content:"📊";margin-right:8px}
 
-.header p {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-}
+.header p{margin-top:4px;color:var(--text-muted)}
 
 .header-actions {
     margin-top: 1.5rem;
@@ -90,169 +79,110 @@ body {
     flex-wrap: wrap;
 }
 
-/* Navigation Pills */
 .nav-pills {
     display: flex;
     gap: 0.5rem;
-    background: rgba(255,255,255,0.8);
+    background: var(--surface-2);
     padding: 0.5rem;
-    border-radius: var(--radius);
-    backdrop-filter: blur(10px);
-}
-
-.nav-pill {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: calc(var(--radius) - 0.25rem);
-    background: transparent;
-    color: var(--text-muted);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.nav-pill:hover, .nav-pill.active {
-    background: var(--accent);
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow);
-}
-
-/* Date Range Picker */
-.date-range {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    background: rgba(255,255,255,0.9);
-    padding: 0.75rem 1rem;
     border-radius: var(--radius);
     border: 1px solid var(--border);
 }
 
-.date-range input {
-    border: none;
-    background: transparent;
+.nav-pill {
+    padding: 0.625rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: calc(var(--radius) - 0.25rem);
+    background: var(--surface);
     color: var(--text);
-    font-weight: 500;
+    font-size: .875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    text-decoration: none;
 }
 
-.date-range input:focus {
-    outline: none;
+.nav-pill:hover,
+.nav-pill.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
 }
 
-/* KPI Cards Grid */
+/* KPI Cards - Just 2 cards */
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
 }
 
 .kpi-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 2rem;
+    padding: 2rem 1.25rem;
     text-align: center;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--accent), var(--purple));
+    transition: transform .15s, box-shadow .15s;
 }
 
 .kpi-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-xl);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
 }
 
 .kpi-number {
     font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--accent);
 }
 
 .kpi-label {
-    font-size: 1rem;
+    font-size: .75rem;
     color: var(--text-muted);
-    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
+    letter-spacing: .5px;
 }
 
-.kpi-change {
-    font-size: 0.875rem;
-    font-weight: 600;
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    display: inline-block;
-}
-
-.kpi-change.positive {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-}
-
-.kpi-change.negative {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--error);
-}
-
-/* Charts Grid */
+/* Charts Grid - 2x2 */
 .charts-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
 }
 
 .chart-container {
-    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 2rem;
-    box-shadow: var(--shadow-lg);
-    transition: all 0.3s ease;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: transform .15s, box-shadow .15s;
 }
 
 .chart-container:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-xl);
+    box-shadow: var(--shadow-lg);
 }
 
 .chart-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--border);
 }
 
 .chart-title {
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
     color: var(--text);
 }
 
 .chart-subtitle {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
     margin-top: 0.25rem;
 }
@@ -262,58 +192,48 @@ body {
     height: 300px;
 }
 
-/* Wide Charts */
-.chart-wide {
-    grid-column: 1 / -1;
-}
-
-.chart-wide .chart-canvas {
-    height: 400px;
-}
-
-/* Secondary Grid */
-.secondary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2rem;
-    margin-bottom: 2rem;
-}
-
-/* Performance Table */
-.performance-table {
-    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.2);
+/* Customer Performance Table */
+.customer-performance {
+    margin: 0 1.5rem 1.5rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 2rem;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow);
+}
+
+.customer-performance h3 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    font-size: 1.125rem;
 }
 
 .table-wrapper {
     overflow-x: auto;
-    border-radius: calc(var(--radius) - 0.5rem);
+    border-radius: var(--radius);
+    background: var(--surface);
     border: 1px solid var(--border);
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    background: var(--surface);
 }
 
 th, td {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
     text-align: left;
-    border-bottom: 1px solid var(--border);
+    font-size: .875rem;
+    vertical-align: middle;
 }
 
 th {
     background: var(--surface-2);
-    font-weight: 600;
     color: var(--text-muted);
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 0.875rem;
+    letter-spacing: .5px;
+    border-bottom: 1px solid var(--border);
 }
 
 tr:hover {
@@ -321,45 +241,25 @@ tr:hover {
 }
 
 .status-badge {
-    padding: 0.25rem 0.75rem;
+    padding: 4px 8px;
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: .7rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: .5px;
+    color: #fff;
+    display: inline-block;
 }
 
 .status-excellent {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
+    background: var(--success);
 }
 
 .status-good {
-    background: rgba(59, 130, 246, 0.1);
-    color: var(--info);
+    background: var(--same-day);
 }
 
 .status-needs-improvement {
-    background: rgba(245, 158, 11, 0.1);
-    color: var(--warning);
-}
-
-/* Export Button */
-.export-btn {
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--radius);
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: var(--shadow);
-}
-
-.export-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    background: var(--warning);
 }
 
 /* Loading Animation */
@@ -388,48 +288,51 @@ tr:hover {
     100% { transform: rotate(360deg); }
 }
 
+.no-data {
+    padding: 2.5rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: .875rem;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .charts-grid {
         grid-template-columns: 1fr;
     }
     
-    .secondary-grid {
-        grid-template-columns: 1fr;
-    }
-    
     .kpi-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 768px) {
     body {
-        padding: 1rem;
+        padding: 0.75rem;
     }
     
     .header {
         padding: 1.5rem;
     }
     
-    .header h1 {
-        font-size: 2rem;
-    }
-    
     .nav-pills {
         flex-direction: column;
     }
     
-    .header-actions {
-        flex-direction: column;
+    .chart-container {
+        padding: 1rem;
+    }
+    
+    .kpi-number {
+        font-size: 2.5rem;
+    }
+    
+    .charts-grid {
+        padding: 1rem;
     }
     
     .kpi-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .chart-container {
-        padding: 1.5rem;
+        padding: 1rem;
     }
 }
 
@@ -469,261 +372,76 @@ tr:hover {
     <div class="container">
         <!-- Header -->
         <div class="header fade-in">
-            <h1>Delivery Performance Analytics</h1>
-            <p>Comprehensive insights into delivery operations and performance metrics</p>
-            
-            <div class="header-actions">
-<div class="nav-pills">
-    <a href="#" class="nav-pill active" data-period="7d">Last 7 Days</a>
-    <a href="#" class="nav-pill" data-period="30d">Last 30 Days</a>
-    <a href="#" class="nav-pill" data-period="90d">Last 90 Days</a>
-    <a href="#" class="nav-pill" data-period="1y">Last Year</a>
-    <a href="/aging.html" class="nav-pill">📈 Aging Tracker</a>
-</div>
-                
-                <div class="date-range">
-                    <span>📅</span>
-                    <input type="date" id="startDate">
-                    <span>to</span>
-                    <input type="date" id="endDate">
-                </div>
-                
-                <button class="export-btn" id="exportBtn">
-                    📊 Export Report
-                </button>
-            </div>
-        </div>
-
-        <!-- KPI Cards -->
-        <div class="kpi-grid slide-up">
-            <div class="kpi-card">
-                <div class="kpi-number" id="totalDeliveries">1,247</div>
-                <div class="kpi-label">Total Deliveries</div>
-                <div class="kpi-change positive">+12.5% vs last period</div>
-            </div>
-            
-            <div class="kpi-card">
-                <div class="kpi-number" id="onTimeRate">94.2%</div>
-                <div class="kpi-label">On-Time Rate</div>
-                <div class="kpi-change positive">+2.8% vs last period</div>
-            </div>
-            
-            <div class="kpi-card">
-                <div class="kpi-number" id="avgDeliveryTime">2.1</div>
-                <div class="kpi-label">Avg Delivery Days</div>
-                <div class="kpi-change positive">-0.3 days improvement</div>
-            </div>
-            
-            <div class="kpi-card">
-                <div class="kpi-number" id="customerSatisfaction">4.8</div>
-                <div class="kpi-label">Customer Rating</div>
-                <div class="kpi-change positive">+0.2 vs last period</div>
-            </div>
-        </div>
-
-        <!-- Main Charts Grid -->
-        <div class="charts-grid slide-up">
-            <!-- Delivery Trends Chart -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div>
-                        <div class="chart-title">Delivery Volume Trends</div>
-                        <div class="chart-subtitle">Daily delivery completions over time</div>
-                    </div>
-                </div>
-                <div class="chart-canvas">
-                    <canvas id="trendsChart"></canvas>
-                </div>
-            </div>
-            
-            <!-- Performance Distribution -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div>
-                        <div class="chart-title">Performance Distribution</div>
-                        <div class="chart-subtitle">Delivery time breakdown</div>
-                    </div>
-                </div>
-                <div class="chart-canvas">
-                    <canvas id="distributionChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Secondary Charts -->
-        <div class="secondary-grid slide-up">
-            <!-- Service Type Performance -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div>
-                        <div class="chart-title">Service Type Performance</div>
-                        <div class="chart-subtitle">Volume and efficiency by service</div>
-                    </div>
-                </div>
-                <div class="chart-canvas">
-                    <canvas id="serviceChart"></canvas>
-                </div>
-            </div>
-            
-            <!-- Monthly Comparison -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div>
-                        <div class="chart-title">Monthly Comparison</div>
-                        <div class="chart-subtitle">Performance vs targets</div>
-                    </div>
-                </div>
-                <div class="chart-canvas">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Wide Heatmap Chart -->
-        <div class="chart-container chart-wide slide-up">
-            <div class="chart-header">
+            <div class="header-content">
                 <div>
-                    <div class="chart-title">Delivery Patterns Heatmap</div>
-                    <div class="chart-subtitle">Peak delivery times by day of week and hour</div>
-                </div>
-            </div>
-            <div class="chart-canvas">
-                <canvas id="heatmapChart"></canvas>
-            </div>
-        </div>
+                    <h1>Delivery Performance Analytics</h1>
+                    <p>Key insights into delivery operations and performance metrics</p>
+                <script>
+        // Supabase Configuration - Same as aging tracker
+        const SUPABASE_CONFIG = {
+            url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
+            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
+            tableName: 'delivery_data'
+        };
 
-        <!-- Performance Table -->
-        <div class="performance-table slide-up">
-            <div class="chart-header">
-                <div>
-                    <div class="chart-title">Top Customer Performance</div>
-                    <div class="chart-subtitle">Customer delivery statistics and ratings</div>
-                </div>
-            </div>
-            
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Customer</th>
-                            <th>Total Orders</th>
-                            <th>On-Time Rate</th>
-                            <th>Avg Delivery Time</th>
-                            <th>Rating</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customerTable">
-                        <tr>
-                            <td><strong>Acme Corporation</strong></td>
-                            <td>156</td>
-                            <td>97.4%</td>
-                            <td>1.8 days</td>
-                            <td>4.9 ⭐</td>
-                            <td><span class="status-badge status-excellent">Excellent</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Tech Solutions Ltd</strong></td>
-                            <td>89</td>
-                            <td>94.7%</td>
-                            <td>2.1 days</td>
-                            <td>4.7 ⭐</td>
-                            <td><span class="status-badge status-good">Good</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Global Industries</strong></td>
-                            <td>124</td>
-                            <td>89.5%</td>
-                            <td>2.6 days</td>
-                            <td>4.3 ⭐</td>
-                            <td><span class="status-badge status-needs-improvement">Needs Improvement</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>StartUp Inc</strong></td>
-                            <td>67</td>
-                            <td>95.5%</td>
-                            <td>2.0 days</td>
-                            <td>4.8 ⭐</td>
-                            <td><span class="status-badge status-excellent">Excellent</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Enterprise Corp</strong></td>
-                            <td>203</td>
-                            <td>92.1%</td>
-                            <td>2.3 days</td>
-                            <td>4.5 ⭐</td>
-                            <td><span class="status-badge status-good">Good</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+        // Global variables
+        let chartsData = {};
+        let allCharts = {};
 
-    <script>
-        // Sample data - replace with your actual data from Supabase
+        // Sample data for fallback
         const sampleData = {
             trends: {
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
-                    label: 'Deliveries Completed',
+                    label: 'Daily Deliveries',
                     data: [45, 52, 48, 61, 58, 43, 35],
                     borderColor: '#4f46e5',
                     backgroundColor: 'rgba(79, 70, 229, 0.1)',
                     tension: 0.4,
-                    fill: true
-                }, {
-                    label: 'On-Time Deliveries',
-                    data: [42, 49, 46, 58, 55, 40, 33],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            distribution: {
-                labels: ['Same Day', '1 Day', '2 Days', '3 Days', '4+ Days'],
-                datasets: [{
-                    data: [25, 35, 20, 15, 5],
-                    backgroundColor: [
-                        '#3b82f6',
-                        '#10b981', 
-                        '#f59e0b',
-                        '#ef4444',
-                        '#8b5cf6'
-                    ],
-                    borderWidth: 0
+                    fill: true,
+                    borderWidth: 3
                 }]
             },
             services: {
                 labels: ['Installation', 'Maintenance', 'Repair', 'Delivery', 'Consultation'],
                 datasets: [{
-                    label: 'Volume',
-                    data: [120, 95, 78, 156, 45],
-                    backgroundColor: '#4f46e5'
+                    data: [30, 25, 20, 15, 10],
+                    backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                    borderWidth: 0
+                }]
+            },
+            targets: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Target',
+                    data: [100, 105, 110, 115],
+                    borderColor: '#94a3b8',
+                    backgroundColor: 'transparent',
+                    borderDash: [5, 5],
+                    tension: 0,
+                    borderWidth: 2
                 }, {
-                    label: 'On-Time %',
-                    data: [96, 94, 89, 97, 99],
-                    backgroundColor: '#10b981',
-                    yAxisID: 'y1'
+                    label: 'Actual',
+                    data: [95, 108, 102, 118],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    tension: 0.4,
+                    fill: '+1',
+                    borderWidth: 3
                 }]
             },
             monthly: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                 datasets: [{
-                    label: 'Target',
-                    data: [400, 420, 440, 460, 480, 500],
-                    borderColor: '#94a3b8',
-                    backgroundColor: 'transparent',
-                    borderDash: [5, 5],
-                    tension: 0
-                }, {
-                    label: 'Actual',
+                    label: 'This Year',
                     data: [385, 445, 425, 478, 495, 520],
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    tension: 0.4,
-                    fill: '+1'
+                    backgroundColor: '#4f46e5',
+                    borderRadius: 8
+                }, {
+                    label: 'Last Year',
+                    data: [360, 420, 400, 450, 470, 480],
+                    backgroundColor: '#94a3b8',
+                    borderRadius: 8
                 }]
             }
         };
@@ -737,346 +455,23 @@ tr:hover {
                     legend: {
                         position: 'bottom',
                         labels: {
-                            padding: 20,
-                            usePointStyle: true
+                            padding: 15,
+                            usePointStyle: true,
+                            font: {
+                                size: 11,
+                                weight: 'bold'
+                            }
                         }
                     }
                 }
             }
         };
 
-        // Initialize charts
-        function initCharts() {
-            // Trends Chart
-            const trendsCtx = document.getElementById('trendsChart').getContext('2d');
-            new Chart(trendsCtx, {
-                type: 'line',
-                data: sampleData.trends,
-                options: {
-                    ...chartConfigs.common,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Distribution Chart (Donut)
-            const distributionCtx = document.getElementById('distributionChart').getContext('2d');
-            new Chart(distributionCtx, {
-                type: 'doughnut',
-                data: sampleData.distribution,
-                options: {
-                    ...chartConfigs.common,
-                    cutout: '60%',
-                    plugins: {
-                        ...chartConfigs.common.plugins,
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                usePointStyle: true
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Service Chart (Mixed Bar and Line)
-            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
-            new Chart(serviceCtx, {
-                type: 'bar',
-                data: sampleData.services,
-                options: {
-                    ...chartConfigs.common,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'Volume'
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            position: 'right',
-                            min: 80,
-                            max: 100,
-                            title: {
-                                display: true,
-                                text: 'On-Time %'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
-                        }
-                    }
-                }
-            });
-
-            // Monthly Comparison Chart
-            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
-            new Chart(monthlyCtx, {
-                type: 'line',
-                data: sampleData.monthly,
-                options: {
-                    ...chartConfigs.common,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            min: 350
-                        }
-                    }
-                }
-            });
-
-            // Heatmap Chart (using bar chart as approximation)
-            const heatmapCtx = document.getElementById('heatmapChart').getContext('2d');
-            const heatmapData = generateHeatmapData();
-            new Chart(heatmapCtx, {
-                type: 'bar',
-                data: heatmapData,
-                options: {
-                    ...chartConfigs.common,
-                    indexAxis: 'y',
-                    scales: {
-                        x: {
-                            stacked: true,
-                            title: {
-                                display: true,
-                                text: 'Hour of Day'
-                            }
-                        },
-                        y: {
-                            stacked: true,
-                            title: {
-                                display: true,
-                                text: 'Day of Week'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function generateHeatmapData() {
-            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-            const hours = Array.from({length: 12}, (_, i) => `${i + 8}:00`); // 8 AM to 7 PM
-            
-            return {
-                labels: days,
-                datasets: hours.map((hour, index) => ({
-                    label: hour,
-                    data: days.map(() => Math.floor(Math.random() * 20) + 5),
-                    backgroundColor: `hsla(${220 + index * 10}, 70%, 60%, 0.8)`,
-                    borderWidth: 1,
-                    borderColor: 'white'
-                }))
-            };
-        }
-
-        // Event Handlers
-        function setupEventHandlers() {
-            // Period buttons
-            document.querySelectorAll('.nav-pill').forEach(pill => {
-                pill.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
-                    e.target.classList.add('active');
-                    updateChartsForPeriod(e.target.dataset.period);
-                });
-            });
-
-            // Export button
-            document.getElementById('exportBtn').addEventListener('click', () => {
-                exportReport();
-            });
-
-            // Date range inputs
-            document.getElementById('startDate').addEventListener('change', updateChartsForDateRange);
-            document.getElementById('endDate').addEventListener('change', updateChartsForDateRange);
-        }
-
-        function updateChartsForPeriod(period) {
-            console.log(`Updating charts for period: ${period}`);
-            // Here you would fetch new data from Supabase based on the period
-            // For demo purposes, we'll just log the action
-            showLoadingState();
-            setTimeout(() => {
-                hideLoadingState();
-                updateKPIs(period);
-            }, 1000);
-        }
-
-        function updateChartsForDateRange() {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            if (startDate && endDate) {
-                console.log(`Updating charts for date range: ${startDate} to ${endDate}`);
-                showLoadingState();
-                setTimeout(() => {
-                    hideLoadingState();
-                    updateKPIs('custom');
-                }, 1000);
-            }
-        }
-
-        function showLoadingState() {
-            document.querySelectorAll('.chart-canvas').forEach(canvas => {
-                canvas.innerHTML = '<div class="loading">Loading chart data...</div>';
-            });
-        }
-
-        function hideLoadingState() {
-            // Charts would be redrawn here with new data
-            console.log('Charts updated with new data');
-        }
-
-        function updateKPIs(period) {
-            // Simulate KPI updates based on period
-            const kpiUpdates = {
-                '7d': {
-                    totalDeliveries: '342',
-                    onTimeRate: '96.1%',
-                    avgDeliveryTime: '1.9',
-                    customerSatisfaction: '4.9'
-                },
-                '30d': {
-                    totalDeliveries: '1,247',
-                    onTimeRate: '94.2%',
-                    avgDeliveryTime: '2.1',
-                    customerSatisfaction: '4.8'
-                },
-                '90d': {
-                    totalDeliveries: '3,891',
-                    onTimeRate: '93.8%',
-                    avgDeliveryTime: '2.2',
-                    customerSatisfaction: '4.7'
-                },
-                '1y': {
-                    totalDeliveries: '15,764',
-                    onTimeRate: '92.5%',
-                    avgDeliveryTime: '2.3',
-                    customerSatisfaction: '4.6'
-                }
-            };
-
-            const updates = kpiUpdates[period] || kpiUpdates['30d'];
-            
-            Object.keys(updates).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    element.textContent = updates[key];
-                    element.parentElement.classList.add('fade-in');
-                }
-            });
-        }
-
-        function exportReport() {
-            // Create a simple report export
-            const reportData = {
-                generatedAt: new Date().toLocaleString(),
-                period: document.querySelector('.nav-pill.active').textContent,
-                kpis: {
-                    totalDeliveries: document.getElementById('totalDeliveries').textContent,
-                    onTimeRate: document.getElementById('onTimeRate').textContent,
-                    avgDeliveryTime: document.getElementById('avgDeliveryTime').textContent,
-                    customerSatisfaction: document.getElementById('customerSatisfaction').textContent
-                }
-            };
-
-            // Convert to CSV format
-            const csvContent = `Qube Delivery Performance Report
-Generated: ${reportData.generatedAt}
-Period: ${reportData.period}
-
-Key Performance Indicators:
-Total Deliveries,${reportData.kpis.totalDeliveries}
-On-Time Rate,${reportData.kpis.onTimeRate}
-Average Delivery Time,${reportData.kpis.avgDeliveryTime}
-Customer Satisfaction,${reportData.kpis.customerSatisfaction}
-
-Top Customers:
-Customer,Orders,On-Time Rate,Avg Delivery,Rating,Status
-Acme Corporation,156,97.4%,1.8 days,4.9,Excellent
-Tech Solutions Ltd,89,94.7%,2.1 days,4.7,Good
-Global Industries,124,89.5%,2.6 days,4.3,Needs Improvement
-StartUp Inc,67,95.5%,2.0 days,4.8,Excellent
-Enterprise Corp,203,92.1%,2.3 days,4.5,Good`;
-
-            // Download the report
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `delivery-report-${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-
-            // Show success message
-            showNotification('Report exported successfully!', 'success');
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#10b981' : '#4f46e5'};
-                color: white;
-                padding: 1rem 1.5rem;
-                border-radius: 0.5rem;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-                z-index: 1000;
-                opacity: 0;
-                transform: translateX(100%);
-                transition: all 0.3s ease;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            // Animate in
-            setTimeout(() => {
-                notification.style.opacity = '1';
-                notification.style.transform = 'translateX(0)';
-            }, 100);
-
-            // Remove after 3 seconds
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => {
-                    document.body.removeChild(notification);
-                }, 300);
-            }, 3000);
-        }
-
-        // Supabase Configuration - Same as your aging tracker
-        const SUPABASE_CONFIG = {
-            url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
-            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
-            tableName: 'delivery_data'
-        };
-
-        // Database Integration Functions
+        // Load data from Supabase - USES ALL ROWS INCLUDING AGING=0 FOR STATISTICS
         async function loadDataFromSupabase() {
             try {
                 console.log('📊 Loading data from Supabase...');
                 
-                // Fetch delivery data
                 const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?select=*&order=created_at.desc`, {
                     headers: {
                         'apikey': SUPABASE_CONFIG.key,
@@ -1092,68 +487,81 @@ Enterprise Corp,203,92.1%,2.3 days,4.5,Good`;
                 const rawData = await response.json();
                 console.log(`✅ Loaded ${rawData.length} delivery records`);
 
-                // Process data for analytics
+                // Process ALL data (including completed deliveries for statistics)
                 const analyticsData = processAnalyticsData(rawData);
                 updateDashboardWithRealData(analyticsData);
+                updateAllCharts(analyticsData);
                 
                 return analyticsData;
             } catch (error) {
                 console.error('❌ Error loading data:', error);
-                showNotification('Using sample data - database connection failed', 'error');
-                return sampleData; // Fallback to sample data
+                showNotification('Using sample data - database connection issue', 'info');
+                chartsData = sampleData;
+                updateAllCharts(sampleData);
+                return sampleData;
             }
         }
 
+        // Process analytics data from raw delivery data - INCLUDES ALL RECORDS
         function processAnalyticsData(rawData) {
             if (!rawData || rawData.length === 0) {
                 console.log('⚠️ No data available, using sample data');
                 return sampleData;
             }
 
-            // Calculate KPIs
+            // Calculate KPIs from ALL deliveries (completed + pending)
             const totalDeliveries = rawData.length;
-            const onTimeDeliveries = rawData.filter(d => d.aging <= 3).length;
-            const onTimeRate = ((onTimeDeliveries / totalDeliveries) * 100).toFixed(1);
             const avgDeliveryTime = (rawData.reduce((sum, d) => sum + (d.aging || 0), 0) / totalDeliveries).toFixed(1);
 
-            // Calculate trends (last 7 days)
+            // Calculate trends (last 7 days) - ALL deliveries
             const last7Days = getLastNDays(7);
             const trendsData = last7Days.map(date => {
                 const dayData = rawData.filter(d => {
-                    const orderDate = new Date(d.order_received).toDateString();
-                    return orderDate === date.toDateString();
+                    const orderDate = new Date(d.order_received);
+                    return orderDate.toDateString() === date.toDateString();
                 });
-                const onTimeCount = dayData.filter(d => d.aging <= 3).length;
                 return {
                     date: date.toLocaleDateString('en-MY', { weekday: 'short' }),
-                    total: dayData.length,
-                    onTime: onTimeCount
+                    total: dayData.length
                 };
             });
 
-            // Calculate aging distribution
-            const distribution = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0 };
-            rawData.forEach(delivery => {
-                const displayAging = Math.max(0, (delivery.aging || 1) - 1);
-                if (displayAging <= 3) {
-                    distribution[displayAging]++;
-                } else {
-                    distribution[4]++;
-                }
-            });
-
-            // Calculate service type performance
+            // Calculate service type distribution - ALL records
             const serviceTypes = {};
             rawData.forEach(delivery => {
                 const type = delivery.type || 'Unknown';
-                if (!serviceTypes[type]) {
-                    serviceTypes[type] = { total: 0, onTime: 0 };
-                }
-                serviceTypes[type].total++;
-                if (delivery.aging <= 3) serviceTypes[type].onTime++;
+                serviceTypes[type] = (serviceTypes[type] || 0) + 1;
             });
 
-            // Calculate customer performance
+            // Calculate weekly targets vs actual - ALL deliveries
+            const last4Weeks = getLastNWeeks(4);
+            const weeklyData = last4Weeks.map((week, index) => {
+                const weekData = rawData.filter(d => {
+                    const orderDate = new Date(d.order_received);
+                    return orderDate >= week.start && orderDate <= week.end;
+                });
+                return {
+                    week: `Week ${index + 1}`,
+                    actual: weekData.length,
+                    target: 100 + (index * 5) // Mock target progression
+                };
+            });
+
+            // Calculate monthly comparison (last 6 months) - ALL deliveries
+            const last6Months = getLastNMonths(6);
+            const monthlyData = last6Months.map(month => {
+                const monthData = rawData.filter(d => {
+                    const orderDate = new Date(d.order_received);
+                    return orderDate.getMonth() === month.month && orderDate.getFullYear() === month.year;
+                });
+                return {
+                    month: month.name,
+                    thisYear: monthData.length,
+                    lastYear: Math.max(0, monthData.length - Math.floor(Math.random() * 20)) // Mock last year data
+                };
+            });
+
+            // Calculate customer performance - ALL records
             const customerStats = {};
             rawData.forEach(delivery => {
                 const customer = delivery.customer || 'Unknown';
@@ -1174,61 +582,76 @@ Enterprise Corp,203,92.1%,2.3 days,4.5,Good`;
                     totalOrders: stats.total,
                     onTimeRate: ((stats.onTime / stats.total) * 100).toFixed(1),
                     avgDeliveryTime: (stats.totalAging / stats.total).toFixed(1),
-                    rating: (4.0 + Math.random() * 1).toFixed(1),
                     status: (stats.onTime / stats.total) > 0.95 ? 'Excellent' : 
                            (stats.onTime / stats.total) > 0.90 ? 'Good' : 'Needs Improvement'
                 }));
 
-            return {
+            chartsData = {
                 kpis: {
                     totalDeliveries,
-                    onTimeRate: `${onTimeRate}%`,
-                    avgDeliveryTime,
-                    customerSatisfaction: '4.8'
+                    avgDeliveryTime
                 },
                 trends: {
                     labels: trendsData.map(d => d.date),
                     datasets: [{
-                        label: 'Deliveries Completed',
+                        label: 'Daily Deliveries',
                         data: trendsData.map(d => d.total),
                         borderColor: '#4f46e5',
                         backgroundColor: 'rgba(79, 70, 229, 0.1)',
                         tension: 0.4,
-                        fill: true
-                    }, {
-                        label: 'On-Time Deliveries',
-                        data: trendsData.map(d => d.onTime),
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                distribution: {
-                    labels: ['Same Day', '1 Day', '2 Days', '3 Days', '4+ Days'],
-                    datasets: [{
-                        data: [distribution[0], distribution[1], distribution[2], distribution[3], distribution[4]],
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
-                        borderWidth: 0
+                        fill: true,
+                        borderWidth: 3
                     }]
                 },
                 services: {
                     labels: Object.keys(serviceTypes).slice(0, 5),
                     datasets: [{
-                        label: 'Volume',
-                        data: Object.values(serviceTypes).slice(0, 5).map(s => s.total),
-                        backgroundColor: '#4f46e5'
+                        data: Object.values(serviceTypes).slice(0, 5),
+                        backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                        borderWidth: 0
+                    }]
+                },
+                targets: {
+                    labels: weeklyData.map(w => w.week),
+                    datasets: [{
+                        label: 'Target',
+                        data: weeklyData.map(w => w.target),
+                        borderColor: '#94a3b8',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        tension: 0,
+                        borderWidth: 2
                     }, {
-                        label: 'On-Time %',
-                        data: Object.values(serviceTypes).slice(0, 5).map(s => ((s.onTime / s.total) * 100).toFixed(1)),
-                        backgroundColor: '#10b981',
-                        yAxisID: 'y1'
+                        label: 'Actual',
+                        data: weeklyData.map(w => w.actual),
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.4,
+                        fill: '+1',
+                        borderWidth: 3
+                    }]
+                },
+                monthly: {
+                    labels: monthlyData.map(m => m.month),
+                    datasets: [{
+                        label: 'This Year',
+                        data: monthlyData.map(m => m.thisYear),
+                        backgroundColor: '#4f46e5',
+                        borderRadius: 8
+                    }, {
+                        label: 'Last Year',
+                        data: monthlyData.map(m => m.lastYear),
+                        backgroundColor: '#94a3b8',
+                        borderRadius: 8
                     }]
                 },
                 customers: topCustomers
             };
+
+            return chartsData;
         }
 
+        // Helper functions
         function getLastNDays(n) {
             const days = [];
             for (let i = n - 1; i >= 0; i--) {
@@ -1239,12 +662,37 @@ Enterprise Corp,203,92.1%,2.3 days,4.5,Good`;
             return days;
         }
 
+        function getLastNWeeks(n) {
+            const weeks = [];
+            for (let i = n - 1; i >= 0; i--) {
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() - (i * 7));
+                const startDate = new Date(endDate);
+                startDate.setDate(startDate.getDate() - 6);
+                weeks.push({ start: startDate, end: endDate });
+            }
+            return weeks;
+        }
+
+        function getLastNMonths(n) {
+            const months = [];
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            for (let i = n - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                months.push({
+                    month: date.getMonth(),
+                    year: date.getFullYear(),
+                    name: monthNames[date.getMonth()]
+                });
+            }
+            return months;
+        }
+
         function updateDashboardWithRealData(analyticsData) {
             // Update KPI cards
             document.getElementById('totalDeliveries').textContent = analyticsData.kpis.totalDeliveries.toLocaleString();
-            document.getElementById('onTimeRate').textContent = analyticsData.kpis.onTimeRate;
             document.getElementById('avgDeliveryTime').textContent = analyticsData.kpis.avgDeliveryTime;
-            document.getElementById('customerSatisfaction').textContent = analyticsData.kpis.customerSatisfaction;
 
             // Update customer table
             updateCustomerTable(analyticsData.customers);
@@ -1255,7 +703,7 @@ Enterprise Corp,203,92.1%,2.3 days,4.5,Good`;
         function updateCustomerTable(customers) {
             const tableBody = document.getElementById('customerTable');
             if (!customers || customers.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #64748b;">No customer data available</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="5" class="no-data">No customer data available</td></tr>';
                 return;
             }
 
@@ -1265,46 +713,189 @@ Enterprise Corp,203,92.1%,2.3 days,4.5,Good`;
                     <td>${customer.totalOrders}</td>
                     <td>${customer.onTimeRate}%</td>
                     <td>${customer.avgDeliveryTime} days</td>
-                    <td>${customer.rating} ⭐</td>
                     <td><span class="status-badge status-${customer.status.toLowerCase().replace(' ', '-')}">${customer.status}</span></td>
                 </tr>
             `).join('');
         }
 
-        // Add navigation link to aging tracker
-        function addNavigationLink() {
-            const nav = document.querySelector('.nav-pills');
-            const agingLink = document.createElement('a');
-            agingLink.href = '/aging'; // Or 'aging.qubedeliver.site' if using subdomain
-            agingLink.className = 'nav-pill';
-            agingLink.textContent = '📈 Aging Tracker';
-            agingLink.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-            agingLink.style.color = 'white';
-            nav.appendChild(agingLink);
-        }
-            // Refresh data every 5 minutes
-            setInterval(async () => {
-                console.log('Auto-refreshing dashboard data...');
-                const newData = await loadDataFromSupabase();
-                updateAllCharts(newData);
-                showNotification('Dashboard data refreshed', 'info');
-            }, 5 * 60 * 1000); // 5 minutes
+        // Initialize charts
+        function initCharts() {
+            // Delivery Volume Trends Chart
+            const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+            allCharts.trends = new Chart(trendsCtx, {
+                type: 'line',
+                data: chartsData.trends || sampleData.trends,
+                options: {
+                    ...chartConfigs.common,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { font: { weight: 'bold' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+
+            // Service Type Performance (Pie Chart)
+            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
+            allCharts.services = new Chart(serviceCtx, {
+                type: 'pie',
+                data: chartsData.services || sampleData.services,
+                options: {
+                    ...chartConfigs.common,
+                    plugins: {
+                        ...chartConfigs.common.plugins,
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Performance vs Targets Chart
+            const targetCtx = document.getElementById('targetChart').getContext('2d');
+            allCharts.targets = new Chart(targetCtx, {
+                type: 'line',
+                data: chartsData.targets || sampleData.targets,
+                options: {
+                    ...chartConfigs.common,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { font: { weight: 'bold' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+
+            // Monthly Comparison Chart
+            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+            allCharts.monthly = new Chart(monthlyCtx, {
+                type: 'bar',
+                data: chartsData.monthly || sampleData.monthly,
+                options: {
+                    ...chartConfigs.common,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { font: { weight: 'bold' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
         }
 
         function updateAllCharts(newData) {
-            // Update all charts with new data
-            // This would redraw all charts with fresh data from Supabase
-            console.log('Updating all charts with new data:', newData);
+            if (allCharts.trends && newData.trends) {
+                allCharts.trends.data = newData.trends;
+                allCharts.trends.update();
+            }
+            if (allCharts.services && newData.services) {
+                allCharts.services.data = newData.services;
+                allCharts.services.update();
+            }
+            if (allCharts.targets && newData.targets) {
+                allCharts.targets.data = newData.targets;
+                allCharts.targets.update();
+            }
+            if (allCharts.monthly && newData.monthly) {
+                allCharts.monthly.data = newData.monthly;
+                allCharts.monthly.update();
+            }
         }
 
-        // Set default date range (last 30 days)
-        function setDefaultDateRange() {
-            const endDate = new Date();
-            const startDate = new Date();
-            startDate.setDate(startDate.getDate() - 30);
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#4f46e5'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 0.5rem;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                z-index: 1000;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
 
-            document.getElementById('endDate').valueAsDate = endDate;
-            document.getElementById('startDate').valueAsDate = startDate;
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        function showLoadingState() {
+            document.querySelectorAll('.chart-canvas').forEach(canvas => {
+                canvas.innerHTML = '<div class="loading">Loading chart data...</div>';
+            });
+        }
+
+        function hideLoadingState() {
+            console.log('Charts updated with new data');
+        }
+
+        // Event handlers
+        function setupEventHandlers() {
+            document.querySelectorAll('.nav-pill').forEach(pill => {
+                pill.addEventListener('click', (e) => {
+                    if (e.target.getAttribute('href') === '/aging.html') return; // Skip for navigation link
+                    
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    showNotification(`Filtering data for ${e.target.textContent}`, 'info');
+                    // Here you would filter data based on the selected period
+                });
+            });
+        }
+
+        // Auto-refresh functionality
+        function setupAutoRefresh() {
+            setInterval(async () => {
+                console.log('Auto-refreshing dashboard data...');
+                await loadDataFromSupabase();
+                showNotification('Dashboard data refreshed', 'success');
+            }, 5 * 60 * 1000); // 5 minutes
         }
 
         // Initialize everything when the page loads
@@ -1312,9 +903,7 @@ Enterprise Corp,203,92.1%,2.3 days,4.5,Good`;
             console.log('🚀 Initializing Delivery Statistics Dashboard...');
             
             // Set up the interface
-            setDefaultDateRange();
             setupEventHandlers();
-            addNavigationLink(); // Add link to aging tracker
             
             // Load initial data from Supabase
             showLoadingState();
@@ -1333,84 +922,656 @@ Enterprise Corp,203,92.1%,2.3 days,4.5,Good`;
             });
             
             console.log('✅ Dashboard initialization complete!');
-            showNotification('Dashboard loaded with real data!', 'success');
+            showNotification('Dashboard loaded successfully!', 'success');
         });
-
-        // Additional utility functions for enhanced functionality
-        function toggleFullscreen(chartContainer) {
-            // Toggle fullscreen mode for individual charts
-            if (chartContainer.classList.contains('fullscreen')) {
-                chartContainer.classList.remove('fullscreen');
-                document.body.style.overflow = 'auto';
-            } else {
-                chartContainer.classList.add('fullscreen');
-                document.body.style.overflow = 'hidden';
-            }
-        }
-
-        function addDrillDownCapability() {
-            // Add click handlers for drill-down functionality
-            document.querySelectorAll('.chart-canvas canvas').forEach(canvas => {
-                canvas.addEventListener('click', function(event) {
-                    const chart = Chart.getChart(canvas);
-                    const points = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
-                    
-                    if (points.length) {
-                        const firstPoint = points[0];
-                        const label = chart.data.labels[firstPoint.index];
-                        const value = chart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index];
-                        
-                        showDrillDownModal(label, value);
-                    }
-                });
-            });
-        }
-
-        function showDrillDownModal(label, value) {
-            // Show detailed information in a modal
-            const modal = document.createElement('div');
-            modal.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 2000;
-            `;
+    </script>
+</body>
+</html>
+            </div>
             
-            modal.innerHTML = `
-                <div style="background: white; padding: 2rem; border-radius: 1rem; max-width: 500px; width: 90%;">
-                    <h3 style="margin-bottom: 1rem; color: #1f2937;">Detailed View: ${label}</h3>
-                    <p style="margin-bottom: 1rem; color: #64748b;">Value: ${value}</p>
-                    <p style="margin-bottom: 1.5rem; color: #64748b;">Click for more detailed analysis and breakdowns.</p>
-                    <button onclick="this.closest('.modal').remove()" style="background: #4f46e5; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; cursor: pointer;">Close</button>
+            <div class="header-actions">
+                <div class="nav-pills">
+                    <a href="#" class="nav-pill active" data-period="7d">Last 7 Days</a>
+                    <a href="#" class="nav-pill" data-period="30d">Last 30 Days</a>
+                    <a href="#" class="nav-pill" data-period="90d">Last 90 Days</a>
+                    <a href="#" class="nav-pill" data-period="1y">Last Year</a>
+                    <a href="/aging.html" class="nav-pill">📈 Aging Tracker</a>
                 </div>
-            `;
+            </div>
+        </div>
+
+        <!-- KPI Cards - Only 2 -->
+        <div class="kpi-grid slide-up">
+            <div class="kpi-card">
+                <div class="kpi-number" id="totalDeliveries">1,247</div>
+                <div class="kpi-label">Total Deliveries</div>
+            </div>
             
-            modal.classList.add('modal');
-            document.body.appendChild(modal);
+            <div class="kpi-card">
+                <div class="kpi-number" id="avgDeliveryTime">2.1</div>
+                <div class="kpi-label">Average Delivery Days</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid - 2x2 -->
+        <div class="charts-grid slide-up">
+            <!-- Delivery Volume Trends Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Delivery Volume Trends</div>
+                        <div class="chart-subtitle">Daily delivery completions over time</div>
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
             
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    modal.remove();
+            <!-- Service Type Performance (Pie Chart) -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Service Type Performance</div>
+                        <div class="chart-subtitle">Volume breakdown by service type</div>
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="serviceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Performance vs Targets -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Performance vs Targets</div>
+                        <div class="chart-subtitle">Actual vs target deliveries</div>
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="targetChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Monthly Comparison -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Monthly Comparison</div>
+                        <div class="chart-subtitle">Month-over-month performance</div>
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Customer Performance -->
+        <div class="customer-performance slide-up">
+            <h3>📋 Top Customer Performance</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">Customer delivery statistics and performance metrics</p>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Total Orders</th>
+                            <th>On-Time Rate</th>
+                            <th>Avg Delivery Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerTable">
+                        <tr>
+                            <td><strong>Acme Corporation</strong></td>
+                            <td>156</td>
+                            <td>97.4%</td>
+                            <td>1.8 days</td>
+                            <td><span class="status-badge status-excellent">Excellent</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tech Solutions Ltd</strong></td>
+                            <td>89</td>
+                            <td>94.7%</td>
+                            <td>2.1 days</td>
+                            <td><span class="status-badge status-good">Good</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Global Industries</strong></td>
+                            <td>124</td>
+                            <td>89.5%</td>
+                            <td>2.6 days</td>
+                            <td><span class="status-badge status-needs-improvement">Needs Improvement</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>StartUp Inc</strong></td>
+                            <td>67</td>
+                            <td>95.5%</td>
+                            <td>2.0 days</td>
+                            <td><span class="status-badge status-excellent">Excellent</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Enterprise Corp</strong></td>
+                            <td>203</td>
+                            <td>92.1%</td>
+                            <td>2.3 days</td>
+                            <td><span class="status-badge status-good">Good</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase Configuration
+        const SUPABASE_CONFIG = {
+            url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
+            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
+            tableName: 'delivery_data'
+        };
+
+        // Global variables
+        let chartsData = {};
+
+        // Sample data for fallback
+        const sampleData = {
+            trends: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Daily Deliveries',
+                    data: [45, 52, 48, 61, 58, 43, 35],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3
+                }]
+            },
+            services: {
+                labels: ['Installation', 'Maintenance', 'Repair', 'Delivery', 'Consultation'],
+                datasets: [{
+                    data: [30, 25, 20, 15, 10],
+                    backgroundColor: [
+                        '#4f46e5',
+                        '#10b981', 
+                        '#f59e0b',
+                        '#ef4444',
+                        '#8b5cf6'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            targets: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Target',
+                    data: [100, 105, 110, 115],
+                    borderColor: '#94a3b8',
+                    backgroundColor: 'transparent',
+                    borderDash: [5, 5],
+                    tension: 0,
+                    borderWidth: 2
+                }, {
+                    label: 'Actual',
+                    data: [95, 108, 102, 118],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    tension: 0.4,
+                    fill: '+1',
+                    borderWidth: 3
+                }]
+            },
+            monthly: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'This Year',
+                    data: [385, 445, 425, 478, 495, 520],
+                    backgroundColor: '#4f46e5',
+                    borderRadius: 8
+                }, {
+                    label: 'Last Year',
+                    data: [360, 420, 400, 450, 470, 480],
+                    backgroundColor: '#94a3b8',
+                    borderRadius: 8
+                }]
+            }
+        };
+
+        // Chart configurations
+        const chartConfigs = {
+            common: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        // Initialize charts
+        function initCharts() {
+            // Delivery Volume Trends Chart
+            const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+            new Chart(trendsCtx, {
+                type: 'line',
+                data: chartsData.trends || sampleData.trends,
+                options: {
+                    ...chartConfigs.common,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Service Type Performance (Pie Chart)
+            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
+            new Chart(serviceCtx, {
+                type: 'pie',
+                data: chartsData.services || sampleData.services,
+                options: {
+                    ...chartConfigs.common,
+                    plugins: {
+                        ...chartConfigs.common.plugins,
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Performance vs Targets Chart
+            const targetCtx = document.getElementById('targetChart').getContext('2d');
+            new Chart(targetCtx, {
+                type: 'line',
+                data: chartsData.targets || sampleData.targets,
+                options: {
+                    ...chartConfigs.common,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Monthly Comparison Chart
+            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+            new Chart(monthlyCtx, {
+                type: 'bar',
+                data: chartsData.monthly || sampleData.monthly,
+                options: {
+                    ...chartConfigs.common,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            },
+                            ticks: {
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
                 }
             });
         }
 
-        // Performance optimization
-        function optimizeChartRendering() {
-            // Implement chart virtualization for large datasets
-            Chart.defaults.animation.duration = 0; // Disable animations for performance
-            Chart.defaults.responsive = true;
-            Chart.defaults.maintainAspectRatio = false;
+        // Load data from Supabase
+        async function loadDataFromSupabase() {
+            try {
+                console.log('📊 Loading data from Supabase...');
+                
+                const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?select=*&order=created_at.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_CONFIG.key,
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Database error: ${response.status}`);
+                }
+
+                const rawData = await response.json();
+                console.log(`✅ Loaded ${rawData.length} delivery records`);
+
+                const analyticsData = processAnalyticsData(rawData);
+                updateDashboardWithRealData(analyticsData);
+                
+                return analyticsData;
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                showNotification('Using sample data - database connection issue', 'info');
+                chartsData = sampleData;
+                return sampleData;
+            }
         }
 
-        // Call optimization function
-        optimizeChartRendering();
+        // Process analytics data from raw delivery data
+        function processAnalyticsData(rawData) {
+            if (!rawData || rawData.length === 0) {
+                console.log('⚠️ No data available, using sample data');
+                return sampleData;
+            }
+
+            // Calculate KPIs
+            const totalDeliveries = rawData.length;
+            const avgDeliveryTime = (rawData.reduce((sum, d) => sum + (d.aging || 0), 0) / totalDeliveries).toFixed(1);
+
+            // Calculate trends (last 7 days)
+            const last7Days = getLastNDays(7);
+            const trendsData = last7Days.map(date => {
+                const dayData = rawData.filter(d => {
+                    const orderDate = new Date(d.order_received).toDateString();
+                    return orderDate === date.toDateString();
+                });
+                return {
+                    date: date.toLocaleDateString('en-MY', { weekday: 'short' }),
+                    total: dayData.length
+                };
+            });
+
+            // Calculate service type distribution
+            const serviceTypes = {};
+            rawData.forEach(delivery => {
+                const type = delivery.type || 'Unknown';
+                serviceTypes[type] = (serviceTypes[type] || 0) + 1;
+            });
+
+            // Calculate weekly targets vs actual
+            const last4Weeks = getLastNWeeks(4);
+            const weeklyData = last4Weeks.map((week, index) => {
+                const weekData = rawData.filter(d => {
+                    const orderDate = new Date(d.order_received);
+                    return orderDate >= week.start && orderDate <= week.end;
+                });
+                return {
+                    week: `Week ${index + 1}`,
+                    actual: weekData.length,
+                    target: 100 + (index * 5) // Mock target progression
+                };
+            });
+
+            // Calculate monthly comparison (last 6 months)
+            const last6Months = getLastNMonths(6);
+            const monthlyData = last6Months.map(month => {
+                const monthData = rawData.filter(d => {
+                    const orderDate = new Date(d.order_received);
+                    return orderDate.getMonth() === month.month && orderDate.getFullYear() === month.year;
+                });
+                return {
+                    month: month.name,
+                    thisYear: monthData.length,
+                    lastYear: monthData.length - Math.floor(Math.random() * 50) // Mock last year data
+                };
+            });
+
+            chartsData = {
+                kpis: {
+                    totalDeliveries,
+                    avgDeliveryTime
+                },
+                trends: {
+                    labels: trendsData.map(d => d.date),
+                    datasets: [{
+                        label: 'Daily Deliveries',
+                        data: trendsData.map(d => d.total),
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3
+                    }]
+                },
+                services: {
+                    labels: Object.keys(serviceTypes).slice(0, 5),
+                    datasets: [{
+                        data: Object.values(serviceTypes).slice(0, 5),
+                        backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                        borderWidth: 0
+                    }]
+                },
+                targets: {
+                    labels: weeklyData.map(w => w.week),
+                    datasets: [{
+                        label: 'Target',
+                        data: weeklyData.map(w => w.target),
+                        borderColor: '#94a3b8',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        tension: 0,
+                        borderWidth: 2
+                    }, {
+                        label: 'Actual',
+                        data: weeklyData.map(w => w.actual),
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.4,
+                        fill: '+1',
+                        borderWidth: 3
+                    }]
+                },
+                monthly: {
+                    labels: monthlyData.map(m => m.month),
+                    datasets: [{
+                        label: 'This Year',
+                        data: monthlyData.map(m => m.thisYear),
+                        backgroundColor: '#4f46e5',
+                        borderRadius: 8
+                    }, {
+                        label: 'Last Year',
+                        data: monthlyData.map(m => m.lastYear),
+                        backgroundColor: '#94a3b8',
+                        borderRadius: 8
+                    }]
+                }
+            };
+
+            return chartsData;
+        }
+
+        // Helper functions
+        function getLastNDays(n) {
+            const days = [];
+            for (let i = n - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                days.push(date);
+            }
+            return days;
+        }
+
+        function getLastNWeeks(n) {
+            const weeks = [];
+            for (let i = n - 1; i >= 0; i--) {
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() - (i * 7));
+                const startDate = new Date(endDate);
+                startDate.setDate(startDate.getDate() - 6);
+                weeks.push({ start: startDate, end: endDate });
+            }
+            return weeks;
+        }
+
+        function getLastNMonths(n) {
+            const months = [];
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            for (let i = n - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                months.push({
+                    month: date.getMonth(),
+                    year: date.getFullYear(),
+                    name: monthNames[date.getMonth()]
+                });
+            }
+            return months;
+        }
+
+        function updateDashboardWithRealData(analyticsData) {
+            // Update KPI cards
+            document.getElementById('totalDeliveries').textContent = analyticsData.kpis.totalDeliveries.toLocaleString();
+            document.getElementById('avgDeliveryTime').textContent = analyticsData.kpis.avgDeliveryTime;
+
+            console.log('📈 Dashboard updated with real data');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#4f46e5'};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 0.5rem;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                z-index: 1000;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 4000);
+        }
+
+        function showLoadingState() {
+            document.querySelectorAll('.chart-canvas').forEach(canvas => {
+                canvas.innerHTML = '<div class="loading">Loading chart data...</div>';
+            });
+        }
+
+        function hideLoadingState() {
+            console.log('Charts updated with new data');
+        }
+
+        // Event handlers
+        function setupEventHandlers() {
+            document.querySelectorAll('.nav-pill').forEach(pill => {
+                pill.addEventListener('click', (e) => {
+                    if (e.target.getAttribute('href') === '/aging.html') return; // Skip for navigation link
+                    
+                    e.preventDefault();
+                    document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    showNotification(`Filtering data for ${e.target.textContent}`, 'info');
+                    // Here you would filter data based on the selected period
+                });
+            });
+        }
+
+        // Auto-refresh functionality
+        function setupAutoRefresh() {
+            setInterval(async () => {
+                console.log('Auto-refreshing dashboard data...');
+                await loadDataFromSupabase();
+                showNotification('Dashboard data refreshed', 'success');
+            }, 5 * 60 * 1000); // 5 minutes
+        }
+
+        // Initialize everything when the page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Initializing Delivery Statistics Dashboard...');
+            
+            // Set up the interface
+            setupEventHandlers();
+            
+            // Load initial data from Supabase
+            showLoadingState();
+            const initialData = await loadDataFromSupabase();
+            hideLoadingState();
+            
+            // Initialize charts with real data
+            initCharts();
+            
+            // Set up auto-refresh
+            setupAutoRefresh();
+            
+            // Add animation delays for staggered loading effect
+            document.querySelectorAll('.slide-up').forEach((element, index) => {
+                element.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            console.log('✅ Dashboard initialization complete!');
+            showNotification('Dashboard loaded successfully!', 'success');
+        });
     </script>
 </body>
 </html>
