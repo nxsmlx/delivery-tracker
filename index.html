@@ -65,6 +65,9 @@
         .kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
         .kpi-number{font-size:2.5rem;font-weight:700;margin-bottom:4px;}
         .kpi-label{font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;}
+        .kpi-change { font-size: 0.875rem; font-weight: 600; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.25rem; }
+        .kpi-change.up { color: var(--success); }
+        .kpi-change.down { color: var(--error); }
         
         .charts-grid{display:grid;grid-template-columns:1fr 2fr;gap:1.5rem;padding:0 1.5rem 1.5rem;}
         .chart-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);}
@@ -113,6 +116,7 @@
                 <div class="kpi-card">
                     <div class="kpi-number" id="totalDeliveries" style="color: var(--accent);">-</div>
                     <div class="kpi-label">Total Orders</div>
+                    <div class="kpi-change" id="totalOrdersChange"></div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-number" id="pendingDeliveries" style="color: var(--warning);">-</div>
@@ -121,13 +125,14 @@
                 <div class="kpi-card">
                     <div class="kpi-number" id="ticketsDone" style="color: var(--success);">-</div>
                     <div class="kpi-label">Tickets Done</div>
+                     <div class="kpi-change" id="ticketsDoneChange"></div>
                 </div>
             </div>
 
             <div class="charts-grid">
                 <div class="chart-container">
-                    <div class="chart-header"><div class="chart-title">Urgent vs. Not Urgent</div></div>
-                    <div class="chart-canvas"><canvas id="urgentPieChart"></canvas></div>
+                    <div class="chart-header"><div class="chart-title">Service Type Distribution</div></div>
+                    <div class="chart-canvas"><canvas id="serviceTypePieChart"></canvas></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header"><div class="chart-title">Delivery vs. Collection by Day</div></div>
@@ -158,7 +163,7 @@
     </div>
 
 <script>
-    // --- CONFIGURATION ---
+     // --- CONFIGURATION ---
     const SUPABASE_CONFIG = {
         url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
         key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
@@ -167,15 +172,13 @@
     
     // Chart Colors
     const CHART_COLORS = {
-        urgent: '#f97316',
-        notUrgent: '#3b82f6',
         delivery: '#6366f1',
         collection: '#14b8a6'
     };
 
     // --- GLOBAL STATE ---
     let allData = [];
-    let urgentPieChartInstance, deliveryBarChartInstance;
+    let serviceTypePieChartInstance, deliveryBarChartInstance;
 
     // --- DOM ELEMENTS ---
     const statusDiv = document.getElementById('statusMessage');
@@ -210,7 +213,6 @@
                 ...d,
                 order_date: d.order_received ? new Date(d.order_received) : null,
                 is_pending: d.status ? d.status.toLowerCase().includes('pending') : true,
-                is_urgent: d.urgent ? d.urgent.toLowerCase().includes('urgent') : false,
                 type: d.type ? (d.type.toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
             })).filter(d => d.order_date && d.customer);
 
@@ -224,15 +226,11 @@
     }
 
     function filterAndProcessData() {
-        const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
-        const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+        const startDate = startDateInput.valueAsDate;
+        const endDate = endDateInput.valueAsDate;
 
-        if (startDate) {
-            startDate.setHours(0, 0, 0, 0);
-        }
-        if (endDate) {
-            endDate.setHours(23, 59, 59, 999);
-        }
+        if (startDate) startDate.setHours(0, 0, 0, 0);
+        if (endDate) endDate.setHours(23, 59, 59, 999);
 
         const filteredData = allData.filter(d => {
             if (!d.order_date) return false;
@@ -241,22 +239,42 @@
             return isAfterStart && isBeforeEnd;
         });
         
-        updateDashboard(filteredData);
+        updateDashboard(filteredData, endDate);
     }
 
     // --- DASHBOARD UPDATE & RENDERING ---
-    function updateDashboard(data) {
+    function updateDashboard(data, currentEndDate) {
+        // --- KPI Calculations ---
         const totalOrders = data.length;
+        const ticketsDone = totalOrders - data.filter(d => d.is_pending).length;
+        
+        // Previous month calculation
+        const prevMonthEndDate = new Date(currentEndDate);
+        prevMonthEndDate.setMonth(prevMonthEndDate.getMonth() - 1);
+        const prevMonthStartDate = new Date(prevMonthEndDate);
+        prevMonthStartDate.setDate(1);
+        prevMonthStartDate.setHours(0,0,0,0);
+        
+        const prevMonthData = allData.filter(d => d.order_date >= prevMonthStartDate && d.order_date <= prevMonthEndDate);
+        const prevMonthTotalOrders = prevMonthData.length;
+        const prevMonthTicketsDone = prevMonthTotalOrders - prevMonthData.filter(d => d.is_pending).length;
+
+        // --- Render KPIs ---
         document.getElementById('totalDeliveries').textContent = totalOrders.toLocaleString();
         document.getElementById('pendingDeliveries').textContent = data.filter(d => d.is_pending).length.toLocaleString();
-        document.getElementById('ticketsDone').textContent = (totalOrders - data.filter(d => d.is_pending).length).toLocaleString();
-
-        const urgentCounts = data.reduce((acc, d) => {
-            const key = d.is_urgent ? 'Urgent' : 'Not Urgent';
-            acc[key] = (acc[key] || 0) + 1;
-            return acc;
-        }, { 'Urgent': 0, 'Not Urgent': 0 });
+        document.getElementById('ticketsDone').textContent = ticketsDone.toLocaleString();
         
+        updateKpiChange('totalOrdersChange', totalOrders, prevMonthTotalOrders);
+        updateKpiChange('ticketsDoneChange', ticketsDone, prevMonthTicketsDone, true); // `true` because fewer tickets done is bad
+
+        // --- Chart & Table Data Aggregation ---
+        const serviceTypeCounts = data.reduce((acc, d) => {
+            if (d.type !== 'Unknown') {
+               acc[d.type] = (acc[d.type] || 0) + 1;
+            }
+            return acc;
+        }, { 'Delivery': 0, 'Collection': 0 });
+
         const deliveryByDay = data.reduce((acc, d) => {
             const day = d.order_date.toLocaleDateString('en-US', { weekday: 'short' });
             if (!acc[day]) {
@@ -282,24 +300,42 @@
             return acc;
         }, {});
 
-        renderUrgentPieChart(urgentCounts);
+        // --- Render Visualizations ---
+        renderServiceTypePieChart(serviceTypeCounts);
         renderDeliveryBarChart(deliveryByDay);
         renderDailyVolumeTable(dailyVolume, totalOrders);
         renderCustomerTable(Object.values(customerPerformance));
     }
-    
-    function renderUrgentPieChart(data) {
-        const ctx = document.getElementById('urgentPieChart').getContext('2d');
-        if (urgentPieChartInstance) {
-            urgentPieChartInstance.destroy();
+
+    function updateKpiChange(elementId, currentValue, previousValue, isLowerBetter = false) {
+        const changeElement = document.getElementById(elementId);
+        if (previousValue === 0) {
+            changeElement.innerHTML = `<span>-</span>`;
+            changeElement.className = 'kpi-change';
+            return;
         }
-        urgentPieChartInstance = new Chart(ctx, {
+
+        const percentChange = ((currentValue - previousValue) / previousValue) * 100;
+        const isPositive = percentChange >= 0;
+        const trendClass = (isPositive && !isLowerBetter) || (!isPositive && isLowerBetter) ? 'up' : 'down';
+        const icon = trendClass === 'up' ? '▲' : '▼';
+        
+        changeElement.className = `kpi-change ${trendClass}`;
+        changeElement.innerHTML = `${icon} ${percentChange.toFixed(1)}% vs last month`;
+    }
+    
+    function renderServiceTypePieChart(data) {
+        const ctx = document.getElementById('serviceTypePieChart').getContext('2d');
+        if (serviceTypePieChartInstance) {
+            serviceTypePieChartInstance.destroy();
+        }
+        serviceTypePieChartInstance = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['Urgent', 'Not Urgent'],
+                labels: ['Delivery', 'Collection'],
                 datasets: [{
-                    data: [data['Urgent'], data['Not Urgent']],
-                    backgroundColor: [CHART_COLORS.urgent, CHART_COLORS.notUrgent],
+                    data: [data['Delivery'], data['Collection']],
+                    backgroundColor: [CHART_COLORS.delivery, CHART_COLORS.collection],
                     borderColor: '#ffffff',
                     borderWidth: 4,
                 }]
@@ -313,11 +349,7 @@
                         color: '#fff',
                         font: { weight: 'bold' },
                         formatter: (value, ctx) => {
-                            let sum = 0;
-                            let dataArr = ctx.chart.data.datasets[0].data;
-                            dataArr.map(data => {
-                                sum += data;
-                            });
+                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
                             let percentage = (value*100 / sum).toFixed(1)+"%";
                             return value > 0 ? percentage : '';
                         }
@@ -402,8 +434,8 @@
         const today = new Date();
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(today.getDate() - 30);
-        endDateInput.value = today.toISOString().split('T')[0];
-        startDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
+        endDateInput.valueAsDate = today;
+        startDateInput.valueAsDate = thirtyDaysAgo;
 
         startDateInput.addEventListener('change', filterAndProcessData);
         endDateInput.addEventListener('change', filterAndProcessData);
@@ -420,4 +452,4 @@
 
 </script>
 </body>
-</html>
+</html>   
