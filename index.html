@@ -6,397 +6,374 @@
     <title>Qube-Inventory Delivery Statistics</title>
     <link rel="icon" href="favicon.ico" type="image/png">
     <style>
-:root{
-    --bg-gradient: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
-    --surface:#ffffff;
-    --surface-2:#f9fafb;
-    --accent:#4f46e5;
-    --accent-hover:#4338ca;
-    --text:#1f2937;
-    --text-muted:#4b5563;
-    --border:#d1d5db;
-    --shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
-    --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
-    --radius:0.75rem;
-    --success:#10b981;
-    --warning:#f59e0b;
-    --error:#ef4444;
-    --same-day:#3b82f6;
-}
+        :root{
+            --bg-gradient: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
+            --surface:#ffffff;
+            --surface-2:#f9fafb;
+            --accent:#4f46e5;
+            --accent-hover:#4338ca;
+            --text:#1f2937;
+            --text-muted:#4b5563;
+            --border:#d1d5db;
+            --shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
+            --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
+            --radius:0.75rem;
+            --success:#10b981;
+            --warning:#f59e0b;
+            --error:#ef4444;
+            --same-day:#3b82f6;
+        }
 
-*{margin:0;padding:0;box-sizing:border-box}
+        *{margin:0;padding:0;box-sizing:border-box}
 
-body{
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-    background:var(--bg-gradient);
-    color:var(--text);
-    min-height:100vh;
-    padding:1.5rem;
-}
+        body{
+            font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+            background:var(--bg-gradient);
+            color:var(--text);
+            min-height:100vh;
+            padding:1.5rem;
+        }
 
-.container{
-    max-width:1200px;
-    margin:0 auto;
-    border-radius:var(--radius);
-    overflow:hidden;
-    background:var(--surface);
-    box-shadow:var(--shadow-lg);
-    border:1px solid var(--border);
-}
+        .container{
+            max-width:1200px;
+            margin:0 auto;
+            border-radius:var(--radius);
+            overflow:hidden;
+            background:var(--surface);
+            box-shadow:var(--shadow-lg);
+            border:1px solid var(--border);
+        }
 
-.header{
-    background:linear-gradient(135deg, #ffffff, #f9fafb);
-    padding:2rem 2.5rem;
-    text-align:center;
-    border-bottom:1px solid var(--border);
-    position:relative;
-}
+        .header{
+            background:linear-gradient(135deg, #ffffff, #f9fafb);
+            padding:2rem 2.5rem;
+            text-align:center;
+            border-bottom:1px solid var(--border);
+            position:relative;
+        }
 
-.header-content{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:0.75rem;
-}
+        .header-content{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:0.75rem;
+        }
 
-.header h1{
-    font-size:1.75rem;
-    font-weight:700;
-    letter-spacing:-.5px;
-    color:var(--text);
-}
+        .header h1{
+            font-size:1.75rem;
+            font-weight:700;
+            letter-spacing:-.5px;
+            color:var(--text);
+        }
 
-.header h1::before{content:"📊";margin-right:8px}
+        .header h1::before{content:"📊";margin-right:8px}
 
-.header p{margin-top:4px;color:var(--text-muted)}
+        .header p{margin-top:4px;color:var(--text-muted)}
 
-.header-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
+        .header-actions {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
-.nav-pills {
-    display: flex;
-    gap: 0.5rem;
-    background: var(--surface-2);
-    padding: 0.5rem;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-}
+        .nav-pills {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--surface-2);
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
 
-.nav-pill {
-    padding: 0.625rem 1.25rem;
-    border: 1px solid transparent;
-    border-radius: calc(var(--radius) - 0.25rem);
-    background: var(--surface);
-    color: var(--text);
-    font-size: .875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .2s;
-    text-decoration: none;
-}
+        .nav-pill {
+            padding: 0.625rem 1.25rem;
+            border: 1px solid transparent;
+            border-radius: calc(var(--radius) - 0.25rem);
+            background: var(--surface);
+            color: var(--text);
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+        }
 
-.nav-pill:hover,
-.nav-pill.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-}
+        .nav-pill:hover,
+        .nav-pill.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
 
-/* KPI Cards - Just 2 cards */
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    padding: 1.5rem;
-}
+        /* Single KPI Card */
+        .kpi-grid {
+            padding: 1.5rem;
+        }
 
-.kpi-card {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 2rem 1.25rem;
-    text-align: center;
-    transition: transform .15s, box-shadow .15s;
-}
+        .kpi-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem 1.25rem;
+            text-align: center;
+            transition: transform .15s, box-shadow .15s;
+        }
 
-.kpi-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
-}
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
 
-.kpi-number {
-    font-size: 3rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-    color: var(--accent);
-}
+        .kpi-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--accent);
+        }
 
-.kpi-label {
-    font-size: .75rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: .5px;
-}
+        .kpi-label {
+            font-size: .75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
 
-/* Charts Grid - 2x2 */
-.charts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem;
-}
+        .kpi-change {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
 
-.chart-container {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    box-shadow: var(--shadow);
-    transition: transform .15s, box-shadow .15s;
-}
+        /* Charts Grid - 2x2 layout */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
 
-.chart-container:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-}
+        .chart-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform .15s, box-shadow .15s;
+        }
 
-.chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border);
-}
+        .chart-container:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
 
-.chart-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text);
-}
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
 
-.chart-subtitle {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 0.25rem;
-}
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
 
-.chart-canvas {
-    position: relative;
-    height: 300px;
-}
+        .chart-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
 
-/* Customer Performance Table */
-.customer-performance {
-    margin: 0 1.5rem 1.5rem;
-    padding: 1.5rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-}
+        .chart-canvas {
+            position: relative;
+            height: 300px;
+        }
 
-.customer-performance h3 {
-    color: var(--accent);
-    margin-bottom: 1rem;
-    font-size: 1.125rem;
-}
+        /* Customer Performance Table */
+        .customer-performance {
+            margin: 0 1.5rem 1.5rem;
+            padding: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
 
-.table-wrapper {
-    overflow-x: auto;
-    border-radius: var(--radius);
-    background: var(--surface);
-    border: 1px solid var(--border);
-}
+        .customer-performance h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.125rem;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
 
-th, td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    font-size: .875rem;
-    vertical-align: middle;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-th {
-    background: var(--surface-2);
-    color: var(--text-muted);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    border-bottom: 1px solid var(--border);
-}
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: .875rem;
+            vertical-align: middle;
+        }
 
-tr:hover {
-    background: var(--surface-2);
-}
+        th {
+            background: var(--surface-2);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border-bottom: 1px solid var(--border);
+        }
 
-.status-badge {
-    padding: 4px 8px;
-    border-radius: 999px;
-    font-size: .7rem;
-    font-weight: 600;
-    letter-spacing: .5px;
-    color: #fff;
-    display: inline-block;
-}
+        tr:hover {
+            background: var(--surface-2);
+        }
 
-.status-excellent {
-    background: var(--success);
-}
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
 
-.status-good {
-    background: var(--same-day);
-}
+        .loading::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.75rem;
+        }
 
-.status-needs-improvement {
-    background: var(--warning);
-}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-/* Loading Animation */
-.loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
-    font-size: 1.1rem;
-    color: var(--text-muted);
-}
+        .no-data {
+            padding: 2.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: .875rem;
+        }
 
-.loading::before {
-    content: '';
-    width: 24px;
-    height: 24px;
-    border: 3px solid var(--border);
-    border-top: 3px solid var(--accent);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-right: 0.75rem;
-}
+        /* Status Messages */
+        .status-message {
+            margin: 0 1.5rem 1.5rem;
+            padding: 0.875rem 1.125rem;
+            border-radius: var(--radius);
+            font-size: .875rem;
+        }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+        .status-info {
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            color: var(--accent);
+        }
 
-.no-data {
-    padding: 2.5rem;
-    text-align: center;
-    color: var(--text-muted);
-    font-size: .875rem;
-}
+        .status-success {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: var(--success);
+        }
 
-/* Status Messages */
-.status-message {
-    margin: 0 1.5rem 1.5rem;
-    padding: 0.875rem 1.125rem;
-    border-radius: var(--radius);
-    font-size: .875rem;
-}
+        .status-error {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: var(--error);
+        }
 
-.status-info {
-    background: #eef2ff;
-    border: 1px solid #c7d2fe;
-    color: var(--accent);
-}
+        .status-warning {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            color: var(--warning);
+        }
 
-.status-success {
-    background: #d1fae5;
-    border: 1px solid #a7f3d0;
-    color: var(--success);
-}
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
 
-.status-error {
-    background: #fee2e2;
-    border: 1px solid #fecaca;
-    color: var(--error);
-}
+        @media (max-width: 768px) {
+            body {
+                padding: 0.75rem;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .nav-pills {
+                flex-direction: column;
+            }
+            
+            .chart-container {
+                padding: 1rem;
+            }
+            
+            .kpi-number {
+                font-size: 2.5rem;
+            }
+            
+            .charts-grid {
+                padding: 1rem;
+            }
+            
+            .kpi-grid {
+                padding: 1rem;
+            }
+        }
 
-.status-warning {
-    background: #fef3c7;
-    border: 1px solid #fde68a;
-    color: var(--warning);
-}
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .charts-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .kpi-grid {
-        grid-template-columns: 1fr;
-    }
-}
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-@media (max-width: 768px) {
-    body {
-        padding: 0.75rem;
-    }
-    
-    .header {
-        padding: 1.5rem;
-    }
-    
-    .nav-pills {
-        flex-direction: column;
-    }
-    
-    .chart-container {
-        padding: 1rem;
-    }
-    
-    .kpi-number {
-        font-size: 2.5rem;
-    }
-    
-    .charts-grid {
-        padding: 1rem;
-    }
-    
-    .kpi-grid {
-        padding: 1rem;
-    }
-}
+        .slide-up {
+            animation: slideUp 0.8s ease-out;
+        }
 
-/* Animation Classes */
-.fade-in {
-    animation: fadeIn 0.6s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.slide-up {
-    animation: slideUp 0.8s ease-out;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -412,10 +389,6 @@ tr:hover {
             
             <div class="header-actions">
                 <div class="nav-pills">
-                    <a href="#" class="nav-pill active" data-period="7d">Last 7 Days</a>
-                    <a href="#" class="nav-pill" data-period="30d">Last 30 Days</a>
-                    <a href="#" class="nav-pill" data-period="90d">Last 90 Days</a>
-                    <a href="#" class="nav-pill" data-period="1y">Last Year</a>
                     <a href="/aging.html" class="nav-pill">📈 Aging Tracker</a>
                 </div>
             </div>
@@ -424,53 +397,57 @@ tr:hover {
         <!-- Status Messages -->
         <div id="statusMessage"></div>
 
-        <!-- KPI Cards - Only 2 -->
+        <!-- Single KPI Card -->
         <div class="kpi-grid slide-up">
-            <div class="kpi-card">
-                <div class="kpi-number" id="totalDeliveries">-</div>
-                <div class="kpi-label">Total Deliveries</div>
-            </div>
-            
             <div class="kpi-card">
                 <div class="kpi-number" id="avgDeliveryTime">-</div>
                 <div class="kpi-label">Average Delivery Days</div>
+                <div class="kpi-change" id="avgDeliveryChange">Loading...</div>
             </div>
         </div>
 
-        <!-- Charts Grid - Now Cards with Tables -->
+        <!-- Charts Grid - 2x2 layout -->
         <div class="charts-grid slide-up">
-            <!-- Volume Trends Card -->
+            <!-- All Order Deliveries Card -->
             <div class="chart-container">
                 <div class="chart-header">
                     <div>
-                        <div class="chart-title">Daily Volume (Last 7 Days)</div>
-                        <div class="chart-subtitle">Delivery volume by day</div>
+                        <div class="chart-title">All Order Deliveries</div>
+                        <div class="chart-subtitle">Total delivery orders</div>
                     </div>
                 </div>
                 <div class="chart-canvas">
-                    <div id="volumeTable">
-                        <table style="width: 100%; font-size: 0.875rem;">
-                            <thead>
-                                <tr style="background: var(--surface-2);">
-                                    <th style="padding: 0.5rem; text-align: left;">Day</th>
-                                    <th style="padding: 0.5rem; text-align: right;">Deliveries</th>
-                                    <th style="padding: 0.5rem; text-align: right;">vs Prev Week</th>
-                                </tr>
-                            </thead>
-                            <tbody id="volumeTableBody">
-                                <tr><td colspan="3" class="loading">Loading data...</td></tr>
-                            </tbody>
-                        </table>
+                    <div style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.25rem;" id="totalDeliveries">-</div>
+                        <div style="font-size: 0.875rem; color: var(--text-muted);">Total Deliveries</div>
+                        <div style="font-size: 0.875rem; font-weight: 600; margin-top: 0.5rem;" id="totalDeliveryChange">Loading...</div>
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Pending Delivery Card -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Pending Delivery</div>
+                        <div class="chart-subtitle">Orders awaiting delivery</div>
+                    </div>
+                </div>
+                <div class="chart-canvas">
+                    <div style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--warning); margin-bottom: 0.25rem;" id="pendingDeliveries">-</div>
+                        <div style="font-size: 0.875rem; color: var(--text-muted);">Pending Orders</div>
+                        <div style="font-size: 0.875rem; font-weight: 600; margin-top: 0.5rem;" id="pendingDeliveryChange">Loading...</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Service Types Card -->
             <div class="chart-container">
                 <div class="chart-header">
                     <div>
                         <div class="chart-title">Service Types</div>
-                        <div class="chart-subtitle">Volume by service category</div>
+                        <div class="chart-subtitle">Delivery vs Collection</div>
                     </div>
                 </div>
                 <div class="chart-canvas">
@@ -478,9 +455,9 @@ tr:hover {
                         <table style="width: 100%; font-size: 0.875rem;">
                             <thead>
                                 <tr style="background: var(--surface-2);">
-                                    <th style="padding: 0.5rem; text-align: left;">Service Type</th>
+                                    <th style="padding: 0.5rem; text-align: left;">Type</th>
                                     <th style="padding: 0.5rem; text-align: right;">Count</th>
-                                    <th style="padding: 0.5rem; text-align: right;">Percentage</th>
+                                    <th style="padding: 0.5rem; text-align: right;">%</th>
                                 </tr>
                             </thead>
                             <tbody id="serviceTableBody">
@@ -491,52 +468,26 @@ tr:hover {
                 </div>
             </div>
 
-            <!-- Monthly Performance Card -->
+            <!-- Daily Volume -->
             <div class="chart-container">
                 <div class="chart-header">
                     <div>
-                        <div class="chart-title">Monthly Performance</div>
-                        <div class="chart-subtitle">Current vs previous month</div>
+                        <div class="chart-title">Daily Volume</div>
+                        <div class="chart-subtitle">Weekdays delivery count</div>
                     </div>
                 </div>
                 <div class="chart-canvas">
-                    <div id="monthlyCard" style="text-align: center; padding: 2rem;">
-                        <div style="margin-bottom: 1.5rem;">
-                            <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.25rem;" id="thisMonthCount">-</div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">This Month</div>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <div style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 0.25rem;" id="lastMonthCount">-</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">Previous Month</div>
-                        </div>
-                        <div id="monthlyChange" style="font-size: 0.875rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 999px; display: inline-block;">
-                            Loading...
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Weekly Targets Card -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div>
-                        <div class="chart-title">Weekly Targets</div>
-                        <div class="chart-subtitle">Performance vs targets</div>
-                    </div>
-                </div>
-                <div class="chart-canvas">
-                    <div id="targetsTable">
+                    <div id="volumeTable">
                         <table style="width: 100%; font-size: 0.875rem;">
                             <thead>
                                 <tr style="background: var(--surface-2);">
-                                    <th style="padding: 0.5rem; text-align: left;">Week</th>
-                                    <th style="padding: 0.5rem; text-align: right;">Target</th>
-                                    <th style="padding: 0.5rem; text-align: right;">Actual</th>
-                                    <th style="padding: 0.5rem; text-align: right;">Status</th>
+                                    <th style="padding: 0.5rem; text-align: left;">Day</th>
+                                    <th style="padding: 0.5rem; text-align: right;">Count</th>
+                                    <th style="padding: 0.5rem; text-align: right;">Change</th>
                                 </tr>
                             </thead>
-                            <tbody id="targetsTableBody">
-                                <tr><td colspan="4" class="loading">Loading data...</td></tr>
+                            <tbody id="volumeTableBody">
+                                <tr><td colspan="3" class="loading">Loading data...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -547,7 +498,7 @@ tr:hover {
         <!-- Top Customer Performance -->
         <div class="customer-performance slide-up">
             <h3>📋 Top Customer Performance</h3>
-            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">Customer delivery statistics and performance metrics</p>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">Customer order statistics</p>
             
             <div class="table-wrapper">
                 <table>
@@ -555,13 +506,31 @@ tr:hover {
                         <tr>
                             <th>Customer</th>
                             <th>Total Orders</th>
-                            <th>On-Time Rate</th>
-                            <th>Avg Delivery Time</th>
-                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="customerTable">
-                        <tr><td colspan="5" class="loading">Loading customer data...</td></tr>
+                        <tr><td colspan="2" class="loading">Loading customer data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Aging Distribution -->
+        <div class="customer-performance slide-up">
+            <h3>⏱️ Aging Distribution</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.875rem;">Delivery time breakdown</p>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aging</th>
+                            <th>Count</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="agingTable">
+                        <tr><td colspan="3" class="loading">Loading aging data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -569,252 +538,256 @@ tr:hover {
     </div>
 
     <script>
-        // Supabase Configuration - Uses SEPARATE table for complete delivery data
-        const SUPABASE_CONFIG = {
+        // Supabase Configuration
+        var SUPABASE_CONFIG = {
             url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
             key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
-            tableName: 'delivery_analytics', // MAIN table for complete data
-            agingTableName: 'delivery_data'  // Fallback aging tracker table
+            tableName: 'delivery_analytics',
+            agingTableName: 'delivery_data'
         };
 
         // Show status messages
-        function showMessage(message, type = 'info', duration = 5000) {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+        function showMessage(message, type, duration) {
+            type = type || 'info';
+            duration = duration || 5000;
+            var statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = '<div class="status-message status-' + type + '">' + message + '</div>';
             
             if (type === 'success' || type === 'error') {
-                setTimeout(() => {
+                setTimeout(function() {
                     statusDiv.innerHTML = '';
                 }, duration);
             }
         }
 
-        // Load data from separate analytics database
-        async function loadDataFromSupabase() {
-            try {
-                console.log('📊 Loading complete analytics data...');
-                showMessage('🔄 Loading analytics data...', 'info', 3000);
+        // Load data from Supabase
+        function loadDataFromSupabase() {
+            return new Promise(function(resolve, reject) {
+                console.log('Loading complete analytics data...');
+                showMessage('Loading analytics data...', 'info', 3000);
                 
-                // Try to load from analytics table first
-                let response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?select=*&order=created_at.desc`, {
+                fetch(SUPABASE_CONFIG.url + '/rest/v1/' + SUPABASE_CONFIG.tableName + '?select=*&order=created_at.desc', {
                     headers: {
                         'apikey': SUPABASE_CONFIG.key,
-                        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+                        'Authorization': 'Bearer ' + SUPABASE_CONFIG.key,
                         'Content-Type': 'application/json'
                     }
-                });
-
-                let rawData = [];
-                
-                if (response.ok) {
-                    rawData = await response.json();
+                })
+                .then(function(response) {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Analytics table error: ' + response.status);
+                    }
+                })
+                .then(function(rawData) {
                     if (rawData.length > 0) {
-                        console.log(`✅ Loaded ${rawData.length} records from analytics database`);
-                        showMessage(`✅ Analytics data loaded (${rawData.length} records)`, 'success');
+                        console.log('Loaded ' + rawData.length + ' records from analytics database');
+                        showMessage('Analytics data loaded (' + rawData.length + ' records)', 'success');
+                        var analyticsData = processCompleteAnalyticsData(rawData);
+                        updateDashboardWithRealData(analyticsData);
+                        resolve(analyticsData);
                     } else {
                         throw new Error('Analytics table is empty');
                     }
-                } else {
-                    throw new Error(`Analytics table error: ${response.status}`);
-                }
-
-                // Process the complete data
-                const analyticsData = processCompleteAnalyticsData(rawData);
-                updateDashboardWithRealData(analyticsData);
-                
-                return analyticsData;
-            } catch (error) {
-                console.error('❌ Analytics database error:', error);
-                
-                // Fallback: try to use aging data but inform user about limitation
-                try {
-                    console.log('🔄 Falling back to aging tracker data (limited analytics)...');
-                    const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.agingTableName}?select=*&order=created_at.desc`, {
+                })
+                .catch(function(error) {
+                    console.error('Analytics database error:', error);
+                    
+                    // Fallback to aging data
+                    fetch(SUPABASE_CONFIG.url + '/rest/v1/' + SUPABASE_CONFIG.agingTableName + '?select=*&order=created_at.desc', {
                         headers: {
                             'apikey': SUPABASE_CONFIG.key,
-                            'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+                            'Authorization': 'Bearer ' + SUPABASE_CONFIG.key,
                             'Content-Type': 'application/json'
                         }
-                    });
-                    
-                    if (response.ok) {
-                        const agingData = await response.json();
-                        console.log(`⚠️ Using ${agingData.length} filtered records (incomplete analytics)`);
-                        showMessage(`⚠️ Using limited data from aging tracker (${agingData.length} records). Please set up complete analytics database for full statistics.`, 'warning', 8000);
+                    })
+                    .then(function(response) {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error('Fallback also failed');
+                        }
+                    })
+                    .then(function(agingData) {
+                        console.log('Using ' + agingData.length + ' filtered records');
+                        showMessage('Using limited data from aging tracker (' + agingData.length + ' records)', 'warning', 8000);
                         
-                        const analyticsData = processCompleteAnalyticsData(agingData);
+                        var analyticsData = processCompleteAnalyticsData(agingData);
                         updateDashboardWithRealData(analyticsData);
-                        return analyticsData;
-                    }
-                } catch (fallbackError) {
-                    console.error('❌ Fallback also failed:', fallbackError);
-                }
-                
-                // Final fallback to sample data
-                showMessage(`❌ Database connection failed: ${error.message}. Using sample data.`, 'error');
-                const analyticsData = generateSampleAnalytics();
-                updateDashboardWithRealData(analyticsData);
-                return analyticsData;
-            }
+                        resolve(analyticsData);
+                    })
+                    .catch(function(fallbackError) {
+                        console.error('Fallback also failed:', fallbackError);
+                        showMessage('Database connection failed: ' + error.message + '. Using sample data.', 'error');
+                        var analyticsData = generateSampleAnalytics();
+                        updateDashboardWithRealData(analyticsData);
+                        resolve(analyticsData);
+                    });
+                });
+            });
         }
 
-        // Process complete analytics data
+        // Process analytics data
         function processCompleteAnalyticsData(rawData) {
             if (!rawData || rawData.length === 0) {
                 return generateSampleAnalytics();
             }
 
-            console.log(`📊 Processing ${rawData.length} complete delivery records`);
+            console.log('Processing ' + rawData.length + ' complete delivery records');
 
-            // Calculate KPIs
-            const totalDeliveries = rawData.length;
-            const recordsWithAging = rawData.filter(d => d.aging !== null && d.aging !== undefined && d.aging > 0);
-            const avgDeliveryTime = recordsWithAging.length > 0 
-                ? (recordsWithAging.reduce((sum, d) => sum + d.aging, 0) / recordsWithAging.length).toFixed(1)
+            // Calculate total deliveries and pending
+            var totalDeliveries = rawData.length;
+            var pendingDeliveries = rawData.filter(function(d) {
+                return d.status && d.status.toLowerCase().indexOf('pending') !== -1;
+            }).length;
+
+            // Calculate average delivery time
+            var recordsWithAging = rawData.filter(function(d) {
+                return d.aging !== null && d.aging !== undefined && d.aging > 0;
+            });
+            var avgDeliveryTime = recordsWithAging.length > 0 
+                ? (recordsWithAging.reduce(function(sum, d) { return sum + d.aging; }, 0) / recordsWithAging.length).toFixed(1)
                 : '0.0';
 
-            // Calculate monthly performance (current vs previous)
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            
-            const thisMonthData = rawData.filter(d => {
+            // Calculate last month data for comparison
+            var lastMonth = new Date();
+            lastMonth.setMonth(lastMonth.getMonth() - 1);
+            var lastMonthData = rawData.filter(function(d) {
                 if (!d.order_received) return false;
-                const orderDate = new Date(d.order_received);
-                return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
+                var orderDate = new Date(d.order_received);
+                return orderDate.getMonth() === lastMonth.getMonth() && orderDate.getFullYear() === lastMonth.getFullYear();
             });
             
-            const lastMonthData = rawData.filter(d => {
-                if (!d.order_received) return false;
-                const orderDate = new Date(d.order_received);
-                const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-                const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-                return orderDate.getMonth() === lastMonth && orderDate.getFullYear() === lastMonthYear;
-            });
+            var lastMonthTotal = lastMonthData.length;
+            var lastMonthPending = lastMonthData.filter(function(d) {
+                return d.status && d.status.toLowerCase().indexOf('pending') !== -1;
+            }).length;
+            
+            var totalChange = lastMonthTotal > 0 ? (((totalDeliveries - lastMonthTotal) / lastMonthTotal) * 100).toFixed(1) : '0.0';
+            var pendingChange = lastMonthPending > 0 ? (((pendingDeliveries - lastMonthPending) / lastMonthPending) * 100).toFixed(1) : '0.0';
 
-            const thisMonthCount = thisMonthData.length;
-            const lastMonthCount = lastMonthData.length;
-            const monthlyChangePercent = lastMonthCount > 0 
-                ? (((thisMonthCount - lastMonthCount) / lastMonthCount) * 100).toFixed(1)
-                : '0.0';
+            var lastMonthWithAging = lastMonthData.filter(function(d) { return d.aging && d.aging > 0; });
+            var lastMonthAvg = lastMonthWithAging.length > 0 
+                ? (lastMonthWithAging.reduce(function(sum, d) { return sum + d.aging; }, 0) / lastMonthWithAging.length)
+                : parseFloat(avgDeliveryTime);
+            
+            var avgChange = ((parseFloat(avgDeliveryTime) - lastMonthAvg) / lastMonthAvg * 100).toFixed(1);
 
-            // Calculate last 7 days volume
-            const last7Days = getLastNDays(7);
-            const volumeData = last7Days.map((date, index) => {
-                const dayData = rawData.filter(d => {
-                    if (!d.order_received) return false;
-                    const orderDate = new Date(d.order_received);
-                    return orderDate.toDateString() === date.toDateString();
-                });
-                
-                // Calculate previous week same day for comparison
-                const prevWeekDate = new Date(date);
-                prevWeekDate.setDate(prevWeekDate.getDate() - 7);
-                const prevWeekData = rawData.filter(d => {
-                    if (!d.order_received) return false;
-                    const orderDate = new Date(d.order_received);
-                    return orderDate.toDateString() === prevWeekDate.toDateString();
-                });
-                
-                const change = prevWeekData.length > 0 ? dayData.length - prevWeekData.length : 0;
-                
-                return {
-                    day: date.toLocaleDateString('en-MY', { weekday: 'short' }),
-                    count: dayData.length,
-                    change: change,
-                    changePercent: prevWeekData.length > 0 ? (((dayData.length - prevWeekData.length) / prevWeekData.length) * 100).toFixed(1) : '0'
-                };
-            });
-
-            // Calculate service types
-            const serviceTypes = {};
-            rawData.forEach(delivery => {
-                const type = delivery.type || 'Unknown';
-                serviceTypes[type] = (serviceTypes[type] || 0) + 1;
-            });
-
-            const serviceData = Object.entries(serviceTypes)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 6)
-                .map(([type, count]) => ({
-                    type,
-                    count,
-                    percentage: ((count / totalDeliveries) * 100).toFixed(1)
-                }));
-
-            // Calculate weekly targets
-            const last4Weeks = getLastNWeeks(4);
-            const weeklyData = last4Weeks.map((week, index) => {
-                const weekData = rawData.filter(d => {
-                    if (!d.order_received) return false;
-                    const orderDate = new Date(d.order_received);
-                    return orderDate >= week.start && orderDate <= week.end;
-                });
-                
-                const target = 80 + (index * 10); // Progressive targets
-                const actual = weekData.length;
-                const status = actual >= target ? 'Met' : 'Below';
-                
-                return {
-                    week: `Week ${index + 1}`,
-                    target,
-                    actual,
-                    status,
-                    percentage: target > 0 ? ((actual / target) * 100).toFixed(1) : '0'
-                };
-            });
-
-            // Calculate customer performance
-            const customerStats = {};
-            rawData.forEach(delivery => {
-                const customer = delivery.customer || 'Unknown';
-                if (!customerStats[customer]) {
-                    customerStats[customer] = { total: 0, onTime: 0, totalAging: 0, agingCount: 0 };
-                }
-                customerStats[customer].total++;
-                
-                if (delivery.aging !== null && delivery.aging !== undefined && delivery.aging > 0) {
-                    customerStats[customer].agingCount++;
-                    customerStats[customer].totalAging += delivery.aging;
-                    if (delivery.aging <= 3) customerStats[customer].onTime++;
+            // Service types - Filter for Delivery and Collection only
+            var serviceTypes = { 'Delivery': 0, 'Collection': 0 };
+            rawData.forEach(function(d) {
+                var type = d.type || 'Unknown';
+                if (type.toLowerCase().indexOf('delivery') !== -1 || type.toLowerCase() === 'delivery') {
+                    serviceTypes['Delivery']++;
+                } else if (type.toLowerCase().indexOf('collection') !== -1 || type.toLowerCase() === 'collection') {
+                    serviceTypes['Collection']++;
                 }
             });
 
-            const topCustomers = Object.entries(customerStats)
-                .filter(([_, stats]) => stats.total >= 2)
-                .sort((a, b) => b[1].total - a[1].total)
-                .slice(0, 10)
-                .map(([customer, stats]) => {
-                    const onTimeRate = stats.agingCount > 0 ? ((stats.onTime / stats.agingCount) * 100).toFixed(1) : 'N/A';
-                    const avgDeliveryTime = stats.agingCount > 0 ? (stats.totalAging / stats.agingCount).toFixed(1) : 'N/A';
-                    
-                    let status = 'Unknown';
-                    if (stats.agingCount > 0) {
-                        const rate = stats.onTime / stats.agingCount;
-                        status = rate > 0.95 ? 'Excellent' : rate > 0.90 ? 'Good' : 'Needs Improvement';
-                    }
-                    
+            var totalServiceCount = serviceTypes['Delivery'] + serviceTypes['Collection'];
+            var serviceData = Object.keys(serviceTypes)
+                .filter(function(type) { return serviceTypes[type] > 0; })
+                .map(function(type) {
                     return {
-                        customer,
-                        totalOrders: stats.total,
-                        onTimeRate,
-                        avgDeliveryTime,
-                        status
+                        type: type,
+                        count: serviceTypes[type],
+                        percentage: totalServiceCount > 0 ? ((serviceTypes[type] / totalServiceCount) * 100).toFixed(1) : '0.0'
+                    };
+                });
+
+            // Daily volume (Weekdays only: Mon-Fri)
+            var weekdayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+            var last5Weekdays = getLastNWeekdays(5);
+            var volumeData = weekdayOrder.map(function(dayName) {
+                var dayData = null;
+                for (var i = 0; i < last5Weekdays.length; i++) {
+                    if (last5Weekdays[i].toLocaleDateString('en-MY', { weekday: 'short' }) === dayName) {
+                        dayData = last5Weekdays[i];
+                        break;
+                    }
+                }
+                
+                if (!dayData) return { day: dayName, count: 0, change: 0 };
+                
+                var count = rawData.filter(function(d) {
+                    if (!d.order_received) return false;
+                    var orderDate = new Date(d.order_received);
+                    return orderDate.toDateString() === dayData.toDateString();
+                }).length;
+
+                var prevWeekDate = new Date(dayData);
+                prevWeekDate.setDate(prevWeekDate.getDate() - 7);
+                var prevWeekCount = rawData.filter(function(d) {
+                    if (!d.order_received) return false;
+                    var orderDate = new Date(d.order_received);
+                    return orderDate.toDateString() === prevWeekDate.toDateString();
+                }).length;
+
+                return {
+                    day: dayName,
+                    count: count,
+                    change: prevWeekCount > 0 ? count - prevWeekCount : 0
+                };
+            });
+
+            // Aging breakdown
+            var agingRanges = {
+                'Same Day': 0,
+                '1 Day': 0,
+                '2 Days': 0,
+                '3 Days': 0,
+                '4+ Days': 0
+            };
+
+            recordsWithAging.forEach(function(d) {
+                var aging = d.aging;
+                if (aging === 0) agingRanges['Same Day']++;
+                else if (aging === 1) agingRanges['1 Day']++;
+                else if (aging === 2) agingRanges['2 Days']++;
+                else if (aging === 3) agingRanges['3 Days']++;
+                else agingRanges['4+ Days']++;
+            });
+
+            var agingData = Object.keys(agingRanges).map(function(range) {
+                return {
+                    range: range,
+                    count: agingRanges[range],
+                    percentage: recordsWithAging.length > 0 ? ((agingRanges[range] / recordsWithAging.length) * 100).toFixed(1) : '0.0'
+                };
+            });
+
+            // Customer performance (simple)
+            var customerStats = {};
+            rawData.forEach(function(d) {
+                var customer = d.customer || 'Unknown';
+                customerStats[customer] = (customerStats[customer] || 0) + 1;
+            });
+
+            var topCustomers = Object.keys(customerStats)
+                .sort(function(a, b) { return customerStats[b] - customerStats[a]; })
+                .slice(0, 10)
+                .map(function(customer) {
+                    return {
+                        customer: customer.split(' ').map(function(word) {
+                            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                        }).join(' '),
+                        totalOrders: customerStats[customer]
                     };
                 });
 
             return {
                 kpis: {
-                    totalDeliveries,
-                    avgDeliveryTime
+                    avgDeliveryTime: avgDeliveryTime,
+                    avgChange: avgChange,
+                    totalDeliveries: totalDeliveries,
+                    totalChange: totalChange,
+                    pendingDeliveries: pendingDeliveries,
+                    pendingChange: pendingChange
                 },
-                monthly: {
-                    thisMonth: thisMonthCount,
-                    lastMonth: lastMonthCount,
-                    change: monthlyChangePercent
-                },
-                volume: volumeData,
+                aging: agingData,
                 services: serviceData,
-                targets: weeklyData,
+                volume: volumeData,
                 customers: topCustomers
             };
         }
@@ -822,169 +795,160 @@ tr:hover {
         function generateSampleAnalytics() {
             return {
                 kpis: {
+                    avgDeliveryTime: '2.1',
+                    avgChange: '-8.5',
                     totalDeliveries: 1247,
-                    avgDeliveryTime: '2.1'
+                    totalChange: '14.8',
+                    pendingDeliveries: 89,
+                    pendingChange: '-12.3'
                 },
-                monthly: {
-                    thisMonth: 342,
-                    lastMonth: 298,
-                    change: '14.8'
-                },
-                volume: [
-                    { day: 'Mon', count: 45, change: 3, changePercent: '7.1' },
-                    { day: 'Tue', count: 52, change: -2, changePercent: '-3.7' },
-                    { day: 'Wed', count: 48, change: 5, changePercent: '11.6' },
-                    { day: 'Thu', count: 61, change: 8, changePercent: '15.1' },
-                    { day: 'Fri', count: 58, change: -1, changePercent: '-1.7' },
-                    { day: 'Sat', count: 43, change: 2, changePercent: '4.9' },
-                    { day: 'Sun', count: 35, change: -3, changePercent: '-7.9' }
+                aging: [
+                    { range: 'Same Day', count: 12, percentage: '26.7' },
+                    { range: '1 Day', count: 8, percentage: '17.8' },
+                    { range: '2 Days', count: 5, percentage: '11.1' },
+                    { range: '3 Days', count: 3, percentage: '6.7' },
+                    { range: '4+ Days', count: 2, percentage: '4.4' }
                 ],
                 services: [
-                    { type: 'Installation', count: 450, percentage: '36.1' },
-                    { type: 'Maintenance', count: 320, percentage: '25.7' },
-                    { type: 'Repair', count: 280, percentage: '22.5' },
-                    { type: 'Delivery', count: 150, percentage: '12.0' },
-                    { type: 'Consultation', count: 47, percentage: '3.7' }
+                    { type: 'Delivery', count: 850, percentage: '68.2' },
+                    { type: 'Collection', count: 397, percentage: '31.8' }
                 ],
-                targets: [
-                    { week: 'Week 1', target: 80, actual: 95, status: 'Met', percentage: '118.8' },
-                    { week: 'Week 2', target: 90, actual: 108, status: 'Met', percentage: '120.0' },
-                    { week: 'Week 3', target: 100, actual: 89, status: 'Below', percentage: '89.0' },
-                    { week: 'Week 4', target: 110, actual: 118, status: 'Met', percentage: '107.3' }
+                volume: [
+                    { day: 'Mon', count: 45, change: 3 },
+                    { day: 'Tue', count: 52, change: -2 },
+                    { day: 'Wed', count: 48, change: 5 },
+                    { day: 'Thu', count: 61, change: 8 },
+                    { day: 'Fri', count: 58, change: -1 }
                 ],
                 customers: [
-                    { customer: 'Acme Corporation', totalOrders: 156, onTimeRate: '97.4', avgDeliveryTime: '1.8', status: 'Excellent' },
-                    { customer: 'Tech Solutions Ltd', totalOrders: 89, onTimeRate: '94.7', avgDeliveryTime: '2.1', status: 'Good' },
-                    { customer: 'Global Industries', totalOrders: 124, onTimeRate: '89.5', avgDeliveryTime: '2.6', status: 'Needs Improvement' }
+                    { customer: 'Acme Corporation', totalOrders: 156 },
+                    { customer: 'Tech Solutions Ltd', totalOrders: 89 },
+                    { customer: 'Global Industries', totalOrders: 124 },
+                    { customer: 'Metro Dynamics', totalOrders: 67 },
+                    { customer: 'Prime Services', totalOrders: 45 }
                 ]
             };
         }
 
         function updateDashboardWithRealData(analyticsData) {
-            // Update KPI cards
-            document.getElementById('totalDeliveries').textContent = analyticsData.kpis.totalDeliveries.toLocaleString();
+            // Update KPIs
             document.getElementById('avgDeliveryTime').textContent = analyticsData.kpis.avgDeliveryTime;
+            var avgChangeElement = document.getElementById('avgDeliveryChange');
+            var avgChange = parseFloat(analyticsData.kpis.avgChange);
+            var isAvgPositive = avgChange >= 0;
+            avgChangeElement.textContent = (isAvgPositive ? '+' : '') + analyticsData.kpis.avgChange + '% vs last month';
+            avgChangeElement.style.color = isAvgPositive ? 'var(--error)' : 'var(--success)';
 
-            // Update volume table
-            updateVolumeTable(analyticsData.volume);
+            // Update Total Deliveries card
+            document.getElementById('totalDeliveries').textContent = analyticsData.kpis.totalDeliveries.toLocaleString();
+            var totalChangeElement = document.getElementById('totalDeliveryChange');
+            var totalChange = parseFloat(analyticsData.kpis.totalChange);
+            var isTotalPositive = totalChange >= 0;
+            totalChangeElement.textContent = (isTotalPositive ? '+' : '') + analyticsData.kpis.totalChange + '% vs last month';
+            totalChangeElement.style.color = isTotalPositive ? 'var(--success)' : 'var(--error)';
+
+            // Update Pending Deliveries card
+            document.getElementById('pendingDeliveries').textContent = analyticsData.kpis.pendingDeliveries.toLocaleString();
+            var pendingChangeElement = document.getElementById('pendingDeliveryChange');
+            var pendingChange = parseFloat(analyticsData.kpis.pendingChange);
+            var isPendingPositive = pendingChange >= 0;
+            pendingChangeElement.textContent = (isPendingPositive ? '+' : '') + analyticsData.kpis.pendingChange + '% vs last month';
+            pendingChangeElement.style.color = isPendingPositive ? 'var(--error)' : 'var(--success)';
+            
+            // Update aging table
+            updateAgingTable(analyticsData.aging);
             
             // Update service table
             updateServiceTable(analyticsData.services);
             
-            // Update monthly card
-            updateMonthlyCard(analyticsData.monthly);
-            
-            // Update targets table
-            updateTargetsTable(analyticsData.targets);
+            // Update volume table
+            updateVolumeTable(analyticsData.volume);
             
             // Update customer table
             updateCustomerTable(analyticsData.customers);
 
-            console.log('📈 Dashboard updated with analytics data');
+            console.log('Dashboard updated with analytics data');
         }
 
-        function updateVolumeTable(volumeData) {
-            const tbody = document.getElementById('volumeTableBody');
-            tbody.innerHTML = volumeData.map(item => `
-                <tr>
-                    <td style="padding: 0.5rem;">${item.day}</td>
-                    <td style="padding: 0.5rem; text-align: right; font-weight: 600;">${item.count}</td>
-                    <td style="padding: 0.5rem; text-align: right; color: ${item.change >= 0 ? 'var(--success)' : 'var(--error)'};">
-                        ${item.change >= 0 ? '+' : ''}${item.change} (${item.changePercent}%)
-                    </td>
-                </tr>
-            `).join('');
+        function updateAgingTable(agingData) {
+            var tbody = document.getElementById('agingTable');
+            tbody.innerHTML = agingData.map(function(item) {
+                return '<tr>' +
+                    '<td>' + item.range + '</td>' +
+                    '<td style="font-weight: 600;">' + item.count + '</td>' +
+                    '<td>' + item.percentage + '%</td>' +
+                    '</tr>';
+            }).join('');
         }
 
         function updateServiceTable(serviceData) {
-            const tbody = document.getElementById('serviceTableBody');
-            tbody.innerHTML = serviceData.map(item => `
-                <tr>
-                    <td style="padding: 0.5rem;">${item.type}</td>
-                    <td style="padding: 0.5rem; text-align: right; font-weight: 600;">${item.count}</td>
-                    <td style="padding: 0.5rem; text-align: right;">${item.percentage}%</td>
-                </tr>
-            `).join('');
+            var tbody = document.getElementById('serviceTableBody');
+            tbody.innerHTML = serviceData.map(function(item) {
+                return '<tr>' +
+                    '<td style="padding: 0.5rem;">' + item.type + '</td>' +
+                    '<td style="padding: 0.5rem; text-align: right; font-weight: 600;">' + item.count + '</td>' +
+                    '<td style="padding: 0.5rem; text-align: right;">' + item.percentage + '%</td>' +
+                    '</tr>';
+            }).join('');
         }
 
-        function updateMonthlyCard(monthlyData) {
-            document.getElementById('thisMonthCount').textContent = monthlyData.thisMonth.toLocaleString();
-            document.getElementById('lastMonthCount').textContent = monthlyData.lastMonth.toLocaleString();
-            
-            const changeElement = document.getElementById('monthlyChange');
-            const change = parseFloat(monthlyData.change);
-            const isPositive = change >= 0;
-            
-            changeElement.textContent = `${isPositive ? '+' : ''}${monthlyData.change}% vs previous month`;
-            changeElement.style.background = isPositive ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-            changeElement.style.color = isPositive ? 'var(--success)' : 'var(--error)';
-        }
-
-        function updateTargetsTable(targetsData) {
-            const tbody = document.getElementById('targetsTableBody');
-            tbody.innerHTML = targetsData.map(item => `
-                <tr>
-                    <td style="padding: 0.5rem;">${item.week}</td>
-                    <td style="padding: 0.5rem; text-align: right;">${item.target}</td>
-                    <td style="padding: 0.5rem; text-align: right; font-weight: 600;">${item.actual}</td>
-                    <td style="padding: 0.5rem; text-align: right;">
-                        <span style="color: ${item.status === 'Met' ? 'var(--success)' : 'var(--error)'}; font-weight: 600;">
-                            ${item.status} (${item.percentage}%)
-                        </span>
-                    </td>
-                </tr>
-            `).join('');
+        function updateVolumeTable(volumeData) {
+            var tbody = document.getElementById('volumeTableBody');
+            tbody.innerHTML = volumeData.map(function(item) {
+                return '<tr>' +
+                    '<td style="padding: 0.5rem;">' + item.day + '</td>' +
+                    '<td style="padding: 0.5rem; text-align: right; font-weight: 600;">' + item.count + '</td>' +
+                    '<td style="padding: 0.5rem; text-align: right; color: ' + (item.change >= 0 ? 'var(--success)' : 'var(--error)') + ';">' +
+                        (item.change >= 0 ? '+' : '') + item.change +
+                    '</td>' +
+                    '</tr>';
+            }).join('');
         }
 
         function updateCustomerTable(customers) {
-            const tableBody = document.getElementById('customerTable');
+            var tableBody = document.getElementById('customerTable');
             if (!customers || customers.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="5" class="no-data">No customer data available</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="2" class="no-data">No customer data available</td></tr>';
                 return;
             }
 
-            tableBody.innerHTML = customers.map(customer => `
-                <tr>
-                    <td><strong>${customer.customer}</strong></td>
-                    <td>${customer.totalOrders}</td>
-                    <td>${customer.onTimeRate === 'N/A' ? 'N/A' : customer.onTimeRate + '%'}</td>
-                    <td>${customer.avgDeliveryTime === 'N/A' ? 'N/A' : customer.avgDeliveryTime + ' days'}</td>
-                    <td><span class="status-badge status-${customer.status.toLowerCase().replace(' ', '-')}">${customer.status}</span></td>
-                </tr>
-            `).join('');
+            tableBody.innerHTML = customers.map(function(customer) {
+                return '<tr>' +
+                    '<td><strong>' + customer.customer + '</strong></td>' +
+                    '<td>' + customer.totalOrders + '</td>' +
+                    '</tr>';
+            }).join('');
         }
 
         // Helper functions
-        function getLastNDays(n) {
-            const days = [];
-            for (let i = n - 1; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                days.push(date);
+        function getLastNWeekdays(n) {
+            var days = [];
+            var date = new Date();
+            var count = 0;
+            
+            while (count < n) {
+                // Skip weekends (Saturday = 6, Sunday = 0)
+                if (date.getDay() !== 0 && date.getDay() !== 6) {
+                    days.unshift(new Date(date));
+                    count++;
+                }
+                date.setDate(date.getDate() - 1);
             }
+            
             return days;
         }
 
-        function getLastNWeeks(n) {
-            const weeks = [];
-            for (let i = n - 1; i >= 0; i--) {
-                const endDate = new Date();
-                endDate.setDate(endDate.getDate() - (i * 7));
-                const startDate = new Date(endDate);
-                startDate.setDate(startDate.getDate() - 6);
-                weeks.push({ start: startDate, end: endDate });
-            }
-            return weeks;
-        }
-
         function showLoadingState() {
-            document.getElementById('volumeTableBody').innerHTML = '<tr><td colspan="3" class="loading">Loading volume data...</td></tr>';
             document.getElementById('serviceTableBody').innerHTML = '<tr><td colspan="3" class="loading">Loading service data...</td></tr>';
-            document.getElementById('targetsTableBody').innerHTML = '<tr><td colspan="4" class="loading">Loading targets data...</td></tr>';
-            document.getElementById('customerTable').innerHTML = '<tr><td colspan="5" class="loading">Loading customer data...</td></tr>';
-            document.getElementById('thisMonthCount').textContent = '-';
-            document.getElementById('lastMonthCount').textContent = '-';
-            document.getElementById('monthlyChange').textContent = 'Loading...';
+            document.getElementById('volumeTableBody').innerHTML = '<tr><td colspan="3" class="loading">Loading volume data...</td></tr>';
+            document.getElementById('customerTable').innerHTML = '<tr><td colspan="2" class="loading">Loading customer data...</td></tr>';
+            document.getElementById('agingTable').innerHTML = '<tr><td colspan="3" class="loading">Loading aging data...</td></tr>';
+            document.getElementById('avgDeliveryTime').textContent = '-';
+            document.getElementById('avgDeliveryChange').textContent = 'Loading...';
+            document.getElementById('totalDeliveries').textContent = '-';
+            document.getElementById('totalDeliveryChange').textContent = 'Loading...';
+            document.getElementById('pendingDeliveries').textContent = '-';
+            document.getElementById('pendingDeliveryChange').textContent = 'Loading...';
         }
 
         function hideLoadingState() {
@@ -993,49 +957,36 @@ tr:hover {
 
         // Event handlers
         function setupEventHandlers() {
-            document.querySelectorAll('.nav-pill').forEach(pill => {
-                pill.addEventListener('click', (e) => {
-                    if (e.target.getAttribute('href') === '/aging.html') return; // Skip for navigation link
-                    
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
-                    e.target.classList.add('active');
-                    
-                    showMessage(`Filtering data for ${e.target.textContent}`, 'info', 2000);
-                    // Here you would filter data based on the selected period
-                });
-            });
+            console.log('Event handlers set up');
         }
 
         // Auto-refresh functionality
         function setupAutoRefresh() {
-            setInterval(async () => {
+            setInterval(function() {
                 console.log('Auto-refreshing dashboard data...');
-                await loadDataFromSupabase();
+                loadDataFromSupabase();
             }, 5 * 60 * 1000); // 5 minutes
         }
 
         // Initialize everything when the page loads
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 Initializing Delivery Statistics Dashboard...');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing Enhanced Delivery Statistics Dashboard...');
             
-            // Set up the interface
             setupEventHandlers();
             
-            // Load initial data
             showLoadingState();
-            const initialData = await loadDataFromSupabase();
-            hideLoadingState();
-            
-            // Set up auto-refresh
-            setupAutoRefresh();
-            
-            // Add animation delays for staggered loading effect
-            document.querySelectorAll('.slide-up').forEach((element, index) => {
-                element.style.animationDelay = `${index * 0.1}s`;
+            loadDataFromSupabase().then(function(initialData) {
+                hideLoadingState();
             });
             
-            console.log('✅ Dashboard initialization complete!');
+            setupAutoRefresh();
+            
+            var slideUpElements = document.querySelectorAll('.slide-up');
+            for (var i = 0; i < slideUpElements.length; i++) {
+                slideUpElements[i].style.animationDelay = (i * 0.1) + 's';
+            }
+            
+            console.log('Dashboard initialization complete!');
         });
     </script>
 </body>
