@@ -299,12 +299,16 @@ tr:hover{background:var(--surface-2)}
                 </div>
             </div>
             <div class="target-notice">
-    <strong>🎯 Target:</strong> All deliveries to be completed within 3 days
-    <br>
-    <em style="font-size: 0.8rem; color: #6b7280; margin-top: 4px; display: inline-block;">
-        *Same Day tickets include newly created orders and rescheduled deliveries
-    </em>
-</div>
+                <strong>🎯 Target:</strong> All deliveries to be completed within 3 days
+                <br>
+                <em style="font-size: 0.8rem; color: #6b7280; margin-top: 4px; display: inline-block;">
+                    *Same Day tickets include newly created orders and rescheduled deliveries
+                </em>
+                <br>
+                <em style="font-size: 0.75rem; color: #9ca3af; margin-top: 4px; display: inline-block;">
+                    📊 Showing pending deliveries only (aging ≥ 1 day) • <a href="/" style="color: #4f46e5;">View complete analytics</a>
+                </em>
+            </div>
         </div>
 <div class="page-actions-container">
     <button class="btn btn-secondary" id="refreshBtn">🔄 Refresh Data</button>
@@ -781,13 +785,17 @@ tr:hover{background:var(--surface-2)}
                 showMessage('🔄 Loading latest data...', 'info', 2000);
                 initializeDatabase();
                 
-                const [data, metadata] = await Promise.all([
-                    supabase.getDeliveryData(),
+                // Check both databases to get the most recent data and metadata
+                const [agingData, analyticsData, metadata] = await Promise.all([
+                    supabase.getDeliveryData(), // From delivery_data (filtered aging >= 1)
+                    supabase.query('GET', `${CONFIG.supabase.analyticsTable}?select=*&order=created_at.desc`).catch(() => []), // From delivery_analytics (complete data)
                     supabase.getMetadata()
                 ]);
                 
-                if (data && data.length > 0) {
-                    deliveryData = data.map(item => ({
+                // Use aging data for display (since this is the aging tracker)
+                // But check analytics data for update info
+                if (agingData && agingData.length > 0) {
+                    deliveryData = agingData.map(item => ({
                         ticketId: item.ticket_id,
                         orderReceived: item.order_received,
                         type: item.type,
@@ -795,10 +803,26 @@ tr:hover{background:var(--surface-2)}
                         customer: item.customer,
                         aging: item.aging
                     }));
-                    showMessage(`✅ Data loaded (${deliveryData.length} records, Last update: ${metadata.last_update})`, 'success');
+                    
+                    // Show comprehensive update info
+                    const analyticsCount = analyticsData ? analyticsData.length : 0;
+                    const agingCount = agingData.length;
+                    
+                    if (analyticsCount > agingCount) {
+                        showMessage(`✅ Data loaded - ${agingCount} pending items (${analyticsCount} total records processed, Last update: ${metadata.last_update})`, 'success');
+                    } else {
+                        showMessage(`✅ Data loaded (${agingCount} records, Last update: ${metadata.last_update})`, 'success');
+                    }
                 } else {
                     deliveryData = [];
-                    showMessage(`ℹ️ No data in database. (Last update: ${metadata.last_update})`, 'info');
+                    
+                    // Check if there's data in analytics but none in aging (all completed)
+                    const analyticsCount = analyticsData ? analyticsData.length : 0;
+                    if (analyticsCount > 0) {
+                        showMessage(`ℹ️ No pending deliveries! All ${analyticsCount} deliveries completed. (Last update: ${metadata.last_update})`, 'info');
+                    } else {
+                        showMessage(`ℹ️ No data in database. (Last update: ${metadata.last_update})`, 'info');
+                    }
                 }
                 
                 updateStats();
