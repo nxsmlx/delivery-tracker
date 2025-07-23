@@ -234,8 +234,8 @@
                 <h3>👥 Top Customer Performance</h3>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>Customer</th><th>Total Orders</th></tr></thead>
-                        <tbody id="customerTableBody"><tr><td colspan="2" class="loading"></td></tr></tbody>
+                        <thead><tr><th>Customer</th><th>Delivery</th><th>Collection</th></tr></thead>
+                        <tbody id="customerTableBody"><tr><td colspan="3" class="loading"></td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -408,9 +408,13 @@
         
         const customerPerformance = data.reduce((acc, d) => {
             if (!acc[d.customer]) {
-                acc[d.customer] = { customer: d.customer, count: 0 };
+                acc[d.customer] = { customer: d.customer, delivery: 0, collection: 0 };
             }
-            acc[d.customer].count++;
+            if (d.type === 'Delivery') {
+                acc[d.customer].delivery++;
+            } else if (d.type === 'Collection') {
+                acc[d.customer].collection++;
+            }
             return acc;
         }, {});
 
@@ -540,11 +544,11 @@
     
     function renderCustomerTable(data) {
         const tbody = document.getElementById('customerTableBody');
-        const sortedData = data.sort((a, b) => b.count - a.count).slice(0, 10); // Top 10
+        const sortedData = data.sort((a, b) => (b.delivery + b.collection) - (a.delivery + a.collection)).slice(0, 10);
         if (sortedData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="2" style="text-align:center;">No data for this period.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No data for this period.</td></tr>`;
         } else {
-            tbody.innerHTML = sortedData.map(d => `<tr><td>${d.customer}</td><td>${d.count.toLocaleString()}</td></tr>`).join('');
+            tbody.innerHTML = sortedData.map(d => `<tr><td>${d.customer}</td><td>${d.delivery.toLocaleString()}</td><td>${d.collection.toLocaleString()}</td></tr>`).join('');
         }
     }
 
@@ -566,7 +570,7 @@
             filterAndProcessData();
         } else {
             // Clear loading indicators and show error message in tables
-            document.getElementById('customerTableBody').innerHTML = '<tr><td colspan="2" style="text-align:center;">Could not load data.</td></tr>';
+            document.getElementById('customerTableBody').innerHTML = '<tr><td colspan="3" style="text-align:center;">Could not load data.</td></tr>';
             document.getElementById('volumeTableBody').innerHTML = '<tr><td colspan="3" style="text-align:center;">Could not load data.</td></tr>';
         }
     });
