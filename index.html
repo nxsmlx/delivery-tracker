@@ -457,7 +457,7 @@
     
     function renderCustomerTable(data) {
         const tbody = document.getElementById('customerTableBody');
-        const sortedData = data.sort((a, b) => b.count - a.count).slice(0, 15); // Top 15
+        const sortedData = data.sort((a, b) => b.count - a.count).slice(0, 10); // Top 10
         if (sortedData.length === 0) {
             tbody.innerHTML = `<tr><td colspan="2" style="text-align:center;">No data for this period.</td></tr>`;
         } else {
