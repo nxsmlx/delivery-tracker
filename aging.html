@@ -5,19 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Qube-Inventory Delivery Aging Tracker</title>
     <link rel="icon" href="favicon.ico" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
 :root{
-    --bg-gradient: linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%);
+    --bg-gradient: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
     --surface:#ffffff;
-    --surface-2:#f9fafb;
+    --surface-2:#fcfcfd;
     --accent:#4f46e5;
     --accent-hover:#4338ca;
     --text:#1f2937;
-    --text-muted:#4b5563;
-    --border:#d1d5db;
-    --shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
+    --text-muted:#6b7280;
+    --border:#e5e7eb;
+    --shadow:0 1px 2px 0 rgba(0,0,0,.05);
     --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
-    --radius:0.75rem;
+    --radius:0.5rem; /* Softer radius */
     --success:#10b981;
     --warning:#f59e0b;
     --error:#ef4444;
@@ -25,11 +28,12 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background:var(--bg-gradient);
     color:var(--text);
     min-height:100vh;
     padding:1.5rem;
+    font-weight: 500; /* Slightly bolder base font */
 }
 .container{
     max-width:1200px;
@@ -41,7 +45,7 @@ body{
     border:1px solid var(--border);
 }
 .header{
-    background:linear-gradient(135deg, #ffffff, #f9fafb);
+    background:var(--surface);
     padding:2rem 2.5rem;
     text-align:center;
     border-bottom:1px solid var(--border);
@@ -60,7 +64,7 @@ body{
     color:var(--text);
 }
 .header h1::before{content:"🚚";margin-right:8px}
-.header p{margin-top:4px;color:var(--text-muted)}
+.header p{margin-top:4px;color:var(--text-muted); font-weight: 400;}
 .target-notice{
     margin-top:1rem;
     padding:0.75rem 1.25rem;
@@ -79,17 +83,20 @@ body{
     border-bottom: 1px solid var(--border);
 }
 .btn-icon{
-    background:transparent;
+    background:var(--surface);
     border:1px solid var(--border);
     color:var(--text-muted);
     padding:0.625rem;
     border-radius:var(--radius);
     cursor:pointer;
-    transition:all .2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow);
 }
 .btn-icon:hover{
-    background:var(--surface);
+    background:var(--surface-2);
     color:var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
 }
 .stats{
     display:grid;
@@ -98,16 +105,16 @@ body{
     padding:1.5rem;
 }
 .stat-card{
-    background:var(--surface-2);
+    background:var(--surface);
     border:1px solid var(--border);
     border-radius:var(--radius);
     padding:1.25rem;
     text-align:center;
-    transition:transform .15s,box-shadow .15s;
+    transition:transform .2s,box-shadow .2s;
 }
 .stat-card:hover{
     transform:translateY(-2px);
-    box-shadow:var(--shadow);
+    box-shadow:var(--shadow-lg);
 }
 .stat-number{
     font-size:2rem;
@@ -119,6 +126,7 @@ body{
     color:var(--text-muted);
     text-transform:uppercase;
     letter-spacing:.5px;
+    font-weight: 600;
 }
 .aging-0{color:var(--same-day)}
 .aging-1{color:var(--success)}
@@ -148,7 +156,12 @@ body{
     font-size:.875rem;
     font-weight:600;
     cursor:pointer;
-    transition:all .2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow);
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
 }
 .btn-primary{
     background:var(--accent);
@@ -182,9 +195,10 @@ body{
     border-radius:var(--radius);
     color:var(--text);
     outline:none;
-    transition: border-color .2s;
+    transition: border-color .2s, box-shadow .2s;
+    box-shadow: var(--shadow);
 }
-.search-box:focus{border-color:var(--accent)}
+.search-box:focus{border-color:var(--accent); box-shadow: 0 0 0 2px #c7d2fe;}
 
 .status-message{
     margin:0 1.5rem 1.5rem;
@@ -207,7 +221,7 @@ body{
 .reminder-section{background:var(--surface-2);border-radius:8px;padding:1rem;margin-bottom:0.75rem}
 .reminder-title{
     font-weight: 600;
-    margin-bottom: 0.25rem; /* Reduced margin */
+    margin-bottom: 0.25rem;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -222,10 +236,6 @@ body{
 .reminder-list{list-style:none}
 .reminder-item{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border)}
 .reminder-item:last-child{border-bottom:none}
-.performance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;margin-top:0.75rem}
-.performance-card{background:var(--surface);padding:0.75rem;border-radius:8px;text-align:center;border:1px solid var(--border)}
-.performance-number{font-size:1.5rem;font-weight:700;margin-bottom:4px}
-.performance-label{font-size:.75rem;color:var(--text-muted)}
 
 .data-table{padding:0 1.5rem 1.5rem}
 .table-wrapper{overflow-x:auto;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border)}
@@ -233,17 +243,43 @@ table{width:100%;border-collapse:collapse}
 th,td{padding:0.75rem 1rem;text-align:left;font-size:.875rem; vertical-align: middle;}
 th{background:var(--surface-2);color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
 tr:hover{background:var(--surface-2)}
-.badge{padding:4px 8px;border-radius:999px;font-size:.7rem;font-weight:600;letter-spacing:.5px;color:#fff; display: inline-block;}
+
+.badge{
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+    color: #fff;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: var(--shadow);
+}
 .badge-aging-0{background:var(--same-day)}
 .badge-aging-1{background:var(--success)}
-.badge-aging-2{background:var(--warning)}
+.badge-aging-2{background:var(--warning); color: var(--text);}
 .badge-aging-3{background:var(--error)}
 .badge-aging-4{background:#8b5cf6}
 .badge-urgent{background:var(--error)}
-.badge-priority-critical{background:var(--error)}
-.badge-priority-high{background:var(--warning)}
-.badge-priority-medium{background:var(--accent)}
-.badge-priority-low{background:var(--success)}
+
+/* Action Required Button Styles */
+.action-btn {
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    font-size: .75rem;
+    font-weight: 600;
+    color: #fff;
+    border: none;
+    cursor: default;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+.action-btn.urgent { background-color: var(--error); }
+.action-btn.overdue { background-color: #d946ef; } /* Fuchsia */
+.action-btn.today { background-color: var(--warning); color: var(--text); }
+.action-btn.tomorrow { background-color: var(--same-day); }
+.action-btn.scheduled { background-color: var(--success); }
+
 
 .modal{
     display:none;
@@ -292,6 +328,7 @@ tr:hover{background:var(--surface-2)}
     font-size: 0.8rem;
     color: var(--text-muted);
     margin-top: 0.25rem;
+    font-weight: 400;
 }
 
 @media(max-width:768px){
@@ -314,11 +351,11 @@ tr:hover{background:var(--surface-2)}
             <div class="target-notice">
                 <strong>🎯 Target:</strong> All deliveries to be completed within 3 days
                 <br>
-                <em style="font-size: 0.8rem; color: #6b7280; margin-top: 4px; display: inline-block;">
+                <em style="font-size: 0.8rem; color: #6b7280; margin-top: 4px; display: inline-block; font-weight: 400;">
                     *Same Day tickets include newly created orders and rescheduled deliveries
                 </em>
                 <br>
-                <em style="font-size: 0.75rem; color: #9ca3af; margin-top: 4px; display: inline-block;">
+                <em style="font-size: 0.75rem; color: #9ca3af; margin-top: 4px; display: inline-block; font-weight: 400;">
                     📊 Showing pending deliveries only (aging ≥ 1 day) • <a href="/" style="color: #4f46e5;">View complete analytics</a>
                 </em>
             </div>
@@ -398,7 +435,6 @@ tr:hover{background:var(--surface-2)}
                             <th>Order Received</th>
                             <th>Urgent?</th>
                             <th>Aging</th>
-                            <th>Priority</th>
                             <th>Action Required</th>
                         </tr>
                     </thead>
@@ -677,18 +713,10 @@ tr:hover{background:var(--surface-2)}
             return `<span class="badge badge-aging-4">${displayAging} Days</span>`;
         }
 
-        function getPriority(item) {
-            const displayAging = Math.max(0, item.aging - 1);
-            if (item.urgent === 'Yes' && displayAging > 3) return { class: 'critical', text: 'Critical' };
-            if (item.urgent === 'Yes' || displayAging > 3) return { class: 'high', text: 'High' };
-            if (displayAging === 3) return { class: 'medium', text: 'Medium' };
-            return { class: 'low', text: 'Low' };
-        }
-
         function getActionRequired(item) {
             const displayAging = Math.max(0, item.aging - 1);
-            if (item.urgent === 'Yes' && displayAging > 3) return { class: 'urgent', text: 'Urgent' };
-            if (displayAging > 3) return { class: 'urgent', text: 'Overdue' };
+            if (item.urgent === 'Yes') return { class: 'urgent', text: 'Urgent' };
+            if (displayAging > 3) return { class: 'overdue', text: 'Overdue' };
             if (displayAging === 3) return { class: 'today', text: 'Today' };
             if (displayAging === 2) return { class: 'tomorrow', text: 'Tomorrow' };
             if (displayAging === 1) return { class: 'scheduled', text: 'Plan Ahead' };
@@ -699,12 +727,11 @@ tr:hover{background:var(--surface-2)}
             const tbody = document.getElementById('tableBody');
             
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="no-data">No pending tickets found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="no-data">No pending tickets found</td></tr>';
                 return;
             }
 
             tbody.innerHTML = data.map(item => {
-                const priority = getPriority(item);
                 const action = getActionRequired(item);
                 
                 return `
@@ -723,8 +750,7 @@ tr:hover{background:var(--surface-2)}
                         <td>${item.orderReceived}</td>
                         <td>${item.urgent === 'Yes' ? '<span class="badge badge-urgent">URGENT</span>' : 'No'}</td>
                         <td>${getAgingBadge(item.aging)}</td>
-                        <td><span class="badge badge-priority-${priority.class}">${priority.text}</span></td>
-                        <td><span class="badge badge-priority-${action.class}">${action.text}</span></td>
+                        <td><div class="action-btn ${action.class}">${action.text}</div></td>
                     </tr>
                 `;
             }).join('');
@@ -1088,4 +1114,4 @@ tr:hover{background:var(--surface-2)}
         document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
-</html>
+</ht
