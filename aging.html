@@ -733,7 +733,7 @@ tr:hover{background:var(--surface-2)}
                 html += `<div class="reminder-section"><div class="reminder-title">📅 <span style="color: #f39c12;">Complete Today (Day 3)</span></div><ul class="reminder-list">${todayTickets.map(item => `<li class="reminder-item"><div><strong>${item.ticketId}</strong> - ${toProperCase(item.customer)}</div><span class="badge badge-aging-3">TODAY</span></li>`).join('')}</ul></div>`;
             }
             if (tomorrowTickets.length > 0) {
-                 html += `<div class="reminder-section"><div class="reminder-title">📋 <span style="color: #3b82f6;">Plan: by Tomorrow (Day 2)</span></div><ul class="reminder-list">${tomorrowTickets.map(item => `<li class="reminder-item"><div><strong>${item.ticketId}</strong> - ${toProperCase(item.customer)}</div><span class="badge badge-aging-2">TOMORROW</span></li>`).join('')}</ul></div>`;
+                 html += `<div class="reminder-section"><div class="reminder-title">📋 <span style="color: #3b82f6;">Plan: Today or Tomorrow (Day 2)</span></div><ul class="reminder-list">${tomorrowTickets.map(item => `<li class="reminder-item"><div><strong>${item.ticketId}</strong> - ${toProperCase(item.customer)}</div><span class="badge badge-aging-2">TOMORROW</span></li>`).join('')}</ul></div>`;
             }
             
             if (html === '' && data.length > 0) {
