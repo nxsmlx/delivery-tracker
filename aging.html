@@ -367,7 +367,7 @@ tr:hover{background:var(--surface-2)}
                 <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;">
             </div>
             <div class="control-group">
-                <input type="text" class="search-box" id="searchBox" placeholder="Search by Ticket, Customer, or Department...">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search by Ticket ID or Customer...">
                 <button class="btn btn-secondary active" data-filter="all">All</button>
                 <button class="btn btn-secondary aging-0" data-filter="0">Same Day</button>
                 <button class="btn btn-secondary aging-1" data-filter="1">1 Day</button>
@@ -395,7 +395,6 @@ tr:hover{background:var(--surface-2)}
                     <thead>
                         <tr>
                             <th>Ticket Details</th>
-                            <th>Department</th>
                             <th>Order Received</th>
                             <th>Urgent?</th>
                             <th>Aging</th>
@@ -517,7 +516,6 @@ tr:hover{background:var(--surface-2)}
                             urgent: item.urgent || 'No',
                             customer: item.customer || '',
                             aging: parseInt(item.aging) || 0,
-                            department: item.department || 'Unknown',
                             updated_by: 'Admin'
                         }));
 
@@ -552,7 +550,6 @@ tr:hover{background:var(--surface-2)}
                         customer: item.customer || '',
                         aging: parseInt(item.aging) || 0,
                         status: parseInt(item.aging) >= 1 ? 'Pending' : 'Completed',
-                        department: item.department || 'Unknown',
                         updated_by: 'Admin'
                     }));
 
@@ -702,7 +699,7 @@ tr:hover{background:var(--surface-2)}
             const tbody = document.getElementById('tableBody');
             
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="no-data">No pending tickets found</td></tr>'; // colspan is now 7
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">No pending tickets found</td></tr>';
                 return;
             }
 
@@ -723,7 +720,6 @@ tr:hover{background:var(--surface-2)}
                                 </div>
                             </div>
                         </td>
-                        <td>${item.department || 'N/A'}</td>
                         <td>${item.orderReceived}</td>
                         <td>${item.urgent === 'Yes' ? '<span class="badge badge-urgent">URGENT</span>' : 'No'}</td>
                         <td>${getAgingBadge(item.aging)}</td>
@@ -842,8 +838,7 @@ tr:hover{background:var(--surface-2)}
                 filtered = filtered.filter(item => 
                     item.ticketId.toLowerCase().includes(searchTerm) ||
                     (item.customer || '').toLowerCase().includes(searchTerm) ||
-                    (item.type || '').toLowerCase().includes(searchTerm) ||
-                    (item.department || '').toLowerCase().includes(searchTerm)
+                    (item.type || '').toLowerCase().includes(searchTerm)
                 );
             }
 
@@ -876,8 +871,7 @@ tr:hover{background:var(--surface-2)}
                         type: item.type,
                         urgent: item.urgent,
                         customer: item.customer,
-                        aging: item.aging,
-                        department: item.department
+                        aging: item.aging
                     }));
                     
                     // Show message with ACTUAL upload time from database
@@ -957,14 +951,6 @@ tr:hover{background:var(--surface-2)}
             return `${day}/${month}/${year}`;
         }
         
-        // Simple cleaning function for department names, can be expanded
-        function cleanDepartmentName(name) {
-             if (!name) return 'Unknown';
-             const lowerName = String(name).toLowerCase().trim();
-             if (lowerName.includes('proc')) return 'Procurement';
-             return toProperCase(name);
-        }
-
         // Parse ALL data (including aging = 0)
         function parseData(jsonData) {
             if (jsonData.length === 0) throw new Error('No data found in file');
@@ -980,7 +966,6 @@ tr:hover{background:var(--surface-2)}
             const urgentCol = findColumn(['urgent', 'urgent?']);
             const customerCol = findColumn(['customer', 'client']);
             const agingCol = findColumn(['aging']);
-            const departmentCol = findColumn(['department', 'dept']);
 
             if (ticketIdCol === -1 || agingCol === -1) {
                 throw new Error('File must contain "Ticket ID" and "Aging" columns.');
@@ -994,7 +979,6 @@ tr:hover{background:var(--surface-2)}
                 urgent: String(row[urgentCol] || 'No'),
                 customer: String(row[customerCol] || ''),
                 aging: parseInt(row[agingCol]) || 0,
-                department: cleanDepartmentName(row[departmentCol] || '')
             })).filter(item => item.ticketId && item.aging >= 0); // Include completed deliveries
         }
 
