@@ -59,7 +59,7 @@ body{
     letter-spacing:-.5px;
     color:var(--text);
 }
-.header h1::before{content:"🚚";margin-right:8px}
+.header h1::before{content:"�";margin-right:8px}
 .header p{margin-top:4px;color:var(--text-muted)}
 .target-notice{
     margin-top:1rem;
@@ -637,7 +637,7 @@ tr:hover{background:var(--surface-2)}
 
         function toProperCase(str) {
             if (!str) return '';
-            return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+            return String(str).toUpperCase();
         }
 
         function updateStats() {
@@ -1105,3 +1105,4 @@ tr:hover{background:var(--surface-2)}
     </script>
 </body>
 </html>
+�
