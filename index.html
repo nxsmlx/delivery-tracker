@@ -64,14 +64,85 @@
             color: var(--text);
         }
 
-        .kpi-grid{padding:1.5rem;display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1.5rem;}
-        .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;transition:transform .15s, box-shadow .15s; box-shadow: var(--shadow);}
-        .kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);}
-        .kpi-number{font-size:2.5rem;font-weight:700;margin-bottom:4px;}
-        .kpi-label{font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;}
-        .kpi-change { font-size: 0.875rem; font-weight: 600; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.25rem; height: 1.25rem; /* Reserve space */ }
-        .kpi-change.up { color: var(--success); }
-        .kpi-change.down { color: var(--error); }
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem; /* Added for better spacing */
+}
+
+.kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: transform .2s, box-shadow .2s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.kpi-icon {
+    flex-shrink: 0;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kpi-icon svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    color: #fff;
+}
+
+.kpi-info {
+    text-align: left;
+}
+
+.kpi-label {
+    font-size: .875rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.kpi-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text);
+}
+
+.kpi-change {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: 1.25rem;
+}
+
+.kpi-change.up {
+    color: var(--success);
+}
+.kpi-change.down { 
+    color: var(--error); 
+}
+
+.kpi-timestamp {
+    color: var(--text-muted);
+}
         
         .charts-grid{display:grid;grid-template-columns:1fr 2fr;gap:1.5rem;padding:0 1.5rem 1.5rem;}
         .chart-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);}
@@ -121,23 +192,49 @@
         </div>
 
         <main>
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-number" id="totalDeliveries" style="color: var(--accent);">-</div>
-                    <div class="kpi-label">Total Orders</div>
-                    <div class="kpi-change" id="totalOrdersChange"></div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-number" id="pendingDeliveries" style="color: var(--warning);">-</div>
-                    <div class="kpi-label">Pending Orders</div>
-                    <div class="kpi-change"></div> <!-- Placeholder for alignment -->
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-number" id="ticketsDone" style="color: var(--success);">-</div>
-                    <div class="kpi-label">Tickets Done</div>
-                     <div class="kpi-change" id="ticketsDoneChange"></div>
-                </div>
-            </div>
+<div class="kpi-grid">
+    <!-- Total Orders Card -->
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background: linear-gradient(135deg, #818cf8, #6366f1);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5v-1.875a3.375 3.375 0 003.375-3.375h1.5a1.125 1.125 0 011.125 1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375m15.75 0v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125 1.125v-1.5c0-.621.504-1.125 1.125-1.125h1.5" />
+            </svg>
+        </div>
+        <div class="kpi-info">
+            <div class="kpi-label">Total Orders</div>
+            <div class="kpi-number" id="totalDeliveries">-</div>
+            <div class="kpi-change" id="totalOrdersChange"></div>
+        </div>
+    </div>
+
+    <!-- Pending Orders Card -->
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div class="kpi-info">
+            <div class="kpi-label">Pending Orders</div>
+            <div class="kpi-number" id="pendingDeliveries">-</div>
+            <div class="kpi-change kpi-timestamp" id="pendingOrdersTimestamp"></div>
+        </div>
+    </div>
+
+    <!-- Tickets Done Card -->
+    <div class="kpi-card">
+        <div class="kpi-icon" style="background: linear-gradient(135deg, #4ade80, #22c55e);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div class="kpi-info">
+            <div class="kpi-label">Tickets Done</div>
+            <div class="kpi-number" id="ticketsDone">-</div>
+            <div class="kpi-change" id="ticketsDoneChange"></div>
+        </div>
+    </div>
+</div>
 
             <div class="charts-grid">
                 <div class="chart-container">
