@@ -276,13 +276,9 @@
         }
     };
 
-    const toProperCase = (str) => {
+    const formatCustomerName = (str) => {
         if (!str || typeof str !== 'string') return 'Unknown';
-        return str
-            .toLowerCase()
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
+        return str.toUpperCase();
     };
 
     const startLiveClock = (elementId) => {
@@ -322,7 +318,7 @@
 
             allData = rawData.map(d => ({
                 ...d,
-                customer: toProperCase(d.customer),
+                customer: formatCustomerName(d.customer),
                 order_date: d.order_received ? new Date(d.order_received) : null,
                 is_pending: d.status ? d.status.toLowerCase().includes('pending') : true,
                 type: d.type ? (d.type.toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
