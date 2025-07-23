@@ -26,7 +26,7 @@
             --border:#e5e7eb;
             --shadow:0 4px 6px -1px rgba(0,0,0,.05),0 2px 4px -2px rgba(0,0,0,.05);
             --shadow-lg:0 10px 15px -3px rgba(0,0,0,.07),0 4px 6px -4px rgba(0,0,0,.07);
-            --radius:0.75rem;
+            --radius:0.625rem; /* Updated from 0.75rem (12px) to 10px */
             --success:#22c55e; /* Green */
             --warning:#f59e0b; /* Amber */
             --error:#ef4444; /* Red */
@@ -51,10 +51,34 @@
         .header p{margin-top:4px;color:var(--text-muted); font-size: 1rem;}
         
         .header-actions { margin-top: 1.5rem; display: flex; justify-content: center; }
-        .nav-pills { display: inline-flex; background: var(--surface); padding: 0.5rem; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
-        .nav-pill { padding: 0.625rem 1.25rem; border-radius: calc(var(--radius) - 0.25rem); color: var(--text-muted); font-size: .875rem; font-weight: 600; cursor: pointer; transition: background-color .2s, color .2s; text-decoration: none; }
-        .nav-pill:hover, .nav-pill.active { background: var(--accent); color: #fff; }
         
+        /* --- Updated Button Styling --- */
+        .btn {
+            display: inline-block;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid transparent;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: var(--radius);
+            transition: color .2s ease-in-out,background-color .2s ease-in-out,border-color .2s ease-in-out,box-shadow .2s ease-in-out, transform .2s ease-in-out;
+            text-decoration: none;
+        }
+        .btn-primary {
+            color: #fff;
+            background-color: var(--accent);
+            border-color: var(--accent);
+            box-shadow: var(--shadow);
+        }
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
         .filters-container {
             background: var(--surface);
             padding: 1rem 1.5rem;
@@ -160,9 +184,8 @@
             <h1>Delivery Performance Analytics</h1>
             <p>Key insights into delivery operations and performance metrics</p>
             <div class="header-actions">
-                <div class="nav-pills">
-                    <a href="http://qubedeliver.site/aging.html" class="nav-pill">📈 Track Aging</a>
-                </div>
+                <!-- Updated Button -->
+                <a href="http://qubedeliver.site/aging.html" class="btn btn-primary">📈 Track Aging</a>
             </div>
         </header>
 
@@ -179,7 +202,10 @@
             <div class="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-icon" style="background: linear-gradient(135deg, #818cf8, #6366f1);">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.125-.504 1.125-1.125V14.25m-17.25 4.5v-1.875a3.375 3.375 0 003.375-3.375h1.5a1.125 1.125 0 011.125 1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375m15.75 0v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125 1.125v-1.5c0-.621.504-1.125 1.125-1.125h1.5" /></svg>
+                        <!-- Updated Icon: Clipboard -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C6.343 4.01 5.5 4.973 5.5 6.108V18.75c0 1.243.87 2.25 1.976 2.25h4.512" />
+                        </svg>
                     </div>
                     <div class="kpi-info">
                         <div class="kpi-label">Total Orders</div>
@@ -188,8 +214,12 @@
                     </div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-icon" style="background: linear-gradient(135deg, #fbbf24, #f59e0b);">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <!-- Updated Background Color for Accessibility -->
+                    <div class="kpi-icon" style="background-color: var(--warning);">
+                        <!-- Updated Icon: Pause -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                     </div>
                     <div class="kpi-info">
                         <div class="kpi-label">Pending Orders</div>
