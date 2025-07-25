@@ -207,9 +207,7 @@
             <div class="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-icon" style="background: linear-gradient(135deg, #818cf8, #6366f1);">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C6.343 4.01 5.5 4.973 5.5 6.108V18.75c0 1.243.87 2.25 1.976 2.25h4.512" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C6.343 4.01 5.5 4.973 5.5 6.108V18.75c0 1.243.87 2.25 1.976 2.25h4.512" /></svg>
                     </div>
                     <div class="kpi-info">
                         <div class="kpi-label">Total Orders</div>
@@ -219,9 +217,7 @@
                 </div>
                  <div class="kpi-card">
                     <div class="kpi-icon" style="background-color: var(--error);">
-                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
                     </div>
                     <div class="kpi-info">
                         <div class="kpi-label">Urgent Orders</div>
@@ -231,9 +227,7 @@
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon" style="background-color: var(--warning);">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                     <div class="kpi-info">
                         <div class="kpi-label">Pending Orders</div>
@@ -290,16 +284,6 @@
                     <table>
                         <thead><tr><th>Department</th><th>Delivery</th><th>Collection</th><th>Total</th></tr></thead>
                         <tbody id="departmentTableBody"><tr><td colspan="4" class="loading"></td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <h3>✅ Recently Completed Tickets</h3>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th>Ticket ID</th><th>Customer</th><th>Department</th><th>Completed On</th></tr></thead>
-                        <tbody id="recentlyCompletedTableBody"><tr><td colspan="4" class="loading"></td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -526,7 +510,6 @@
         renderDepartmentTable(Object.values(departmentPerformance));
         renderCombinedTrendChart(trendData);
         renderTopCustomerBarChart(topCustomerData);
-        renderRecentlyCompletedTable(data);
         renderDeliveryBarChart(deliveryByDay);
         renderOrdersByDeptChart(Object.values(departmentPerformance));
         renderUrgentByDeptChart(urgentByDept);
@@ -598,7 +581,7 @@
         const percentChange = ((currentValue - previousValue) / previousValue) * 100;
         const isPositive = percentChange >= 0;
         const trendClass = isPositive ? 'up' : 'down';
-        const icon = trendClass === 'up' ? '🔼' : '�';
+        const icon = trendClass === 'up' ? '🔼' : '🔽';
         
         changeElement.className = `kpi-change ${trendClass}`;
         changeElement.innerHTML = `${icon} ${percentChange.toFixed(1)}% vs last month`;
@@ -786,7 +769,7 @@
                 datasets: [{
                     label: 'Urgent Orders',
                     data: chartData,
-                    backgroundColor: CHART_COLORS.delivery, // Use theme color
+                    backgroundColor: CHART_COLORS.delivery,
                     borderRadius: 4,
                 }]
             },
@@ -904,31 +887,6 @@
         }
     }
 
-    function renderRecentlyCompletedTable(data) {
-        const tbody = document.getElementById('recentlyCompletedTableBody');
-        const completedTickets = data
-            .filter(d => !d.is_pending)
-            .sort((a, b) => b.order_date - a.order_date)
-            .slice(0, 5);
-
-        if (completedTickets.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No completed tickets in this period.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = completedTickets.map(d => {
-            const completedDate = d.order_date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-            return `
-                <tr>
-                    <td>${d.ticket_id}</td>
-                    <td>${d.customer}</td>
-                    <td>${d.dept}</td>
-                    <td>${completedDate}</td>
-                </tr>
-            `;
-        }).join('');
-    }
-
     // --- INITIALIZATION ---
     async function onPageLoad() {
         const today = new Date();
@@ -960,4 +918,3 @@
 </script>
 </body>
 </html>
-�
