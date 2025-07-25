@@ -302,6 +302,16 @@
                     </table>
                 </div>
             </div>
+
+            <div class="table-container">
+                <h3>✅ Recently Completed Tickets</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Ticket ID</th><th>Customer</th><th>Department</th><th>Completed On</th></tr></thead>
+                        <tbody id="recentlyCompletedTableBody"><tr><td colspan="4" class="loading"></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -530,6 +540,7 @@
         renderOrderTrendLineChart(trendData);
         renderStatusAreaChart(trendData);
         renderTopCustomerBarChart(topCustomerData);
+        renderRecentlyCompletedTable(data);
     }
     
     function aggregateTrendData(data, startDate, endDate) {
@@ -880,6 +891,31 @@
                 <td>${(d.delivery + d.collection).toLocaleString()}</td>
             </tr>`).join('');
         }
+    }
+
+    function renderRecentlyCompletedTable(data) {
+        const tbody = document.getElementById('recentlyCompletedTableBody');
+        const completedTickets = data
+            .filter(d => !d.is_pending)
+            .sort((a, b) => b.order_date - a.order_date)
+            .slice(0, 5);
+
+        if (completedTickets.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No completed tickets in this period.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = completedTickets.map(d => {
+            const completedDate = d.order_date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            return `
+                <tr>
+                    <td>${d.ticket_id}</td>
+                    <td>${d.customer}</td>
+                    <td>${d.dept}</td>
+                    <td>${completedDate}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
     // --- INITIALIZATION ---
