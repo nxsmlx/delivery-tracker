@@ -31,9 +31,6 @@
             --success:#22c55e; /* Green */
             --warning:#f59e0b; /* Amber */
             --error:#ef4444; /* Red */
-            --completed-fill: rgba(34, 197, 94, 0.1);
-            --pending-fill: rgba(239, 68, 68, 0.1);
-
         }
         *{margin:0;padding:0;box-sizing:border-box}
         body{
@@ -258,38 +255,32 @@
 
             <div class="charts-grid">
                 <div class="chart-container full-width">
-                    <div class="chart-header"><div class="chart-title">Order Trend Over Time</div></div>
-                    <div class="chart-canvas"><canvas id="orderTrendLineChart"></canvas></div>
-                </div>
-                <div class="chart-container full-width">
-                    <div class="chart-header"><div class="chart-title">Pending vs. Completed Trend</div></div>
-                    <div class="chart-canvas"><canvas id="statusAreaChart"></canvas></div>
+                    <div class="chart-header"><div class="chart-title">Order & Status Trend Over Time</div></div>
+                    <div class="chart-canvas"><canvas id="combinedTrendChart"></canvas></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header"><div class="chart-title">Service Type Distribution</div></div>
                     <div class="chart-canvas"><canvas id="serviceTypePieChart"></canvas></div>
                 </div>
                 <div class="chart-container">
-                    <div class="chart-header"><div class="chart-title">Delivery vs. Collection by Day</div></div>
-                    <div class="chart-canvas"><canvas id="deliveryBarChart"></canvas></div>
-                </div>
-                 <div class="chart-container">
-                    <div class="chart-header"><div class="chart-title">Orders by Department</div></div>
-                    <div class="chart-canvas"><canvas id="departmentBarChart"></canvas></div>
+                    <div class="chart-header"><div class="chart-title">Urgent vs. Non-Urgent</div></div>
+                    <div class="chart-canvas"><canvas id="urgentPieChart"></canvas></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header"><div class="chart-title">Top 5 Customers by Service Type</div></div>
                     <div class="chart-canvas"><canvas id="topCustomerBarChart"></canvas></div>
                 </div>
-            </div>
-
-            <div class="table-container">
-                <h3>📊 Daily Volume (Weekdays)</h3>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th>Day</th><th>Count</th><th>Percentage</th></tr></thead>
-                        <tbody id="volumeTableBody"><tr><td colspan="3" class="loading"></td></tr></tbody>
-                    </table>
+                 <div class="chart-container">
+                    <div class="chart-header"><div class="chart-title">Orders by Department</div></div>
+                    <div class="chart-canvas"><canvas id="ordersByDeptChart"></canvas></div>
+                </div>
+                 <div class="chart-container">
+                    <div class="chart-header"><div class="chart-title">Delivery vs. Collection by Day</div></div>
+                    <div class="chart-canvas"><canvas id="deliveryBarChart"></canvas></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header"><div class="chart-title">Urgent Count by Department</div></div>
+                    <div class="chart-canvas"><canvas id="urgentByDeptChart"></canvas></div>
                 </div>
             </div>
             
@@ -327,14 +318,17 @@
     const CHART_COLORS = {
         delivery: '#6366f1',
         collection: '#14b8a6',
-        pending: '#ef4444',
+        pending: '#f59e0b',
         completed: '#22c55e',
+        urgent: '#ef4444',
+        nonUrgent: '#3b82f6'
     };
 
     // --- GLOBAL STATE ---
     let allData = [];
-    let serviceTypePieChartInstance, deliveryBarChartInstance, departmentBarChartInstance,
-        orderTrendLineChartInstance, statusAreaChartInstance, topCustomerBarChartInstance;
+    let serviceTypePieChartInstance, topCustomerBarChartInstance,
+        combinedTrendChartInstance, urgentPieChartInstance, deliveryBarChartInstance,
+        ordersByDeptChartInstance, urgentByDeptChartInstance;
     let clockInterval;
 
     // --- DOM ELEMENTS ---
@@ -489,58 +483,53 @@
 
         // --- Chart & Table Data Aggregation ---
         const serviceTypeCounts = data.reduce((acc, d) => {
-            if (d.type !== 'Unknown') {
-               acc[d.type] = (acc[d.type] || 0) + 1;
-            }
+            if (d.type !== 'Unknown') acc[d.type] = (acc[d.type] || 0) + 1;
             return acc;
         }, { 'Delivery': 0, 'Collection': 0 });
 
+        const urgentCounts = data.reduce((acc, d) => {
+            if (d.is_urgent) acc.urgent++; else acc.nonUrgent++;
+            return acc;
+        }, { urgent: 0, nonUrgent: 0 });
+
+        const departmentPerformance = data.reduce((acc, d) => {
+            if (d.dept && d.dept !== 'N/A') {
+                if (!acc[d.dept]) acc[d.dept] = { dept: d.dept, delivery: 0, collection: 0 };
+                if (d.type === 'Delivery') acc[d.dept].delivery++;
+                else if (d.type === 'Collection') acc[d.dept].collection++;
+            }
+            return acc;
+        }, {});
+        
         const deliveryByDay = data.reduce((acc, d) => {
             const day = d.order_date.toLocaleDateString('en-US', { weekday: 'short' });
-            if (!acc[day]) {
-                 acc[day] = { Delivery: 0, Collection: 0 };
-            }
+            if (!acc[day]) acc[day] = { Delivery: 0, Collection: 0 };
             if(d.type === 'Delivery' || d.type === 'Collection') {
                 acc[day][d.type]++;
             }
             return acc;
         }, {});
         
-        const dailyVolume = data.reduce((acc, d) => {
-            const day = d.order_date.toLocaleDateString('en-US', { weekday: 'long' });
-            acc[day] = (acc[day] || 0) + 1;
-            return acc;
-        }, {});
-                
-        const departmentPerformance = data.reduce((acc, d) => {
-            if (d.dept && d.dept !== 'N/A') {
-                if (!acc[d.dept]) {
-                    acc[d.dept] = { dept: d.dept, delivery: 0, collection: 0 };
-                }
-                if (d.type === 'Delivery') {
-                    acc[d.dept].delivery++;
-                } else if (d.type === 'Collection') {
-                    acc[d.dept].collection++;
-                }
-            }
-            return acc;
-        }, {});
-        
-        // Aggregate data for new charts
+        const urgentByDept = data
+            .filter(d => d.is_urgent && d.dept && d.dept !== 'N/A')
+            .reduce((acc, d) => {
+                acc[d.dept] = (acc[d.dept] || 0) + 1;
+                return acc;
+            }, {});
+
         const trendData = aggregateTrendData(data, currentStartDate, currentEndDate);
         const topCustomerData = aggregateTopCustomerData(data);
 
-
         // --- Render Visualizations ---
         renderServiceTypePieChart(serviceTypeCounts);
-        renderDeliveryBarChart(deliveryByDay);
-        renderDailyVolumeTable(dailyVolume, totalOrders);
-        renderDepartmentBarChart(Object.values(departmentPerformance));
+        renderUrgentPieChart(urgentCounts);
         renderDepartmentTable(Object.values(departmentPerformance));
-        renderOrderTrendLineChart(trendData);
-        renderStatusAreaChart(trendData);
+        renderCombinedTrendChart(trendData);
         renderTopCustomerBarChart(topCustomerData);
         renderRecentlyCompletedTable(data);
+        renderDeliveryBarChart(deliveryByDay);
+        renderOrdersByDeptChart(Object.values(departmentPerformance));
+        renderUrgentByDeptChart(urgentByDept);
     }
     
     function aggregateTrendData(data, startDate, endDate) {
@@ -581,9 +570,7 @@
             .filter(d => top5Customers.includes(d.customer))
             .reduce((acc, d) => {
                 if (d.type === 'Delivery' || d.type === 'Collection') {
-                    if (!acc[d.customer]) {
-                        acc[d.customer] = { customer: d.customer, Delivery: 0, Collection: 0 };
-                    }
+                    if (!acc[d.customer]) acc[d.customer] = { customer: d.customer, Delivery: 0, Collection: 0 };
                     acc[d.customer][d.type]++;
                 }
                 return acc;
@@ -602,11 +589,8 @@
         }
 
         if (previousValue === 0) {
-            if (currentValue > 0) {
-                 changeElement.innerHTML = `<span>(vs 0)</span>`;
-            } else {
-                 changeElement.innerHTML = `<span>-</span>`;
-            }
+            if (currentValue > 0) changeElement.innerHTML = `<span>(vs 0)</span>`;
+            else changeElement.innerHTML = `<span>-</span>`;
             changeElement.className = 'kpi-change';
             return;
         }
@@ -614,71 +598,48 @@
         const percentChange = ((currentValue - previousValue) / previousValue) * 100;
         const isPositive = percentChange >= 0;
         const trendClass = isPositive ? 'up' : 'down';
-        const icon = trendClass === 'up' ? '🔼' : '🔽';
+        const icon = trendClass === 'up' ? '🔼' : '�';
         
         changeElement.className = `kpi-change ${trendClass}`;
         changeElement.innerHTML = `${icon} ${percentChange.toFixed(1)}% vs last month`;
     }
     
     // --- CHART RENDERING FUNCTIONS ---
-    
-    function renderOrderTrendLineChart(data) {
-        const ctx = document.getElementById('orderTrendLineChart').getContext('2d');
-        if (orderTrendLineChartInstance) orderTrendLineChartInstance.destroy();
+    function renderCombinedTrendChart(data) {
+        const ctx = document.getElementById('combinedTrendChart').getContext('2d');
+        if (combinedTrendChartInstance) combinedTrendChartInstance.destroy();
 
         const labels = Object.keys(data);
-        const chartData = labels.map(label => data[label].total);
-
-        orderTrendLineChartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Total Orders',
-                    data: chartData,
-                    borderColor: CHART_COLORS.delivery,
-                    tension: 0.1,
-                    fill: false,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { type: 'time', time: { unit: 'day' } },
-                    y: { beginAtZero: true }
-                },
-                plugins: { legend: { display: false }, datalabels: { display: false } }
-            }
-        });
-    }
-
-    function renderStatusAreaChart(data) {
-        const ctx = document.getElementById('statusAreaChart').getContext('2d');
-        if (statusAreaChartInstance) statusAreaChartInstance.destroy();
-
-        const labels = Object.keys(data);
+        const totalData = labels.map(label => data[label].total);
         const completedData = labels.map(label => data[label].completed);
         const pendingData = labels.map(label => data[label].pending);
 
-        statusAreaChartInstance = new Chart(ctx, {
+        combinedTrendChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [
                     {
+                        label: 'Total Orders',
+                        data: totalData,
+                        borderColor: CHART_COLORS.delivery,
+                        tension: 0.1,
+                        borderWidth: 3,
+                        fill: false,
+                    },
+                    {
                         label: 'Completed',
                         data: completedData,
                         borderColor: CHART_COLORS.completed,
-                        backgroundColor: 'rgba(34, 197, 94, 0.2)',
-                        fill: true,
+                        tension: 0.1,
+                        fill: false,
                     },
                     {
                         label: 'Pending',
                         data: pendingData,
                         borderColor: CHART_COLORS.pending,
-                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                        fill: true,
+                        tension: 0.1,
+                        fill: false,
                     }
                 ]
             },
@@ -687,12 +648,168 @@
                 maintainAspectRatio: false,
                 scales: {
                     x: { type: 'time', time: { unit: 'day' } },
-                    y: { stacked: true, beginAtZero: true }
+                    y: { beginAtZero: true }
                 },
                 plugins: { legend: { position: 'bottom' }, datalabels: { display: false } }
             }
         });
     }
+    
+    function renderUrgentPieChart(data) {
+        const ctx = document.getElementById('urgentPieChart').getContext('2d');
+        if (urgentPieChartInstance) urgentPieChartInstance.destroy();
+
+        urgentPieChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Urgent', 'Non-Urgent'],
+                datasets: [{
+                    data: [data.urgent, data.nonUrgent],
+                    backgroundColor: [CHART_COLORS.urgent, CHART_COLORS.nonUrgent],
+                    borderColor: '#ffffff',
+                    borderWidth: 4,
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold' },
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                } 
+            },
+            plugins: [ChartDataLabels],
+        });
+    }
+    
+    function renderDeliveryBarChart(data) {
+        const ctx = document.getElementById('deliveryBarChart').getContext('2d');
+        const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+        
+        if (deliveryBarChartInstance) {
+            deliveryBarChartInstance.destroy();
+        }
+        deliveryBarChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Delivery',
+                        data: labels.map(day => (data[day] && data[day].Delivery) || 0),
+                        backgroundColor: CHART_COLORS.delivery,
+                        borderRadius: 4,
+                    },
+                    {
+                        label: 'Collection',
+                        data: labels.map(day => (data[day] && data[day].Collection) || 0),
+                        backgroundColor: CHART_COLORS.collection,
+                        borderRadius: 4,
+                    }
+                ]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }, 
+                plugins: { 
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold' },
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                } 
+            },
+            plugins: [ChartDataLabels],
+        });
+    }
+
+    function renderOrdersByDeptChart(data) {
+        const ctx = document.getElementById('ordersByDeptChart').getContext('2d');
+        if (ordersByDeptChartInstance) ordersByDeptChartInstance.destroy();
+
+        const sortedData = data.sort((a,b) => (b.delivery + b.collection) - (a.delivery + a.collection));
+        const labels = sortedData.map(d => d.dept);
+
+        ordersByDeptChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Delivery',
+                        data: sortedData.map(d => d.delivery),
+                        backgroundColor: CHART_COLORS.delivery,
+                    },
+                    {
+                        label: 'Collection',
+                        data: sortedData.map(d => d.collection),
+                        backgroundColor: CHART_COLORS.collection,
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { stacked: true }, y: { stacked: true } },
+                plugins: {
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold' },
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+    
+    function renderUrgentByDeptChart(data) {
+        const ctx = document.getElementById('urgentByDeptChart').getContext('2d');
+        if (urgentByDeptChartInstance) urgentByDeptChartInstance.destroy();
+
+        const sortedDepts = Object.entries(data).sort((a, b) => b[1] - a[1]);
+        const labels = sortedDepts.map(entry => entry[0]);
+        const chartData = sortedDepts.map(entry => entry[1]);
+
+        urgentByDeptChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Urgent Orders',
+                    data: chartData,
+                    backgroundColor: CHART_COLORS.delivery, // Use theme color
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { beginAtZero: true } },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'end',
+                        color: '#555',
+                        font: { weight: 'bold' },
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                }
+            },
+            plugins: [ChartDataLabels],
+        });
+    }
+
 
     function renderTopCustomerBarChart(data) {
         const ctx = document.getElementById('topCustomerBarChart').getContext('2d');
@@ -737,9 +854,8 @@
 
     function renderServiceTypePieChart(data) {
         const ctx = document.getElementById('serviceTypePieChart').getContext('2d');
-        if (serviceTypePieChartInstance) {
-            serviceTypePieChartInstance.destroy();
-        }
+        if (serviceTypePieChartInstance) serviceTypePieChartInstance.destroy();
+        
         serviceTypePieChartInstance = new Chart(ctx, {
             type: 'pie',
             data: {
@@ -771,113 +887,8 @@
             plugins: [ChartDataLabels],
         });
     }
-
-    function renderDeliveryBarChart(data) {
-        const ctx = document.getElementById('deliveryBarChart').getContext('2d');
-        const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-        
-        if (deliveryBarChartInstance) {
-            deliveryBarChartInstance.destroy();
-        }
-        deliveryBarChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Delivery',
-                        data: labels.map(day => (data[day] && data[day].Delivery) || 0),
-                        backgroundColor: CHART_COLORS.delivery,
-                        borderRadius: 4,
-                    },
-                    {
-                        label: 'Collection',
-                        data: labels.map(day => (data[day] && data[day].Collection) || 0),
-                        backgroundColor: CHART_COLORS.collection,
-                        borderRadius: 4,
-                    }
-                ]
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }, 
-                plugins: { 
-                    legend: { position: 'bottom' },
-                    datalabels: {
-                        color: '#fff',
-                        font: { weight: 'bold' },
-                        formatter: (value) => {
-                           return value > 0 ? value : '';
-                        }
-                    }
-                } 
-            },
-            plugins: [ChartDataLabels],
-        });
-    }
-    
-    function renderDepartmentBarChart(data) {
-        const ctx = document.getElementById('departmentBarChart').getContext('2d');
-        const sortedData = data.sort((a, b) => (b.delivery + b.collection) - (a.delivery + a.collection));
-        const labels = sortedData.map(d => d.dept);
-
-        if (departmentBarChartInstance) {
-            departmentBarChartInstance.destroy();
-        }
-        departmentBarChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Delivery',
-                        data: sortedData.map(d => d.delivery),
-                        backgroundColor: CHART_COLORS.delivery,
-                        borderRadius: 4,
-                    },
-                    {
-                        label: 'Collection',
-                        data: sortedData.map(d => d.collection),
-                        backgroundColor: CHART_COLORS.collection,
-                        borderRadius: 4,
-                    }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { x: { stacked: true }, y: { stacked: true } },
-                plugins: {
-                    legend: { position: 'bottom' },
-                    datalabels: {
-                        color: '#fff',
-                        font: { weight: 'bold' },
-                        formatter: (value) => value > 0 ? value : ''
-                    }
-                }
-            },
-            plugins: [ChartDataLabels],
-        });
-    }
     
     // --- TABLE RENDERING FUNCTIONS ---
-
-    function renderDailyVolumeTable(data, total) {
-        const tbody = document.getElementById('volumeTableBody');
-        const dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-        if (total === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No data for this period.</td></tr>`;
-            return;
-        }
-        tbody.innerHTML = dayOrder.map(day => {
-            const count = data[day] || 0;
-            const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0.0';
-            return `<tr><td>${day}</td><td>${count.toLocaleString()}</td><td>${percentage}%</td></tr>`;
-        }).join('');
-    }
-
     function renderDepartmentTable(data) {
         const tbody = document.getElementById('departmentTableBody');
         const sortedData = data.sort((a, b) => (b.delivery + b.collection) - (a.delivery + a.collection));
@@ -949,3 +960,4 @@
 </script>
 </body>
 </html>
+�
