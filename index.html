@@ -96,7 +96,8 @@
             box-shadow: var(--shadow);
         }
         .filters-container label { font-weight: 600; color: var(--text-muted); font-size: 0.875rem; }
-        .filters-container input[type="date"] {
+        .filters-container input[type="date"],
+        .filters-container select {
             padding: 0.5rem;
             border: 1px solid var(--border);
             border-radius: calc(var(--radius) - 0.25rem);
@@ -105,7 +106,7 @@
             background-color: var(--surface-2);
         }
 
-        .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem; margin-bottom: 2rem;}
+        .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:1.5rem; margin-bottom: 2rem;}
         .kpi-card{
             background:var(--surface);
             border:1px solid var(--border);
@@ -199,6 +200,10 @@
             <input type="date" id="startDate">
             <label for="endDate">To:</label>
             <input type="date" id="endDate">
+            <label for="departmentFilter">Department:</label>
+            <select id="departmentFilter">
+                <option value="all">All Departments</option>
+            </select>
         </div>
 
         <main>
@@ -213,6 +218,18 @@
                         <div class="kpi-label">Total Orders</div>
                         <div class="kpi-number" id="totalDeliveries">-</div>
                         <div class="kpi-change" id="totalOrdersChange"></div>
+                    </div>
+                </div>
+                 <div class="kpi-card">
+                    <div class="kpi-icon" style="background-color: var(--error);">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <div class="kpi-info">
+                        <div class="kpi-label">Urgent Orders</div>
+                        <div class="kpi-number" id="urgentOrders">-</div>
+                        <div class="kpi-change" id="urgentOrdersChange"></div>
                     </div>
                 </div>
                 <div class="kpi-card">
@@ -314,6 +331,7 @@
     const statusDiv = document.getElementById('statusMessage');
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
+    const departmentFilter = document.getElementById('departmentFilter');
 
     // --- UTILITY FUNCTIONS ---
     const showMessage = (message, type = 'info', autoClear = false, duration = 4000) => {
@@ -371,9 +389,11 @@
                 dept: d.dept || 'N/A', // Ensure dept exists
                 order_date: d.order_received ? new Date(d.order_received) : null,
                 is_pending: d.status ? d.status.toLowerCase().includes('pending') : false,
+                is_urgent: d.urgent ? d.urgent.toLowerCase() === 'yes' : false,
                 type: d.type ? (d.type.toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
             })).filter(d => d.order_date && d.customer);
-
+            
+            populateDepartmentFilter();
             showMessage(`Successfully loaded ${allData.length} records.`, 'info', true);
             return true;
         } catch (error) {
@@ -383,21 +403,37 @@
         }
     }
 
+    function populateDepartmentFilter() {
+        const departments = [...new Set(allData.map(d => d.dept))].filter(d => d && d !== 'N/A').sort();
+        departmentFilter.innerHTML = '<option value="all">All Departments</option>'; // Reset
+        departments.forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept;
+            option.textContent = dept;
+            departmentFilter.appendChild(option);
+        });
+    }
+
     function filterAndProcessData() {
         const startDate = startDateInput.valueAsDate;
         const endDate = endDateInput.valueAsDate;
+        const selectedDept = departmentFilter.value;
 
         if (!startDate || !endDate) return;
 
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(23, 59, 59, 999);
 
-        const filteredData = allData.filter(d => {
+        let filteredData = allData.filter(d => {
             if (!d.order_date) return false;
             const isAfterStart = d.order_date >= startDate;
             const isBeforeEnd = d.order_date <= endDate;
             return isAfterStart && isBeforeEnd;
         });
+
+        if (selectedDept !== 'all') {
+            filteredData = filteredData.filter(d => d.dept === selectedDept);
+        }
         
         updateDashboard(filteredData, startDate, endDate);
     }
@@ -415,21 +451,31 @@
             prevEndDate.setDate(0);
         }
 
-        const prevPeriodData = allData.filter(d => d.order_date >= prevStartDate && d.order_date <= prevEndDate);
+        const prevPeriodData = allData.filter(d => {
+            const dateMatch = d.order_date >= prevStartDate && d.order_date <= prevEndDate;
+            const deptMatch = departmentFilter.value === 'all' || d.dept === departmentFilter.value;
+            return dateMatch && deptMatch;
+        });
+
         const prevPeriodTotalOrders = prevPeriodData.length;
         const prevPeriodTicketsDone = prevPeriodTotalOrders - prevPeriodData.filter(d => d.is_pending).length;
+        const prevPeriodUrgentOrders = prevPeriodData.filter(d => d.is_urgent).length;
 
         // --- Current Period Calculations ---
         const totalOrders = data.length;
         const ticketsDone = totalOrders - data.filter(d => d.is_pending).length;
+        const urgentOrders = data.filter(d => d.is_urgent).length;
         
         // --- Render KPIs ---
         document.getElementById('totalDeliveries').textContent = totalOrders.toLocaleString();
         document.getElementById('pendingDeliveries').textContent = data.filter(d => d.is_pending).length.toLocaleString();
         document.getElementById('ticketsDone').textContent = ticketsDone.toLocaleString();
+        document.getElementById('urgentOrders').textContent = urgentOrders.toLocaleString();
         
         updateKpiChange('totalOrdersChange', totalOrders, prevPeriodTotalOrders);
         updateKpiChange('ticketsDoneChange', ticketsDone, prevPeriodTicketsDone);
+        updateKpiChange('urgentOrdersChange', urgentOrders, prevPeriodUrgentOrders, true);
+
 
         // --- Chart & Table Data Aggregation ---
         const serviceTypeCounts = data.reduce((acc, d) => {
@@ -536,8 +582,14 @@
     }
 
 
-    function updateKpiChange(elementId, currentValue, previousValue) {
+    function updateKpiChange(elementId, currentValue, previousValue, isUrgent = false) {
         const changeElement = document.getElementById(elementId);
+        if (isUrgent) {
+             changeElement.textContent = `vs ${previousValue} last period`;
+             changeElement.className = 'kpi-change kpi-timestamp';
+             return;
+        }
+
         if (previousValue === 0) {
             if (currentValue > 0) {
                  changeElement.innerHTML = `<span>(vs 0)</span>`;
@@ -831,7 +883,7 @@
     }
 
     // --- INITIALIZATION ---
-    document.addEventListener('DOMContentLoaded', async () => {
+    async function onPageLoad() {
         const today = new Date();
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(today.getDate() - 30);
@@ -842,18 +894,21 @@
 
         startDateInput.addEventListener('change', filterAndProcessData);
         endDateInput.addEventListener('change', filterAndProcessData);
+        departmentFilter.addEventListener('change', filterAndProcessData);
 
         const success = await loadDataFromSupabase();
         if (success) {
             filterAndProcessData();
         } else {
             // Clear loading indicators on error
-             document.querySelectorAll('.loading').forEach(el => {
+            document.querySelectorAll('.loading').forEach(el => {
                 const colspan = el.parentElement.cells.length;
                 el.parentElement.innerHTML = `<td colspan="${colspan}" style="text-align:center;">Could not load data.</td>`;
             });
         }
-    });
+    }
+
+    document.addEventListener('DOMContentLoaded', onPageLoad);
 
 </script>
 </body>
