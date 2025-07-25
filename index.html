@@ -26,7 +26,7 @@
             --border:#e5e7eb;
             --shadow:0 4px 6px -1px rgba(0,0,0,.05),0 2px 4px -2px rgba(0,0,0,.05);
             --shadow-lg:0 10px 15px -3px rgba(0,0,0,.07),0 4px 6px -4px rgba(0,0,0,.07);
-            --radius:0.625rem; /* Updated from 0.75rem (12px) to 10px */
+            --radius:0.625rem; /* 10px */
             --success:#22c55e; /* Green */
             --warning:#f59e0b; /* Amber */
             --error:#ef4444; /* Red */
@@ -52,7 +52,6 @@
         
         .header-actions { margin-top: 1.5rem; display: flex; justify-content: center; }
         
-        /* --- Updated Button Styling --- */
         .btn {
             display: inline-block;
             font-weight: 600;
@@ -184,8 +183,7 @@
             <h1>Delivery Performance Analytics</h1>
             <p>Key insights into delivery operations and performance metrics</p>
             <div class="header-actions">
-                <!-- Updated Button -->
-                <a href="http://qubedeliver.site/aging.html" class="btn btn-primary">📈 Track Aging</a>
+                <a href="aging.html" class="btn btn-primary">🚚 Track Aging</a>
             </div>
         </header>
 
@@ -202,7 +200,6 @@
             <div class="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-icon" style="background: linear-gradient(135deg, #818cf8, #6366f1);">
-                        <!-- Updated Icon: Clipboard -->
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C6.343 4.01 5.5 4.973 5.5 6.108V18.75c0 1.243.87 2.25 1.976 2.25h4.512" />
                         </svg>
@@ -214,9 +211,7 @@
                     </div>
                 </div>
                 <div class="kpi-card">
-                    <!-- Updated Background Color for Accessibility -->
                     <div class="kpi-icon" style="background-color: var(--warning);">
-                        <!-- Updated Icon: Pause -->
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
@@ -248,10 +243,14 @@
                     <div class="chart-header"><div class="chart-title">Delivery vs. Collection by Day</div></div>
                     <div class="chart-canvas"><canvas id="deliveryBarChart"></canvas></div>
                 </div>
+                 <div class="chart-container">
+                    <div class="chart-header"><div class="chart-title">Orders by Department</div></div>
+                    <div class="chart-canvas"><canvas id="departmentBarChart"></canvas></div>
+                </div>
             </div>
 
             <div class="table-container">
-                <h3>📋 Daily Volume</h3>
+                <h3>📊 Daily Volume (Weekdays)</h3>
                 <div class="table-wrapper">
                     <table>
                         <thead><tr><th>Day</th><th>Count</th><th>Percentage</th></tr></thead>
@@ -266,6 +265,16 @@
                     <table>
                         <thead><tr><th>Customer</th><th>Delivery</th><th>Collection</th></tr></thead>
                         <tbody id="customerTableBody"><tr><td colspan="3" class="loading"></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <h3>🏢 Department Performance</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Department</th><th>Delivery</th><th>Collection</th><th>Total</th></tr></thead>
+                        <tbody id="departmentTableBody"><tr><td colspan="4" class="loading"></td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -288,7 +297,7 @@
 
     // --- GLOBAL STATE ---
     let allData = [];
-    let serviceTypePieChartInstance, deliveryBarChartInstance;
+    let serviceTypePieChartInstance, deliveryBarChartInstance, departmentBarChartInstance;
     let clockInterval;
 
     // --- DOM ELEMENTS ---
@@ -349,6 +358,7 @@
             allData = rawData.map(d => ({
                 ...d,
                 customer: formatCustomerName(d.customer),
+                dept: d.dept || 'N/A', // Ensure dept exists
                 order_date: d.order_received ? new Date(d.order_received) : null,
                 is_pending: d.status ? d.status.toLowerCase().includes('pending') : true,
                 type: d.type ? (d.type.toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
@@ -447,12 +457,30 @@
             }
             return acc;
         }, {});
+        
+        const departmentPerformance = data.reduce((acc, d) => {
+            // Filter out 'N/A' departments here
+            if (d.dept && d.dept !== 'N/A') {
+                if (!acc[d.dept]) {
+                    acc[d.dept] = { dept: d.dept, delivery: 0, collection: 0 };
+                }
+                if (d.type === 'Delivery') {
+                    acc[d.dept].delivery++;
+                } else if (d.type === 'Collection') {
+                    acc[d.dept].collection++;
+                }
+            }
+            return acc;
+        }, {});
+
 
         // --- Render Visualizations ---
         renderServiceTypePieChart(serviceTypeCounts);
         renderDeliveryBarChart(deliveryByDay);
         renderDailyVolumeTable(dailyVolume, totalOrders);
         renderCustomerTable(Object.values(customerPerformance));
+        renderDepartmentBarChart(Object.values(departmentPerformance));
+        renderDepartmentTable(Object.values(departmentPerformance));
     }
 
     function updateKpiChange(elementId, currentValue, previousValue) {
@@ -470,7 +498,7 @@
         const percentChange = ((currentValue - previousValue) / previousValue) * 100;
         const isPositive = percentChange >= 0;
         const trendClass = isPositive ? 'up' : 'down';
-        const icon = trendClass === 'up' ? '▲' : '▼';
+        const icon = trendClass === 'up' ? '🔼' : '🔽';
         
         changeElement.className = `kpi-change ${trendClass}`;
         changeElement.innerHTML = `${icon} ${percentChange.toFixed(1)}% vs last month`;
@@ -515,6 +543,7 @@
 
     function renderDeliveryBarChart(data) {
         const ctx = document.getElementById('deliveryBarChart').getContext('2d');
+        // MODIFIED: Only show weekdays
         const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
         
         if (deliveryBarChartInstance) {
@@ -558,8 +587,54 @@
         });
     }
     
+    function renderDepartmentBarChart(data) {
+        const ctx = document.getElementById('departmentBarChart').getContext('2d');
+        const sortedData = data.sort((a, b) => (b.delivery + b.collection) - (a.delivery + a.collection));
+        const labels = sortedData.map(d => d.dept);
+
+        if (departmentBarChartInstance) {
+            departmentBarChartInstance.destroy();
+        }
+        departmentBarChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Delivery',
+                        data: sortedData.map(d => d.delivery),
+                        backgroundColor: CHART_COLORS.delivery,
+                        borderRadius: 4,
+                    },
+                    {
+                        label: 'Collection',
+                        data: sortedData.map(d => d.collection),
+                        backgroundColor: CHART_COLORS.collection,
+                        borderRadius: 4,
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { stacked: true }, y: { stacked: true } },
+                plugins: {
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold' },
+                        formatter: (value) => value > 0 ? value : ''
+                    }
+                }
+            },
+            plugins: [ChartDataLabels],
+        });
+    }
+
     function renderDailyVolumeTable(data, total) {
         const tbody = document.getElementById('volumeTableBody');
+        // MODIFIED: Only show weekdays
         const dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
         if (total === 0) {
             tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No data for this period.</td></tr>`;
@@ -579,6 +654,21 @@
             tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No data for this period.</td></tr>`;
         } else {
             tbody.innerHTML = sortedData.map(d => `<tr><td>${d.customer}</td><td>${d.delivery.toLocaleString()}</td><td>${d.collection.toLocaleString()}</td></tr>`).join('');
+        }
+    }
+
+    function renderDepartmentTable(data) {
+        const tbody = document.getElementById('departmentTableBody');
+        const sortedData = data.sort((a, b) => (b.delivery + b.collection) - (a.delivery + a.collection));
+        if (sortedData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No department data for this period.</td></tr>`;
+        } else {
+            tbody.innerHTML = sortedData.map(d => `<tr>
+                <td>${d.dept}</td>
+                <td>${d.delivery.toLocaleString()}</td>
+                <td>${d.collection.toLocaleString()}</td>
+                <td>${(d.delivery + d.collection).toLocaleString()}</td>
+            </tr>`).join('');
         }
     }
 
@@ -602,6 +692,7 @@
             // Clear loading indicators and show error message in tables
             document.getElementById('customerTableBody').innerHTML = '<tr><td colspan="3" style="text-align:center;">Could not load data.</td></tr>';
             document.getElementById('volumeTableBody').innerHTML = '<tr><td colspan="3" style="text-align:center;">Could not load data.</td></tr>';
+            document.getElementById('departmentTableBody').innerHTML = '<tr><td colspan="4" style="text-align:center;">Could not load data.</td></tr>';
         }
     });
 
