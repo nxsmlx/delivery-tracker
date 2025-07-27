@@ -79,10 +79,23 @@
             font-weight: 700;
             color: var(--text);
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .header h1 .title-text {
+             background: linear-gradient(135deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+
+        .header h1 svg {
+            width: 2.5rem;
+            height: 2.5rem;
+            color: var(--primary);
         }
 
         .header p {
@@ -106,6 +119,11 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             box-shadow: var(--shadow);
+        }
+        
+        .btn .icon {
+            width: 1.25rem;
+            height: 1.25rem;
         }
 
         .btn-primary {
@@ -211,7 +229,7 @@
             background: linear-gradient(135deg, var(--primary), var(--primary-hover));
             box-shadow: var(--shadow);
         }
-
+        
         .kpi-icon svg {
             width: 1.75rem;
             height: 1.75rem;
@@ -247,18 +265,9 @@
             gap: 0.25rem;
         }
 
-        .kpi-change.up {
-            color: var(--success);
-        }
-
-        .kpi-change.down {
-            color: var(--error);
-        }
-
-        .kpi-timestamp {
-            color: var(--text-light);
-            font-size: 0.75rem;
-        }
+        .kpi-change.up { color: var(--success); }
+        .kpi-change.down { color: var(--error); }
+        .kpi-timestamp { color: var(--text-light); font-size: 0.75rem; }
 
         /* Charts */
         .charts-grid {
@@ -299,6 +308,12 @@
             align-items: center;
             gap: 0.5rem;
         }
+        
+        .chart-title svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--primary);
+        }
 
         .chart-canvas {
             position: relative;
@@ -323,6 +338,12 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+        
+        .table-container h3 svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--primary);
         }
 
         .table-wrapper {
@@ -426,49 +447,16 @@
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .header {
-                padding: 2rem 1rem;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .filters-container {
-                padding: 1.5rem;
-                gap: 1rem;
-            }
-            
-            .kpi-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .charts-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .chart-container {
-                padding: 1.5rem;
-            }
-            
-            .chart-canvas {
-                height: 300px;
-            }
+            .container { padding: 1rem; }
+            .header { padding: 2rem 1rem; }
+            .header h1 { font-size: 2rem; }
+            .filters-container { padding: 1.5rem; gap: 1rem; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .chart-container { padding: 1.5rem; }
+            .chart-canvas { height: 300px; }
         }
-
-        /* Custom Icons */
-        .icon-orders::before { content: "📦"; }
-        .icon-urgent::before { content: "⚠️"; }
-        .icon-pending::before { content: "⏰"; }
-        .icon-done::before { content: "✅"; }
-        .icon-truck::before { content: "🚚"; }
-        .icon-building::before { content: "🏢"; }
-
+        
         /* Enhanced gradients for different card types */
         .kpi-card:nth-child(1) .kpi-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
         .kpi-card:nth-child(2) .kpi-icon { background: linear-gradient(135deg, #ef4444, #f97316); }
@@ -479,11 +467,14 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>📊 Delivery Performance Analytics</h1>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12H5V21H3V12ZM7 6H9V21H7V6ZM11 16H13V21H11V16ZM15 10H17V21H15V10ZM19 3H21V21H19V3Z"></path></svg>
+                <span class="title-text">Delivery Performance Analytics</span>
+            </h1>
             <p>Comprehensive insights into delivery operations and performance metrics</p>
             <div class="header-actions">
                 <a href="aging.html" class="btn btn-primary">
-                    <span class="icon-truck"></span>
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.2119 14.3662L15.8166 7.11618C15.6942 6.49343 15.1216 6 14.4764 6H9.52358C8.87841 6 8.30578 6.49343 8.1834 7.11618L6.78809 14.3662C5.06284 14.8343 4 16.2998 4 18C4 19.6569 5.34315 21 7 21C8.65685 21 10 19.6569 10 18C10 16.3533 8.7234 14.915 7.0401 14.4182L8.43541 7.16819C8.48347 6.92004 8.69176 6.75 8.94436 6.75H15.0556C15.3082 6.75 15.5165 6.92004 15.5646 7.16819L16.9599 14.4182C15.2766 14.915 14 16.3533 14 18C14 19.6569 15.3431 21 17 21C18.6569 21 20 19.6569 20 18C20 16.2998 18.9372 14.8343 17.2119 14.3662ZM7 20C5.89543 20 5 19.1046 5 18C5 16.8954 5.89543 16 7 16C8.10457 16 9 16.8954 9 18C9 19.1046 8.10457 20 7 20ZM17 20C15.8954 20 15 19.1046 15 18C15 16.8954 15.8954 16 17 16C18.1046 16 19 16.8954 19 18C19 19.1046 18.1046 20 17 20Z"></path><path d="M20 11H4V13H20V11Z"></path></svg>
                     Track Aging Dashboard
                 </a>
             </div>
@@ -506,7 +497,7 @@
             <div class="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-icon">
-                        <span class="icon-orders"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 11C21 11.5523 20.5523 12 20 12H17.8162C17.5486 13.7313 16.2026 15 14.5 15C12.7974 15 11.4514 13.7313 11.1838 12H4C3.44772 12 3 11.5523 3 11V4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V11ZM19 5H5V10H19V5Z"></path><path d="M3 14H21V16H3V14Z"></path><path d="M3 18H21V20H3V18Z"></path></svg>
                     </div>
                     <div class="kpi-info">
                         <div class="kpi-label">Total Orders</div>
@@ -516,7 +507,7 @@
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">
-                        <span class="icon-urgent"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 11.25V6.75C12 6.33579 11.6642 6 11.25 6C10.8358 6 10.5 6.33579 10.5 6.75V12.75C10.5 13.1642 10.8358 13.5 11.25 13.5H16.5C16.9142 13.5 17.25 13.1642 17.25 12.75C17.25 12.3358 16.9142 12 16.5 12H12.75C12.4739 12 12.25 11.7761 12.25 11.5C12.25 11.3619 12.1381 11.25 12 11.25Z"></path></svg>
                     </div>
                     <div class="kpi-info">
                         <div class="kpi-label">Urgent Orders</div>
@@ -526,7 +517,7 @@
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">
-                        <span class="icon-pending"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 15H13V17H11V15ZM11 7H13V13H11V7Z"></path></svg>
                     </div>
                     <div class="kpi-info">
                         <div class="kpi-label">Pending Orders</div>
@@ -536,7 +527,7 @@
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-icon">
-                        <span class="icon-done"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM16.0303 8.96967L10.5 14.5L7.96967 12.0303L9.38388 10.6161L10.5 11.702L14.6161 7.55546L16.0303 8.96967Z"></path></svg>
                     </div>
                     <div class="kpi-info">
                         <div class="kpi-label">Tickets Done</div>
@@ -549,50 +540,50 @@
             <div class="charts-grid">
                 <div class="chart-container full-width">
                     <div class="chart-header">
-                        <div class="chart-title">📈 Order & Status Trend Over Time</div>
+                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5H14V3C14 2.44772 13.5523 2 13 2H11C10.4477 2 10 2.44772 10 3V5H8C6.89543 5 6 5.89543 6 7V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V7C18 5.89543 17.1046 5 16 5ZM8 7H16V19H8V7ZM10 9V11H14V9H10ZM10 13V15H14V13H10Z"></path></svg> Order & Status Trend Over Time</div>
                     </div>
                     <div class="chart-canvas"><canvas id="combinedTrendChart"></canvas></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header">
-                        <div class="chart-title">🔄 Service Type Distribution</div>
+                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM11 13H5.05494C5.55137 16.3922 8.26201 19 11.8387 19C11.9448 19 12.0502 18.9958 12.1545 18.9877L11 13ZM13 13V19.9451C16.5513 19.4486 19 16.738 19 13H13ZM13 11H19C19 7.26198 16.5513 4.55137 13 4.05494V11ZM11 11V4.05494C7.44863 4.55137 5 7.26198 5 11H11Z"></path></svg> Service Type Distribution</div>
                     </div>
                     <div class="chart-canvas"><canvas id="serviceTypePieChart"></canvas></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header">
-                        <div class="chart-title">⚡ Urgent vs. Non-Urgent</div>
+                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM13 12V7H11V14H18V12H13Z"></path></svg> Urgent vs. Non-Urgent</div>
                     </div>
                     <div class="chart-canvas"><canvas id="urgentPieChart"></canvas></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header">
-                        <div class="chart-title">🏆 Top 5 Customers by Service Type</div>
+                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L9 9H2L7 14L5 22L12 17L19 22L17 14L22 9H15L12 1Z"></path></svg> Top 5 Customers by Service Type</div>
                     </div>
                     <div class="chart-canvas"><canvas id="topCustomerBarChart"></canvas></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header">
-                        <div class="chart-title">🏢 Orders by Department</div>
+                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 20H3V11C3 10.4477 3.44772 10 4 10H20C20.5523 10 21 10.4477 21 11V20ZM21 4C21 3.44772 20.5523 3 20 3H4C3.44772 3 3 3.44772 3 4V8C3 8.55228 3.44772 9 4 9H20C20.5523 9 21 8.55228 21 8V4ZM19 12H5V18H19V12ZM19 5H5V7H19V5Z"></path></svg> Orders by Department</div>
                     </div>
                     <div class="chart-canvas"><canvas id="ordersByDeptChart"></canvas></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header">
-                        <div class="chart-title">📅 Delivery vs. Collection by Day</div>
+                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 4C8 3.44772 8.44772 3 9 3H15C15.5523 3 16 3.44772 16 4V6H20C20.5523 6 21 6.44772 21 7V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V7C3 6.44772 3.44772 6 4 6H8V4ZM14 5V6H10V5H14ZM5 8V19H19V8H5ZM7 10H9V12H7V10ZM7 14H9V16H7V14Z"></path></svg> Delivery vs. Collection by Day</div>
                     </div>
                     <div class="chart-canvas"><canvas id="deliveryBarChart"></canvas></div>
                 </div>
                 <div class="chart-container">
                     <div class="chart-header">
-                        <div class="chart-title">🚨 Urgent Count by Department</div>
+                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.8769 3.11811L21.4648 18.0001H3.53516L12.1231 3.11811C12.1293 3.10736 12.1361 3.09703 12.1433 3.08711C12.3334 2.83393 12.6666 2.83393 12.8567 3.08711C12.8639 3.09703 12.8707 3.10736 12.8769 3.11811ZM12.5 14V16H11.5V14H12.5ZM12.5 10V13H11.5V10H12.5Z"></path></svg> Urgent Count by Department</div>
                     </div>
                     <div class="chart-canvas"><canvas id="urgentByDeptChart"></canvas></div>
                 </div>
             </div>
             
             <div class="table-container">
-                <h3><span class="icon-building"></span> Department Performance</h3>
+                <h3><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21H22V19H2V21ZM2 16H22V14H2V16ZM4 3H20V12H4V3ZM6 5V10H18V5H6Z"></path></svg> Department Performance</h3>
                 <div class="table-wrapper">
                     <table>
                         <thead>
@@ -628,20 +619,11 @@
         completed: '#10b981',
         urgent: '#ef4444',
         nonUrgent: '#8b5cf6',
-        gradients: {
-            primary: ['#6366f1', '#8b5cf6'],
-            secondary: ['#14b8a6', '#059669'],
-            warning: ['#f59e0b', '#eab308'],
-            success: ['#10b981', '#059669'],
-            error: ['#ef4444', '#dc2626']
-        }
     };
 
     // --- GLOBAL STATE ---
     let allData = [];
-    let serviceTypePieChartInstance, topCustomerBarChartInstance,
-        combinedTrendChartInstance, urgentPieChartInstance, deliveryBarChartInstance,
-        ordersByDeptChartInstance, urgentByDeptChartInstance;
+    let chartInstances = {};
     let clockInterval;
 
     // --- DOM ELEMENTS ---
@@ -677,14 +659,54 @@
             clockElement.innerHTML = `<span>as at ${dateString}, ${timeString}</span>`;
         };
 
-        updateClock(); 
+        updateClock();  
         clockInterval = setInterval(updateClock, 1000); 
     };
+    
+    /**
+     * Creates a base configuration for Chart.js charts to reduce code duplication.
+     * @param {string} legendPosition - The position of the legend (e.g., 'bottom', 'top').
+     * @returns {object} A Chart.js options object.
+     */
+    const getBaseChartOptions = (legendPosition = 'bottom') => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            intersect: false,
+            mode: 'index',
+        },
+        plugins: {
+            legend: {
+                position: legendPosition,
+                labels: {
+                    usePointStyle: true,
+                    padding: 20,
+                    font: { size: 13, weight: '500' },
+                    color: '#0f172a'
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                titleColor: '#ffffff',
+                bodyColor: '#e2e8f0',
+                borderColor: '#334155',
+                borderWidth: 1,
+                cornerRadius: 8,
+                displayColors: true,
+                padding: 10,
+            },
+            datalabels: {
+                display: false // Disabled by default, can be overridden
+            }
+        }
+    });
 
     // --- DATA FETCHING & PROCESSING ---
     async function loadDataFromSupabase() {
         showMessage('🔄 Loading all delivery records...', 'info');
         try {
+            // NOTE: Ensure Row Level Security (RLS) is enabled in your Supabase project
+            // to protect your data, even with an anonymous key.
             const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?select=*&order=created_at.desc`, {
                 headers: {
                     'apikey': SUPABASE_CONFIG.key,
@@ -706,8 +728,8 @@
                 dept: d.dept || 'N/A',
                 order_date: d.order_received ? new Date(d.order_received) : null,
                 is_pending: d.status ? d.status.toLowerCase().includes('pending') : false,
-                is_urgent: d.urgent ? d.urgent.toLowerCase() === 'yes' : false,
-                type: d.type ? (d.type.toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
+                is_urgent: d.urgent ? String(d.urgent).toLowerCase() === 'yes' : false,
+                type: d.type ? (String(d.type).toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
             })).filter(d => d.order_date && d.customer);
             
             populateDepartmentFilter();
@@ -757,17 +779,16 @@
 
     // --- DASHBOARD UPDATE & RENDERING ---
     function updateDashboard(data, currentStartDate, currentEndDate) {
-        // Previous Period Calculation
+        // --- Previous Period Calculation ---
+        // This is a simplified calculation. For more complex scenarios (e.g., handling
+        // different month lengths accurately), a date library like date-fns would be better.
+        const diffDays = (currentEndDate - currentStartDate) / (1000 * 60 * 60 * 24);
         const prevStartDate = new Date(currentStartDate);
-        prevStartDate.setMonth(prevStartDate.getMonth() - 1);
+        prevStartDate.setDate(prevStartDate.getDate() - diffDays -1);
         
-        const prevEndDate = new Date(currentEndDate);
-        prevEndDate.setMonth(prevEndDate.getMonth() - 1);
-
-        if (prevEndDate.getDate() !== currentEndDate.getDate()) {
-            prevEndDate.setDate(0);
-        }
-
+        const prevEndDate = new Date(currentStartDate);
+        prevEndDate.setDate(prevEndDate.getDate() - 1);
+        
         const prevPeriodData = allData.filter(d => {
             const dateMatch = d.order_date >= prevStartDate && d.order_date <= prevEndDate;
             const deptMatch = departmentFilter.value === 'all' || d.dept === departmentFilter.value;
@@ -775,33 +796,35 @@
         });
 
         const prevPeriodTotalOrders = prevPeriodData.length;
-        const prevPeriodTicketsDone = prevPeriodTotalOrders - prevPeriodData.filter(d => d.is_pending).length;
         const prevPeriodUrgentOrders = prevPeriodData.filter(d => d.is_urgent).length;
 
-        // Current Period Calculations
+        // --- Current Period Calculations ---
         const totalOrders = data.length;
-        const ticketsDone = totalOrders - data.filter(d => d.is_pending).length;
+        const pendingOrders = data.filter(d => d.is_pending).length;
+        const ticketsDone = totalOrders - pendingOrders;
         const urgentOrders = data.filter(d => d.is_urgent).length;
         
-        // Render KPIs
+        // --- Render KPIs ---
         document.getElementById('totalDeliveries').textContent = totalOrders.toLocaleString();
-        document.getElementById('pendingDeliveries').textContent = data.filter(d => d.is_pending).length.toLocaleString();
+        document.getElementById('pendingDeliveries').textContent = pendingOrders.toLocaleString();
         document.getElementById('ticketsDone').textContent = ticketsDone.toLocaleString();
         document.getElementById('urgentOrders').textContent = urgentOrders.toLocaleString();
         
         updateKpiChange('totalOrdersChange', totalOrders, prevPeriodTotalOrders);
-        updateKpiChange('urgentOrdersChange', urgentOrders, prevPeriodUrgentOrders, true);
+        updateKpiChange('urgentOrdersChange', urgentOrders, prevPeriodUrgentOrders, 'vs last period');
+        updateKpiChange('ticketsDoneChange', ticketsDone, prevPeriodTotalOrders - prevPeriodData.filter(d=>d.is_pending).length);
 
-        // Chart & Table Data Aggregation
+
+        // --- Chart & Table Data Aggregation ---
         const serviceTypeCounts = data.reduce((acc, d) => {
             if (d.type !== 'Unknown') acc[d.type] = (acc[d.type] || 0) + 1;
             return acc;
         }, { 'Delivery': 0, 'Collection': 0 });
 
-        const urgentCounts = data.reduce((acc, d) => {
-            if (d.is_urgent) acc.urgent++; else acc.nonUrgent++;
-            return acc;
-        }, { urgent: 0, nonUrgent: 0 });
+        const urgentCounts = {
+            urgent: urgentOrders,
+            nonUrgent: totalOrders - urgentOrders
+        };
 
         const departmentPerformance = data.reduce((acc, d) => {
             if (d.dept && d.dept !== 'N/A') {
@@ -831,7 +854,7 @@
         const trendData = aggregateTrendData(data, currentStartDate, currentEndDate);
         const topCustomerData = aggregateTopCustomerData(data);
 
-        // Render Visualizations
+        // --- Render Visualizations ---
         renderServiceTypePieChart(serviceTypeCounts);
         renderUrgentPieChart(urgentCounts);
         renderDepartmentTable(Object.values(departmentPerformance));
@@ -889,10 +912,12 @@
         return Object.values(topCustomerPerformance).sort((a,b) => (b.Delivery + b.Collection) - (a.Delivery + a.Collection));
     }
 
-    function updateKpiChange(elementId, currentValue, previousValue, isUrgent = false) {
+    function updateKpiChange(elementId, currentValue, previousValue, label = 'vs last period') {
         const changeElement = document.getElementById(elementId);
-        if (isUrgent) {
-             changeElement.textContent = `vs ${previousValue} last period`;
+        
+        // If label is provided, it's a simple comparison, not a percentage change.
+        if (label) {
+             changeElement.textContent = `vs ${previousValue} ${label}`;
              changeElement.className = 'kpi-change kpi-timestamp';
              return;
         }
@@ -910,72 +935,62 @@
         const icon = trendClass === 'up' ? '📈' : '📉';
         
         changeElement.className = `kpi-change ${trendClass}`;
-        changeElement.innerHTML = `${icon} ${percentChange.toFixed(1)}% vs last month`;
+        changeElement.innerHTML = `${icon} ${percentChange.toFixed(1)}% vs last period`;
     }
     
+    /**
+     * Generic function to render a chart. It destroys the previous instance if it exists.
+     * @param {string} chartId - The ID of the chart instance in the chartInstances object.
+     * @param {string} canvasId - The ID of the canvas element.
+     * @param {object} config - The Chart.js configuration object.
+     */
+    function renderChart(chartId, canvasId, config) {
+        if (chartInstances[chartId]) {
+            chartInstances[chartId].destroy();
+        }
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        chartInstances[chartId] = new Chart(ctx, config);
+    }
+
     // --- ENHANCED CHART RENDERING FUNCTIONS ---
     function renderCombinedTrendChart(data) {
-        const ctx = document.getElementById('combinedTrendChart').getContext('2d');
-        if (combinedTrendChartInstance) combinedTrendChartInstance.destroy();
-
         const labels = Object.keys(data);
-        const totalData = labels.map(label => data[label].total);
-        const completedData = labels.map(label => data[label].completed);
-        const pendingData = labels.map(label => data[label].pending);
-
-        combinedTrendChartInstance = new Chart(ctx, {
+        const config = {
             type: 'line',
             data: {
                 labels: labels,
                 datasets: [
                     {
                         label: 'Total Orders',
-                        data: totalData,
+                        data: labels.map(label => data[label].total),
                         borderColor: CHART_COLORS.delivery,
                         backgroundColor: CHART_COLORS.delivery + '20',
                         tension: 0.4,
                         borderWidth: 4,
                         fill: true,
-                        pointBackgroundColor: CHART_COLORS.delivery,
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 3,
-                        pointRadius: 6,
                     },
                     {
                         label: 'Completed',
-                        data: completedData,
+                        data: labels.map(label => data[label].completed),
                         borderColor: CHART_COLORS.completed,
                         backgroundColor: CHART_COLORS.completed + '15',
                         tension: 0.4,
                         borderWidth: 3,
                         fill: true,
-                        pointBackgroundColor: CHART_COLORS.completed,
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
                     },
                     {
                         label: 'Pending',
-                        data: pendingData,
+                        data: labels.map(label => data[label].pending),
                         borderColor: CHART_COLORS.pending,
                         backgroundColor: CHART_COLORS.pending + '15',
                         tension: 0.4,
                         borderWidth: 3,
                         fill: true,
-                        pointBackgroundColor: CHART_COLORS.pending,
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
                     }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                },
+                ...getBaseChartOptions(),
                 scales: {
                     x: { 
                         type: 'time', 
@@ -988,38 +1003,14 @@
                         grid: { color: '#f1f5f9', drawBorder: false },
                         ticks: { color: '#64748b', font: { size: 12 } }
                     }
-                },
-                plugins: { 
-                    legend: { 
-                        position: 'bottom',
-                        labels: { 
-                            usePointStyle: true,
-                            padding: 20,
-                            font: { size: 13, weight: '500' }
-                        }
-                    }, 
-                    datalabels: { display: false },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1e293b',
-                        bodyColor: '#64748b',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        cornerRadius: 8,
-                        displayColors: true,
-                        mode: 'index',
-                        intersect: false,
-                    }
                 }
             }
-        });
+        };
+        renderChart('combinedTrend', 'combinedTrendChart', config);
     }
     
     function renderUrgentPieChart(data) {
-        const ctx = document.getElementById('urgentPieChart').getContext('2d');
-        if (urgentPieChartInstance) urgentPieChartInstance.destroy();
-
-        urgentPieChartInstance = new Chart(ctx, {
+        const config = {
             type: 'doughnut',
             data: {
                 labels: ['Urgent', 'Non-Urgent'],
@@ -1032,49 +1023,30 @@
                     cutout: '60%',
                 }]
             },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false,
-                plugins: { 
-                    legend: { 
-                        position: 'bottom',
-                        labels: { 
-                            usePointStyle: true,
-                            padding: 20,
-                            font: { size: 13, weight: '500' }
-                        }
-                    },
+            options: {
+                ...getBaseChartOptions(),
+                plugins: {
+                    ...getBaseChartOptions().plugins,
                     datalabels: {
                         color: '#ffffff',
                         font: { weight: 'bold', size: 14 },
                         formatter: (value, ctx) => {
                             const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            if (sum === 0 || value === 0) return '';
                             const percentage = ((value * 100) / sum).toFixed(1);
-                            return value > 0 ? `${value}\n(${percentage}%)` : '';
+                            return `${value}\n(${percentage}%)`;
                         }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1e293b',
-                        bodyColor: '#64748b',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        cornerRadius: 8,
                     }
-                } 
+                }
             },
             plugins: [ChartDataLabels],
-        });
+        };
+        renderChart('urgentPie', 'urgentPieChart', config);
     }
     
     function renderDeliveryBarChart(data) {
-        const ctx = document.getElementById('deliveryBarChart').getContext('2d');
-        const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-        
-        if (deliveryBarChartInstance) {
-            deliveryBarChartInstance.destroy();
-        }
-        deliveryBarChartInstance = new Chart(ctx, {
+        const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const config = {
             type: 'bar',
             data: {
                 labels: labels,
@@ -1084,20 +1056,17 @@
                         data: labels.map(day => (data[day] && data[day].Delivery) || 0),
                         backgroundColor: CHART_COLORS.delivery,
                         borderRadius: 6,
-                        borderSkipped: false,
                     },
                     {
                         label: 'Collection',
                         data: labels.map(day => (data[day] && data[day].Collection) || 0),
                         backgroundColor: CHART_COLORS.collection,
                         borderRadius: 6,
-                        borderSkipped: false,
                     }
                 ]
             },
             options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
+                ...getBaseChartOptions(),
                 scales: { 
                     x: { 
                         stacked: true,
@@ -1110,43 +1079,25 @@
                         grid: { color: '#f1f5f9', drawBorder: false },
                         ticks: { color: '#64748b', font: { size: 12 } }
                     } 
-                }, 
-                plugins: { 
-                    legend: { 
-                        position: 'bottom',
-                        labels: { 
-                            usePointStyle: true,
-                            padding: 20,
-                            font: { size: 13, weight: '500' }
-                        }
-                    },
+                },
+                plugins: {
+                    ...getBaseChartOptions().plugins,
                     datalabels: {
                         color: '#ffffff',
                         font: { weight: 'bold', size: 12 },
                         formatter: (value) => value > 0 ? value : ''
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1e293b',
-                        bodyColor: '#64748b',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        cornerRadius: 8,
                     }
-                } 
+                }
             },
             plugins: [ChartDataLabels],
-        });
+        };
+        renderChart('deliveryBar', 'deliveryBarChart', config);
     }
 
     function renderOrdersByDeptChart(data) {
-        const ctx = document.getElementById('ordersByDeptChart').getContext('2d');
-        if (ordersByDeptChartInstance) ordersByDeptChartInstance.destroy();
-
         const sortedData = data.sort((a,b) => (b.delivery + b.collection) - (a.delivery + a.collection));
         const labels = sortedData.map(d => d.dept);
-
-        ordersByDeptChartInstance = new Chart(ctx, {
+        const config = {
             type: 'bar',
             data: {
                 labels: labels,
@@ -1166,9 +1117,8 @@
                 ]
             },
             options: {
+                ...getBaseChartOptions(),
                 indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
                 scales: { 
                     x: { 
                         stacked: true,
@@ -1182,42 +1132,24 @@
                     } 
                 },
                 plugins: {
-                    legend: { 
-                        position: 'bottom',
-                        labels: { 
-                            usePointStyle: true,
-                            padding: 20,
-                            font: { size: 13, weight: '500' }
-                        }
-                    },
+                    ...getBaseChartOptions().plugins,
                     datalabels: {
                         color: '#ffffff',
                         font: { weight: 'bold', size: 11 },
                         formatter: (value) => value > 0 ? value : ''
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1e293b',
-                        bodyColor: '#64748b',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        cornerRadius: 8,
                     }
                 }
             },
             plugins: [ChartDataLabels]
-        });
+        };
+        renderChart('ordersByDept', 'ordersByDeptChart', config);
     }
     
     function renderUrgentByDeptChart(data) {
-        const ctx = document.getElementById('urgentByDeptChart').getContext('2d');
-        if (urgentByDeptChartInstance) urgentByDeptChartInstance.destroy();
-
         const sortedDepts = Object.entries(data).sort((a, b) => b[1] - a[1]);
         const labels = sortedDepts.map(entry => entry[0]);
         const chartData = sortedDepts.map(entry => entry[1]);
-
-        urgentByDeptChartInstance = new Chart(ctx, {
+        const config = {
             type: 'bar',
             data: {
                 labels: labels,
@@ -1226,13 +1158,11 @@
                     data: chartData,
                     backgroundColor: CHART_COLORS.urgent,
                     borderRadius: 4,
-                    borderSkipped: false,
                 }]
             },
             options: {
+                ...getBaseChartOptions(),
                 indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
                 scales: { 
                     x: { 
                         beginAtZero: true,
@@ -1245,6 +1175,7 @@
                     }
                 },
                 plugins: {
+                    ...getBaseChartOptions().plugins,
                     legend: { display: false },
                     datalabels: {
                         anchor: 'end',
@@ -1252,28 +1183,17 @@
                         color: '#64748b',
                         font: { weight: 'bold', size: 12 },
                         formatter: (value) => value > 0 ? value : ''
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1e293b',
-                        bodyColor: '#64748b',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        cornerRadius: 8,
                     }
                 }
             },
             plugins: [ChartDataLabels],
-        });
+        };
+        renderChart('urgentByDept', 'urgentByDeptChart', config);
     }
 
     function renderTopCustomerBarChart(data) {
-        const ctx = document.getElementById('topCustomerBarChart').getContext('2d');
-        if (topCustomerBarChartInstance) topCustomerBarChartInstance.destroy();
-        
         const labels = data.map(d => d.customer);
-        
-        topCustomerBarChartInstance = new Chart(ctx, {
+        const config = {
             type: 'bar',
             data: {
                 labels: labels,
@@ -1293,9 +1213,8 @@
                 ]
             },
             options: {
+                ...getBaseChartOptions(),
                 indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
                 scales: { 
                     x: { 
                         stacked: true,
@@ -1309,38 +1228,21 @@
                     } 
                 },
                 plugins: {
-                    legend: { 
-                        position: 'bottom',
-                        labels: { 
-                            usePointStyle: true,
-                            padding: 20,
-                            font: { size: 13, weight: '500' }
-                        }
-                    },
+                    ...getBaseChartOptions().plugins,
                     datalabels: {
                         color: '#ffffff',
                         font: { weight: 'bold', size: 11 },
                         formatter: (value) => value > 0 ? value : ''
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1e293b',
-                        bodyColor: '#64748b',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        cornerRadius: 8,
                     }
                 }
             },
             plugins: [ChartDataLabels]
-        });
+        };
+        renderChart('topCustomer', 'topCustomerBarChart', config);
     }
 
     function renderServiceTypePieChart(data) {
-        const ctx = document.getElementById('serviceTypePieChart').getContext('2d');
-        if (serviceTypePieChartInstance) serviceTypePieChartInstance.destroy();
-        
-        serviceTypePieChartInstance = new Chart(ctx, {
+        const config = {
             type: 'doughnut',
             data: {
                 labels: ['Delivery', 'Collection'],
@@ -1354,39 +1256,24 @@
                 }]
             },
             options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                plugins: { 
-                    legend: { 
-                        position: 'bottom',
-                        labels: { 
-                            usePointStyle: true,
-                            padding: 20,
-                            font: { size: 13, weight: '500' }
-                        }
-                    },
+                ...getBaseChartOptions(),
+                plugins: {
+                    ...getBaseChartOptions().plugins,
                     datalabels: {
                         color: '#ffffff',
                         font: { weight: 'bold', size: 14 },
                         formatter: (value, ctx) => {
                             let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            if (sum === 0) return '';
+                            if (sum === 0 || value === 0) return '';
                             let percentage = (value*100 / sum).toFixed(1)+"%";
-                            return value > 0 ? `${value}\n(${percentage})` : '';
+                            return `${value}\n(${percentage})`;
                         }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        titleColor: '#1e293b',
-                        bodyColor: '#64748b',
-                        borderColor: '#e2e8f0',
-                        borderWidth: 1,
-                        cornerRadius: 8,
                     }
-                } 
+                }
             },
             plugins: [ChartDataLabels],
-        });
+        };
+        renderChart('serviceTypePie', 'serviceTypePieChart', config);
     }
     
     // --- TABLE RENDERING FUNCTIONS ---
@@ -1407,6 +1294,7 @@
 
     // --- INITIALIZATION ---
     async function onPageLoad() {
+        // Set default date range to the last 30 days
         const today = new Date();
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(today.getDate() - 30);
