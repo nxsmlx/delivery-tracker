@@ -77,17 +77,23 @@
             font-weight: 700;
             color: var(--text);
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .header h1 .title-text {
+             background: linear-gradient(135deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .header h1::before {
-            content: "🚚";
-            margin-right: 0.5rem;
-            background: none;
-            -webkit-text-fill-color: initial;
+        .header h1 svg {
+            width: 2.5rem;
+            height: 2.5rem;
+            color: var(--primary);
         }
 
         .header p {
@@ -159,6 +165,11 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             box-shadow: var(--shadow);
+        }
+        
+        .btn svg {
+            width: 1rem;
+            height: 1rem;
         }
 
         .btn-primary {
@@ -363,6 +374,12 @@
             align-items: center;
             gap: 0.5rem;
         }
+        
+        .reminders h3 svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: var(--primary);
+        }
 
         .reminder-section {
             background: var(--surface-2);
@@ -379,6 +396,11 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 1rem;
+        }
+        
+        .reminder-title svg {
+            width: 1rem;
+            height: 1rem;
         }
 
         .reminder-remark {
@@ -582,58 +604,27 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .header {
-                padding: 2rem 1rem;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .page-actions-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .control-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .search-box {
-                flex: 1;
-            }
+            .container { padding: 1rem; }
+            .header { padding: 2rem 1rem; }
+            .header h1 { font-size: 2rem; }
+            .page-actions-container { flex-direction: column; align-items: stretch; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .control-group { flex-direction: column; align-items: stretch; }
+            .search-box { flex: 1; }
         }
 
         @media (max-width: 480px) {
-            .stats {
-                grid-template-columns: 1fr;
-            }
+            .stats { grid-template-columns: 1fr; }
         }
-
-        /* Custom Icons */
-        .icon-refresh::before { content: "🔄"; }
-        .icon-stats::before { content: "📊"; }
-        .icon-admin::before { content: "👤"; }
-        .icon-urgent::before { content: "⚡"; }
-        .icon-overdue::before { content: "🚨"; }
-        .icon-today::before { content: "📅"; }
-        .icon-plan::before { content: "📋"; }
-        .icon-success::before { content: "✅"; }
     </style>
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>Delivery Aging Tracker</h1>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.2119 14.3662L15.8166 7.11618C15.6942 6.49343 15.1216 6 14.4764 6H9.52358C8.87841 6 8.30578 6.49343 8.1834 7.11618L6.78809 14.3662C5.06284 14.8343 4 16.2998 4 18C4 19.6569 5.34315 21 7 21C8.65685 21 10 19.6569 10 18C10 16.3533 8.7234 14.915 7.0401 14.4182L8.43541 7.16819C8.48347 6.92004 8.69176 6.75 8.94436 6.75H15.0556C15.3082 6.75 15.5165 6.92004 15.5646 7.16819L16.9599 14.4182C15.2766 14.915 14 16.3533 14 18C14 19.6569 15.3431 21 17 21C18.6569 21 20 19.6569 20 18C20 16.2998 18.9372 14.8343 17.2119 14.3662ZM7 20C5.89543 20 5 19.1046 5 18C5 16.8954 5.89543 16 7 16C8.10457 16 9 16.8954 9 18C9 19.1046 8.10457 20 7 20ZM17 20C15.8954 20 15 19.1046 15 18C15 16.8954 15.8954 16 17 16C18.1046 16 19 16.8954 19 18C19 19.1046 18.1046 20 17 20Z"></path><path d="M20 11H4V13H20V11Z"></path></svg>
+                <span class="title-text">Delivery Aging Tracker</span>
+            </h1>
             <p>Monitor delivery performance and aging statistics with real-time insights</p>
             <div class="target-notice">
                 <strong>🎯 Target:</strong> All deliveries to be completed within 3 days
@@ -644,11 +635,11 @@
 
         <div class="page-actions-container">
             <button class="btn btn-secondary" id="refreshBtn">
-                <span class="icon-refresh"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM12 16C9.79086 16 8 14.2091 8 12H6C6 15.3137 8.68629 18 12 18V16ZM16 12C16 9.79086 14.2091 8 12 8V6C15.3137 6 18 8.68629 18 12H16Z"></path></svg>
                 Refresh Data
             </button>
             <a href="/" class="btn btn-primary">
-                <span class="icon-stats"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12H5V21H3V12ZM7 6H9V21H7V6ZM11 16H13V21H11V16ZM15 10H17V21H15V10ZM19 3H21V21H19V3Z"></path></svg>
                 Analytics Dashboard
             </a>
             <button class="btn-icon" id="adminBtn" title="Admin Panel">
@@ -706,7 +697,10 @@
         </div>
 
         <div class="reminders">
-            <h3><span class="icon-plan"></span> Driver Action Items</h3>
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 2H8C4.68629 2 2 4.68629 2 8V16C2 19.3137 4.68629 22 8 22H16C19.3137 22 22 19.3137 22 16V8C22 4.68629 19.3137 2 16 2ZM20 16C20 18.2091 18.2091 20 16 20H8C5.79086 20 4 18.2091 4 16V8C4 5.79086 5.79086 4 8 4H16C18.2091 4 20 5.79086 20 8V16ZM15 8H9V10H15V8ZM15 11H9V13H15V11ZM11 14H9V16H11V14Z"></path></svg>
+                Driver Action Items
+            </h3>
             <div id="reminderContent">
                 <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
                     📤 Upload your delivery data to see prioritized action items
@@ -1080,7 +1074,7 @@
             // Section for URGENT tickets
             if (urgentTickets.length > 0) {
                 html += `<div class="reminder-section">
-                             <div class="reminder-title"><span class="icon-urgent"></span> <span style="color: var(--error);">URGENT - Top Priority</span></div>
+                             <div class="reminder-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10H11V4H13V10ZM13 12H11V14H13V12ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"></path></svg> <span style="color: var(--error);">URGENT - Top Priority</span></div>
                              <ul class="reminder-list">
                                  ${urgentTickets.map(item => `
                                      <li class="reminder-item">
@@ -1094,35 +1088,36 @@
             // Section for OVERDUE tickets (> 3 days)
             if (overdueTickets.length > 0) {
                  html += `<div class="reminder-section">
-                             <div class="reminder-title"><span class="icon-overdue"></span> <span style="color: var(--error);">Overdue Deliveries</span></div>
-                             <div class="reminder-remark">Overdue - Immediate Action Required!</div>
-                             ${createItemList(overdueTickets)}
-                         </div>`;
+                              <div class="reminder-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM11 15H13V17H11V15ZM11 7H13V13H11V7Z"></path></svg> <span style="color: var(--error);">Overdue Deliveries</span></div>
+                              <div class="reminder-remark">Overdue - Immediate Action Required!</div>
+                              ${createItemList(overdueTickets)}
+                          </div>`;
             }
 
             // Section for 3-DAY AGING tickets
             if (threeDayTickets.length > 0) {
                  html += `<div class="reminder-section">
-                             <div class="reminder-title"><span class="icon-today"></span> <span style="color: var(--accent);">3-Day Aging Deliveries</span></div>
-                             <div class="reminder-remark">Complete Today</div>
-                             ${createItemList(threeDayTickets)}
-                         </div>`;
+                              <div class="reminder-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7C4.79086 3 3 4.79086 3 7V17C3 19.2091 4.79086 21 7 21H17C19.2091 21 21 19.2091 21 17V7C21 4.79086 19.2091 3 17 3ZM19 17C19 18.1046 18.1046 19 17 19H7C5.89543 19 5 18.1046 5 17V7C5 5.89543 5.89543 5 7 5H17C18.1046 5 19 5.89543 19 7V17ZM15 11H9V13H15V11Z"></path></svg> <span style="color: var(--accent);">3-Day Aging Deliveries</span></div>
+                              <div class="reminder-remark">Complete Today</div>
+                              ${createItemList(threeDayTickets)}
+                          </div>`;
             }
 
             // Section for 2-DAY AGING tickets
             if (twoDayTickets.length > 0) {
                  html += `<div class="reminder-section">
-                             <div class="reminder-title"><span class="icon-plan"></span> <span style="color: var(--same-day);">2-Day Aging Deliveries</span></div>
-                             <div class="reminder-remark">Plan - Today or Tomorrow</div>
-                             ${createItemList(twoDayTickets)}
-                         </div>`;
+                              <div class="reminder-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7C4.79086 3 3 4.79086 3 7V17C3 19.2091 4.79086 21 7 21H17C19.2091 21 21 19.2091 21 17V7C21 4.79086 19.2091 3 17 3ZM19 17C19 18.1046 18.1046 19 17 19H7C5.89543 19 5 18.1046 5 17V7C5 5.89543 5.89543 5 7 5H17C18.1046 5 19 5.89543 19 7V17ZM15 11H9V13H15V11Z"></path></svg> <span style="color: var(--same-day);">2-Day Aging Deliveries</span></div>
+                              <div class="reminder-remark">Plan - Today or Tomorrow</div>
+                              ${createItemList(twoDayTickets)}
+                          </div>`;
             }
 
             // Message if no high-priority items are found
             if (html === '') {
                 if (data.length > 0) {
-                    html = `<div style="text-align: center; color: var(--success); padding: 2rem;">
-                                <span class="icon-success"></span> <strong>Great job!</strong> No urgent or aged deliveries. Focus on normal delivery schedule.
+                    html = `<div style="text-align: center; color: var(--success); padding: 2rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM16.0303 8.96967L10.5 14.5L7.96967 12.0303L9.38388 10.6161L10.5 11.702L14.6161 7.55546L16.0303 8.96967Z"></path></svg>
+                                <strong>Great job!</strong> No urgent or aged deliveries. Focus on normal delivery schedule.
                             </div>`;
                 } else {
                     html = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">
