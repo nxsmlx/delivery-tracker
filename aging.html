@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js for the new chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         :root{
             --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -1176,8 +1177,7 @@
                         '#ef4444', // error
                         '#8b5cf6'  // purple
                     ],
-                    borderColor: 'var(--surface)',
-                    borderWidth: 2,
+                    borderColor: 'transparent', // Set to transparent
                 }]
             };
 
@@ -1192,13 +1192,26 @@
                         responsive: true,
                         plugins: {
                             legend: {
-                                position: 'top',
+                                display: false // Legend is removed
                             },
                             title: {
                                 display: false
+                            },
+                            datalabels: {
+                                color: '#ffffff',
+                                font: {
+                                    weight: 'bold'
+                                },
+                                formatter: (value, ctx) => {
+                                    if (value === 0) return '';
+                                    const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = (value / sum * 100).toFixed(0) + '%';
+                                    return `${value}\n(${percentage})`;
+                                }
                             }
                         }
                     },
+                    plugins: [ChartDataLabels]
                 });
             }
         }
