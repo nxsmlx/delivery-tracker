@@ -780,8 +780,6 @@
     // --- DASHBOARD UPDATE & RENDERING ---
     function updateDashboard(data, currentStartDate, currentEndDate) {
         // --- Previous Period Calculation ---
-        // This is a simplified calculation. For more complex scenarios (e.g., handling
-        // different month lengths accurately), a date library like date-fns would be better.
         const diffDays = (currentEndDate - currentStartDate) / (1000 * 60 * 60 * 24);
         const prevStartDate = new Date(currentStartDate);
         prevStartDate.setDate(prevStartDate.getDate() - diffDays -1);
@@ -797,6 +795,7 @@
 
         const prevPeriodTotalOrders = prevPeriodData.length;
         const prevPeriodUrgentOrders = prevPeriodData.filter(d => d.is_urgent).length;
+        const prevPeriodTicketsDone = prevPeriodTotalOrders - prevPeriodData.filter(d => d.is_pending).length;
 
         // --- Current Period Calculations ---
         const totalOrders = data.length;
@@ -811,8 +810,8 @@
         document.getElementById('urgentOrders').textContent = urgentOrders.toLocaleString();
         
         updateKpiChange('totalOrdersChange', totalOrders, prevPeriodTotalOrders);
-        updateKpiChange('urgentOrdersChange', urgentOrders, prevPeriodUrgentOrders, 'vs last period');
-        updateKpiChange('ticketsDoneChange', ticketsDone, prevPeriodTotalOrders - prevPeriodData.filter(d=>d.is_pending).length);
+        updateKpiChange('urgentOrdersChange', urgentOrders, prevPeriodUrgentOrders);
+        updateKpiChange('ticketsDoneChange', ticketsDone, prevPeriodTicketsDone);
 
 
         // --- Chart & Table Data Aggregation ---
@@ -912,30 +911,28 @@
         return Object.values(topCustomerPerformance).sort((a,b) => (b.Delivery + b.Collection) - (a.Delivery + a.Collection));
     }
 
-    function updateKpiChange(elementId, currentValue, previousValue, label = 'vs last period') {
+    // Modified: This function now calculates and displays percentage change.
+    function updateKpiChange(elementId, currentValue, previousValue) {
         const changeElement = document.getElementById(elementId);
-        
-        // If label is provided, it's a simple comparison, not a percentage change.
-        if (label) {
-             changeElement.textContent = `vs ${previousValue} ${label}`;
-             changeElement.className = 'kpi-change kpi-timestamp';
-             return;
-        }
 
         if (previousValue === 0) {
-            if (currentValue > 0) changeElement.innerHTML = `<span>(vs 0)</span>`;
-            else changeElement.innerHTML = `<span>-</span>`;
-            changeElement.className = 'kpi-change';
+            if (currentValue > 0) {
+                changeElement.innerHTML = `<span>(vs 0)</span>`;
+                changeElement.className = 'kpi-change up';
+            } else {
+                changeElement.innerHTML = `<span>-</span>`;
+                changeElement.className = 'kpi-change';
+            }
             return;
         }
 
         const percentChange = ((currentValue - previousValue) / previousValue) * 100;
         const isPositive = percentChange >= 0;
         const trendClass = isPositive ? 'up' : 'down';
-        const icon = trendClass === 'up' ? '📈' : '📉';
+        const icon = isPositive ? '▲' : '▼';
         
         changeElement.className = `kpi-change ${trendClass}`;
-        changeElement.innerHTML = `${icon} ${percentChange.toFixed(1)}% vs last period`;
+        changeElement.innerHTML = `<span>${icon} ${Math.abs(percentChange).toFixed(1)}%</span> vs last period`;
     }
     
     /**
