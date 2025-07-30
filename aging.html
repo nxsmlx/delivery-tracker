@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for the new chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root{
             --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -355,17 +357,28 @@
             color: var(--error);
         }
 
-        /* Reminders Section */
-        .reminders {
+        /* Dashboard Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+        
+        /* Reminders & Location Summary Section */
+        .reminders, .summary-card {
             background: var(--surface);
             padding: 2rem;
             border-radius: var(--radius);
-            margin-bottom: 2rem;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
         }
-
-        .reminders h3 {
+        
+        .summary-card {
+            margin-top: 2rem;
+        }
+        
+        .reminders h3, .summary-card h3 {
             color: var(--text);
             margin-bottom: 1.5rem;
             font-size: 1.25rem;
@@ -375,7 +388,7 @@
             gap: 0.5rem;
         }
         
-        .reminders h3 svg {
+        .reminders h3 svg, .summary-card h3 svg {
             width: 1.25rem;
             height: 1.25rem;
             color: var(--primary);
@@ -427,6 +440,28 @@
             border-bottom: none;
         }
 
+        /* Location Summary Table */
+        .location-summary table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .location-summary th, .location-summary td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .location-summary th {
+            text-align: left;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .location-summary td:last-child {
+            text-align: right;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
         /* Data Table */
         .data-table {
             background: var(--surface);
@@ -434,6 +469,7 @@
             border-radius: var(--radius);
             padding: 2rem;
             box-shadow: var(--shadow);
+            margin-top: 2rem;
         }
 
         .table-wrapper {
@@ -464,20 +500,18 @@
             letter-spacing: 0.1em;
         }
 
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
         tbody tr:hover {
             background: var(--surface-hover);
         }
 
-        tbody tr:nth-child(even) {
-            background: var(--surface-2);
-        }
-
-        tbody tr:nth-child(even):hover {
-            background: var(--surface-hover);
+        .location-group-header td {
+            background-color: var(--primary-light);
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--primary-hover);
+            border-top: 2px solid var(--primary);
+            border-bottom: 1px solid var(--primary);
         }
 
         /* Badges */
@@ -603,6 +637,11 @@
         }
 
         /* Responsive Design */
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         @media (max-width: 768px) {
             .container { padding: 1rem; }
             .header { padding: 2rem 1rem; }
@@ -696,14 +735,36 @@
             </div>
         </div>
 
-        <div class="reminders">
-            <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 2H8C4.68629 2 2 4.68629 2 8V16C2 19.3137 4.68629 22 8 22H16C19.3137 22 22 19.3137 22 16V8C22 4.68629 19.3137 2 16 2ZM20 16C20 18.2091 18.2091 20 16 20H8C5.79086 20 4 18.2091 4 16V8C4 5.79086 5.79086 4 8 4H16C18.2091 4 20 5.79086 20 8V16ZM15 8H9V10H15V8ZM15 11H9V13H15V11ZM11 14H9V16H11V14Z"></path></svg>
-                Driver Action Items
-            </h3>
-            <div id="reminderContent">
-                <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
-                    📤 Upload your delivery data to see prioritized action items
+        <div class="dashboard-grid">
+            <div class="reminders">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 2H8C4.68629 2 2 4.68629 2 8V16C2 19.3137 4.68629 22 8 22H16C19.3137 22 22 19.3137 22 16V8C22 4.68629 19.3137 2 16 2ZM20 16C20 18.2091 18.2091 20 16 20H8C5.79086 20 4 18.2091 4 16V8C4 5.79086 5.79086 4 8 4H16C18.2091 4 20 5.79086 20 8V16ZM15 8H9V10H15V8ZM15 11H9V13H15V11ZM11 14H9V16H11V14Z"></path></svg>
+                    Driver Action Items
+                </h3>
+                <div id="reminderContent">
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        📤 Upload your delivery data to see prioritized action items
+                    </div>
+                </div>
+            </div>
+            <div class="right-column">
+                <div class="summary-card location-summary">
+                     <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20.8995L18.364 14.5355L16.9497 13.1213L12 18.0711L7.05025 13.1213L5.63604 14.5355L12 20.8995ZM12 3.10051L18.364 9.46447L16.9497 10.8787L12 5.92893L7.05025 10.8787L5.63604 9.46447L12 3.10051Z"></path></svg>
+                        Pending by Location
+                    </h3>
+                    <div id="locationSummaryContent">
+                         <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            No data to summarize.
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-card">
+                    <h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM11 15H13V17H11V15ZM13 6H11V13H13V6Z"></path></svg>
+                        Pending by Aging
+                    </h3>
+                    <canvas id="agingChart"></canvas>
                 </div>
             </div>
         </div>
@@ -764,6 +825,7 @@
         let deliveryData = [];
         let currentFilter = 'all';
         let filteredData = [];
+        let agingChartInstance = null; // To hold the chart instance
 
         // ================================
         // SUPABASE CLIENT - UPDATED WITH DUAL DATABASE SUPPORT
@@ -839,6 +901,7 @@
                             urgent: item.urgent || 'No',
                             customer: item.customer || '',
                             aging: parseInt(item.aging) || 0,
+                            loc: item.loc || 'N/A', // Modified: Added location
                             updated_by: 'Admin'
                         }));
 
@@ -872,6 +935,7 @@
                         urgent: item.urgent || 'No',
                         customer: item.customer || '',
                         aging: parseInt(item.aging) || 0,
+                        loc: item.loc || 'N/A', // Modified: Added location
                         status: parseInt(item.aging) >= 1 ? 'Pending' : 'Completed',
                         updated_by: 'Admin'
                     }));
@@ -1018,41 +1082,131 @@
                 return;
             }
 
-            tbody.innerHTML = data.map(item => {
-                const action = getActionRequired(item);
-                
-                return `
-                    <tr>
-                        <td>
-                            <div class="ticket-info">
-                                <div class="ticket-main-line">
-                                    <strong class="ticket-id">${item.ticketId}</strong>
-                                    <span>${toProperCase(item.customer || '')}</span>
-                                </div>
-                                <div class="ticket-customer">
-                                    <em>${item.type || 'N/A'}</em>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${item.orderReceived}</td>
-                        <td>${item.urgent === 'Yes' ? '<span class="badge badge-urgent">URGENT</span>' : 'No'}</td>
-                        <td>${getAgingBadge(item.aging)}</td>
-                        <td><div class="action-btn ${action.class}">${action.text}</div></td>
+            const groupBy = (arr, key) => arr.reduce((acc, item) => {
+                const groupKey = item[key] || 'Unassigned';
+                (acc[groupKey] = acc[groupKey] || []).push(item);
+                return acc;
+            }, {});
+
+            const groupedData = groupBy(data, 'loc');
+            const sortedLocations = Object.keys(groupedData).sort();
+
+            let html = '';
+            for (const location of sortedLocations) {
+                const items = groupedData[location];
+                html += `
+                    <tr class="location-group-header">
+                        <td colspan="5">${location} (${items.length} pending)</td>
                     </tr>
                 `;
-            }).join('');
+                html += items.map(item => {
+                    const action = getActionRequired(item);
+                    return `
+                        <tr>
+                            <td>
+                                <div class="ticket-info">
+                                    <div class="ticket-main-line">
+                                        <strong class="ticket-id">${item.ticketId}</strong>
+                                        <span>${toProperCase(item.customer || '')}</span>
+                                    </div>
+                                    <div class="ticket-customer">
+                                        <em>${item.type || 'N/A'}</em>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${item.orderReceived}</td>
+                            <td>${item.urgent === 'Yes' ? '<span class="badge badge-urgent">URGENT</span>' : 'No'}</td>
+                            <td>${getAgingBadge(item.aging)}</td>
+                            <td><div class="action-btn ${action.class}">${action.text}</div></td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            tbody.innerHTML = html;
+        }
+        
+        function renderLocationSummary(data) {
+            const summaryContainer = document.getElementById('locationSummaryContent');
+            if (!data || data.length === 0) {
+                summaryContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem;">No pending items.</div>';
+                return;
+            }
+
+            const groupBy = (arr, key) => arr.reduce((acc, item) => {
+                const groupKey = item[key] || 'Unassigned';
+                (acc[groupKey] = acc[groupKey] || []).push(item);
+                return acc;
+            }, {});
+
+            const groupedData = groupBy(data, 'loc');
+            const sortedLocations = Object.keys(groupedData).sort();
+
+            let summaryHtml = '<table><tbody>';
+            for (const location of sortedLocations) {
+                const count = groupedData[location].length;
+                summaryHtml += `<tr><td>${location}</td><td>${count}</td></tr>`;
+            }
+            summaryHtml += '</tbody></table>';
+
+            summaryContainer.innerHTML = summaryHtml;
         }
 
-        /**
-         * [UPDATED] Renders the "Driver Action Items" list with specific remarks below the title.
-         */
+        function renderAgingChart(data) {
+            const ctx = document.getElementById('agingChart').getContext('2d');
+            const stats = { 'Same Day': 0, '1 Day': 0, '2 Days': 0, '3 Days': 0, '> 3 Days': 0 };
+
+            data.forEach(item => {
+                const displayAging = Math.max(0, item.aging - 1);
+                if (displayAging === 0) stats['Same Day']++;
+                else if (displayAging === 1) stats['1 Day']++;
+                else if (displayAging === 2) stats['2 Days']++;
+                else if (displayAging === 3) stats['3 Days']++;
+                else stats['> 3 Days']++;
+            });
+
+            const chartData = {
+                labels: Object.keys(stats),
+                datasets: [{
+                    data: Object.values(stats),
+                    backgroundColor: [
+                        '#3b82f6', // same-day
+                        '#10b981', // success
+                        '#f59e0b', // accent
+                        '#ef4444', // error
+                        '#8b5cf6'  // purple
+                    ],
+                    borderColor: 'var(--surface)',
+                    borderWidth: 2,
+                }]
+            };
+
+            if (agingChartInstance) {
+                agingChartInstance.data = chartData;
+                agingChartInstance.update();
+            } else {
+                agingChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: false
+                            }
+                        }
+                    },
+                });
+            }
+        }
+
+
         function updateReminders(data = deliveryData) {
             const reminderContent = document.getElementById('reminderContent');
-
-            // 1. Get all URGENT tickets from the full dataset.
             const urgentTickets = data.filter(item => item.urgent && item.urgent.toLowerCase() === 'yes');
-
-            // 2. Get other high-priority tickets, categorized by aging, that are NOT already in the urgent list.
             const isNotUrgent = item => !(item.urgent && item.urgent.toLowerCase() === 'yes');
             const overdueTickets = data.filter(item => isNotUrgent(item) && (item.aging - 1) > 3);
             const threeDayTickets = data.filter(item => isNotUrgent(item) && (item.aging - 1) === 3);
@@ -1060,7 +1214,6 @@
 
             let html = '';
 
-            // Helper function to create a list of items
             const createItemList = (items) => {
                 return `<ul class="reminder-list">
                             ${items.map(item => `
@@ -1071,7 +1224,6 @@
                         </ul>`;
             };
 
-            // Section for URGENT tickets
             if (urgentTickets.length > 0) {
                 html += `<div class="reminder-section">
                              <div class="reminder-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13 10H11V4H13V10ZM13 12H11V14H13V12ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"></path></svg> <span style="color: var(--error);">URGENT - Top Priority</span></div>
@@ -1085,7 +1237,6 @@
                          </div>`;
             }
             
-            // Section for OVERDUE tickets (> 3 days)
             if (overdueTickets.length > 0) {
                  html += `<div class="reminder-section">
                               <div class="reminder-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM11 15H13V17H11V15ZM11 7H13V13H11V7Z"></path></svg> <span style="color: var(--error);">Overdue Deliveries</span></div>
@@ -1094,7 +1245,6 @@
                           </div>`;
             }
 
-            // Section for 3-DAY AGING tickets
             if (threeDayTickets.length > 0) {
                  html += `<div class="reminder-section">
                               <div class="reminder-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7C4.79086 3 3 4.79086 3 7V17C3 19.2091 4.79086 21 7 21H17C19.2091 21 21 19.2091 21 17V7C21 4.79086 19.2091 3 17 3ZM19 17C19 18.1046 18.1046 19 17 19H7C5.89543 19 5 18.1046 5 17V7C5 5.89543 5.89543 5 7 5H17C18.1046 5 19 5.89543 19 7V17ZM15 11H9V13H15V11Z"></path></svg> <span style="color: var(--accent);">3-Day Aging Deliveries</span></div>
@@ -1103,7 +1253,6 @@
                           </div>`;
             }
 
-            // Section for 2-DAY AGING tickets
             if (twoDayTickets.length > 0) {
                  html += `<div class="reminder-section">
                               <div class="reminder-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7C4.79086 3 3 4.79086 3 7V17C3 19.2091 4.79086 21 7 21H17C19.2091 21 21 19.2091 21 17V7C21 4.79086 19.2091 3 17 3ZM19 17C19 18.1046 18.1046 19 17 19H7C5.89543 19 5 18.1046 5 17V7C5 5.89543 5.89543 5 7 5H17C18.1046 5 19 5.89543 19 7V17ZM15 11H9V13H15V11Z"></path></svg> <span style="color: var(--same-day);">2-Day Aging Deliveries</span></div>
@@ -1112,7 +1261,6 @@
                           </div>`;
             }
 
-            // Message if no high-priority items are found
             if (html === '') {
                 if (data.length > 0) {
                     html = `<div style="text-align: center; color: var(--success); padding: 2rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
@@ -1157,7 +1305,6 @@
 
             filteredData = filtered;
             renderTable(filteredData);
-            // Always update reminders based on the full dataset, not the filtered one.
             updateReminders();
         }
 
@@ -1169,14 +1316,12 @@
                 showMessage('🔄 Loading latest delivery data...', 'info', 2000);
                 initializeDatabase();
                 
-                // Check both databases to get the most recent data and metadata
                 const [agingData, analyticsData, metadata] = await Promise.all([
-                    supabase.getDeliveryData(), // From delivery_data (filtered aging >= 1)
-                    supabase.query('GET', `${CONFIG.supabase.analyticsTable}?select=*&order=created_at.desc`).catch(() => []), // From delivery_analytics (complete data)
+                    supabase.getDeliveryData(), 
+                    supabase.query('GET', `${CONFIG.supabase.analyticsTable}?select=*&order=created_at.desc`).catch(() => []), 
                     supabase.getMetadata()
                 ]);
                 
-                // Use aging data for display (since this is the aging tracker)
                 if (agingData && agingData.length > 0) {
                     deliveryData = agingData.map(item => ({
                         ticketId: item.ticket_id,
@@ -1184,10 +1329,10 @@
                         type: item.type,
                         urgent: item.urgent,
                         customer: item.customer,
-                        aging: item.aging
+                        aging: item.aging,
+                        loc: item.loc
                     }));
                     
-                    // Show message with ACTUAL upload time from database
                     const analyticsCount = analyticsData ? analyticsData.length : 0;
                     const agingCount = agingData.length;
                     const lastUpdate = metadata.last_update || 'Never';
@@ -1199,8 +1344,6 @@
                     }
                 } else {
                     deliveryData = [];
-                    
-                    // Check if there's data in analytics but none in aging (all completed)
                     const analyticsCount = analyticsData ? analyticsData.length : 0;
                     const lastUpdate = metadata.last_update || 'Never';
                     
@@ -1213,12 +1356,16 @@
                 
                 updateStats();
                 applyFilters();
+                renderLocationSummary(deliveryData);
+                renderAgingChart(deliveryData);
                 return true;
             } catch (error) {
                 console.error('Error loading data from database:', error);
                 showMessage(`❌ Could not load data: ${error.message}`, 'error');
                 updateStats();
                 applyFilters();
+                renderLocationSummary([]);
+                renderAgingChart([]);
                 return false;
             }
         }
@@ -1229,16 +1376,13 @@
                 showMessage('📤 Saving data to both databases...', 'info', 10000);
                 initializeDatabase();
                 
-                // 1. Save ALL data to analytics table (complete dataset)
                 await supabase.saveCompleteAnalyticsData(data);
                 showMessage('✅ Complete data saved to analytics database', 'success', 2000);
                 
-                // 2. Save filtered data to aging tracker table (aging >= 1 only)
                 const filteredData = data.filter(item => item.aging >= 1);
                 await supabase.saveDeliveryData(filteredData);
                 showMessage('✅ Filtered data saved to aging tracker', 'success', 2000);
                 
-                // 3. Update metadata with both counts
                 await supabase.updateMetadata(filteredData.length, data.length);
                 
                 showMessage('🎉 Data saved to both databases! Refreshing...', 'success');
@@ -1264,7 +1408,6 @@
             return `${day}/${month}/${year}`;
         }
         
-        // Parse ALL data (including aging = 0)
         function parseData(jsonData) {
             if (jsonData.length === 0) throw new Error('No data found in file');
             
@@ -1279,12 +1422,12 @@
             const urgentCol = findColumn(['urgent', 'urgent?']);
             const customerCol = findColumn(['customer', 'client']);
             const agingCol = findColumn(['aging']);
+            const locCol = findColumn(['loc', 'location']);
 
             if (ticketIdCol === -1 || agingCol === -1) {
                 throw new Error('File must contain "Ticket ID" and "Aging" columns.');
             }
 
-            // Include ALL records (aging >= 0) for complete analytics
             return rows.map(row => ({
                 ticketId: String(row[ticketIdCol] || ''),
                 orderReceived: convertExcelDate(row[orderReceivedCol] || ''),
@@ -1292,7 +1435,8 @@
                 urgent: String(row[urgentCol] || 'No'),
                 customer: String(row[customerCol] || ''),
                 aging: parseInt(row[agingCol]) || 0,
-            })).filter(item => item.ticketId && item.aging >= 0); // Include completed deliveries
+                loc: String(row[locCol] || 'N/A')
+            })).filter(item => item.ticketId && item.aging >= 0);
         }
 
         async function processFile(file) {
