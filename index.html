@@ -161,7 +161,6 @@
     }
 
     .filters-container input[type="date"],
-    .filters-container input[type="month"],
     .filters-container select {
     padding: 0.75rem 1rem;
     border: 2px solid var(--border);
@@ -487,17 +486,12 @@
     <label for="startDate">From Date:</label>
     <input type="date" id="startDate">
     <label for="endDate">To Date:</label>
-    <label for="periodType">Period:</label>
-    <select id="periodType">
-    <option value="date" selected>Date Range</option>
-    <option value="month">Month Range</option>
-    </select>
-    <label for="startMonth" class="month-only" style="display:none;">From Month:</label>
-    <input type="month" id="startMonth" class="month-only" style="display:none;">
-    <label for="endMonth" class="month-only" style="display:none;">To Month:</label>
-    <input type="month" id="endMonth" class="month-only" style="display:none;">
-
     <input type="date" id="endDate">
+    <label for="startMonth">From Month:</label>
+    <input type="month" id="startMonth">
+    <label for="endMonth">To Month:</label>
+    <input type="month" id="endMonth">
+
     <label for="departmentFilter">Department:</label>
     <select id="departmentFilter">
     <option value="all">All Departments</option>
@@ -630,16 +624,15 @@
     completed: '#10b981',
     urgent: '#ef4444',
     nonUrgent: '#8b5cf6',
-    const periodTypeSelect = document.getElementById('periodType');
-    const startMonthInput = document.getElementById('startMonth');
-    const endMonthInput = document.getElementById('endMonth');
-
     };
 
     // --- GLOBAL STATE ---
     let allData = [];
     let chartInstances = {};
     let clockInterval;
+    const startMonthInput = document.getElementById('startMonth');
+    const endMonthInput = document.getElementById('endMonth');
+
 
     // --- DOM ELEMENTS ---
     const statusDiv = document.getElementById('statusMessage');
@@ -753,22 +746,6 @@
     } catch (error) {
     console.error('Data loading failed:', error);
     showMessage(`❌ Error: ${error.message}`, 'error');
-    const periodType = periodTypeSelect.value;
-    let startDate = startDateInput.valueAsDate;
-    let endDate = endDateInput.valueAsDate;
-
-    if (periodType === 'month') {
-      // Convert selected months to start/end dates
-      const sm = startMonthInput.value;
-      const em = endMonthInput.value;
-      if (!sm || !em) return; // wait until both provided
-      const [sy, smm] = sm.split('-').map(Number);
-      const [ey, emm] = em.split('-').map(Number);
-      startDate = new Date(sy, smm - 1, 1);
-      // end of month: day 0 of next month
-      endDate = new Date(ey, emm, 0);
-    }
-
     return false;
     }
     }
@@ -785,9 +762,19 @@
     }
 
     function filterAndProcessData() {
-    const startDate = startDateInput.valueAsDate;
-    const endDate = endDateInput.valueAsDate;
+    // Prefer month range if provided; fallback to dates
+    let startDate = startDateInput.valueAsDate;
+    let endDate = endDateInput.valueAsDate;
     const selectedDept = departmentFilter.value;
+
+    // If month inputs are set, convert to full month boundaries
+    if (startMonthInput && startMonthInput.value && endMonthInput && endMonthInput.value) {
+      const [sYear, sMonth] = startMonthInput.value.split('-').map(Number);
+      const [eYear, eMonth] = endMonthInput.value.split('-').map(Number);
+      startDate = new Date(sYear, sMonth - 1, 1, 0, 0, 0, 0);
+      // last day of month trick: day 0 of next month
+      endDate = new Date(eYear, eMonth, 0, 23, 59, 59, 999);
+    }
 
     if (!startDate || !endDate) return;
 
