@@ -487,11 +487,6 @@
     <input type="date" id="startDate">
     <label for="endDate">To Date:</label>
     <input type="date" id="endDate">
-    <label for="startMonth">From Month:</label>
-    <input type="month" id="startMonth">
-    <label for="endMonth">To Month:</label>
-    <input type="month" id="endMonth">
-
     <label for="departmentFilter">Department:</label>
     <select id="departmentFilter">
     <option value="all">All Departments</option>
@@ -630,15 +625,16 @@
     let allData = [];
     let chartInstances = {};
     let clockInterval;
-    const startMonthInput = document.getElementById('startMonth');
-    const endMonthInput = document.getElementById('endMonth');
-
 
     // --- DOM ELEMENTS ---
     const statusDiv = document.getElementById('statusMessage');
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
     const departmentFilter = document.getElementById('departmentFilter');
+    // Month inputs (if present)
+    const startMonthInput = document.getElementById('startMonth');
+    const endMonthInput = document.getElementById('endMonth');
+
 
     // --- UTILITY FUNCTIONS ---
     const showMessage = (message, type = 'info', autoClear = false, duration = 4000) => {
@@ -762,19 +758,9 @@
     }
 
     function filterAndProcessData() {
-    // Prefer month range if provided; fallback to dates
-    let startDate = startDateInput.valueAsDate;
-    let endDate = endDateInput.valueAsDate;
+    const startDate = startDateInput.valueAsDate;
+    const endDate = endDateInput.valueAsDate;
     const selectedDept = departmentFilter.value;
-
-    // If month inputs are set, convert to full month boundaries
-    if (startMonthInput && startMonthInput.value && endMonthInput && endMonthInput.value) {
-      const [sYear, sMonth] = startMonthInput.value.split('-').map(Number);
-      const [eYear, eMonth] = endMonthInput.value.split('-').map(Number);
-      startDate = new Date(sYear, sMonth - 1, 1, 0, 0, 0, 0);
-      // last day of month trick: day 0 of next month
-      endDate = new Date(eYear, eMonth, 0, 23, 59, 59, 999);
-    }
 
     if (!startDate || !endDate) return;
 
@@ -1321,6 +1307,12 @@
     startDateInput.addEventListener('change', filterAndProcessData);
     endDateInput.addEventListener('change', filterAndProcessData);
     departmentFilter.addEventListener('change', filterAndProcessData);
+    // Optional month inputs listeners (safe even if elements don't exist)
+    const smEl = document.getElementById('startMonth');
+    const emEl = document.getElementById('endMonth');
+    if (smEl) smEl.addEventListener('change', filterAndProcessData);
+    if (emEl) emEl.addEventListener('change', filterAndProcessData);
+
 
     const success = await loadDataFromSupabase();
     if (success) {
