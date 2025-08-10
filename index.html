@@ -14,611 +14,626 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
-        :root{
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --surface: #ffffff;
-            --surface-hover: #f8fafc;
-            --surface-2: #f1f5f9;
-            --primary: #6366f1;
-            --primary-hover: #4f46e5;
-            --primary-light: #e0e7ff;
-            --secondary: #14b8a6;
-            --secondary-light: #ccfbf1;
-            --accent: #f59e0b;
-            --accent-light: #fef3c7;
-            --success: #10b981;
-            --success-light: #d1fae5;
-            --error: #ef4444;
-            --error-light: #fee2e2;
-            --text: #0f172a;
-            --text-muted: #64748b;
-            --text-light: #94a3b8;
-            --border: #e2e8f0;
-            --border-light: #f1f5f9;
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --radius: 16px;
-            --radius-sm: 8px;
-        }
+    :root{
+    --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    --surface: #ffff;
+    --surface-hover: #f8fafc;
+    --surface-2: #f1f5f9;
+    --primary: #6366f1;
+    --primary-hover: #4f46e5;
+    --primary-light: #e0e7ff;
+    --secondary: #14b8a6;
+    --secondary-light: #ccfbf1;
+    --accent: #f59e0b;
+    --accent-light: #fef3c7;
+    --success: #10b981;
+    --success-light: #d1fae5;
+    --error: #ef4444;
+    --error-light: #fee2e2;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --text-light: #94a3b8;
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --radius: 16px;
+    --radius-sm: 8px;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text);
-            line-height: 1.6;
-            font-weight: 400;
-            min-height: 100vh;
-        }
+    body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-gradient);
+    color: var(--text);
+    line-height: 1.6;
+    font-weight: 400;
+    min-height: 100vh;
+    }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+    .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    }
 
-        /* Header Styles */
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-            background: var(--surface);
-            padding: 3rem 2rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border);
-        }
+    /* Header Styles */
+    .header {
+    text-align: center;
+    margin-bottom: 3rem;
+    background: var(--surface);
+    padding: 3rem 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    }
 
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 0.5rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-        }
-        
-        .header h1 .title-text {
-             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    .header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    }
+    
+    .header h1 .title-text {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    }
 
-        .header h1 svg {
-            width: 2.5rem;
-            height: 2.5rem;
-            color: var(--primary);
-        }
+    .header h1 svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--primary);
+    }
 
-        .header p {
-            color: var(--text-muted);
-            font-size: 1.125rem;
-            margin-bottom: 2rem;
-            font-weight: 400;
-        }
+    .header p {
+    color: var(--text-muted);
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    font-weight: 400;
+    }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-weight: 600;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            padding: 1rem 2rem;
-            font-size: 1rem;
-            border-radius: var(--radius-sm);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            box-shadow: var(--shadow);
-        }
-        
-        .btn .icon {
-            width: 1.25rem;
-            height: 1.25rem;
-        }
+    .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    box-shadow: var(--shadow);
+    }
+    
+    .btn .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-            color: white;
-        }
+    .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: white;
+    }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-xl);
-            background: linear-gradient(135deg, var(--primary-hover), var(--primary));
-        }
+    .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+    background: linear-gradient(135deg, var(--primary-hover), var(--primary));
+    }
 
-        /* Filters */
-        .filters-container {
-            background: var(--surface);
-            padding: 2rem;
-            border-radius: var(--radius);
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
+    /* Filters */
+    .filters-container {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: var(--radius);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    }
 
-        .filters-container label {
-            font-weight: 600;
-            color: var(--text);
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+    .filters-container label {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    }
 
-        .filters-container input[type="date"],
-        .filters-container select {
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            color: var(--text);
-            background: var(--surface-2);
-            transition: all 0.2s ease;
-            font-size: 0.875rem;
-        }
+    .filters-container input[type="date"],
+    .filters-container input[type="month"],
+    .filters-container select {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    color: var(--text);
+    background: var(--surface-2);
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    }
 
-        .filters-container input[type="date"]:focus,
-        .filters-container select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-light);
-            background: var(--surface);
-        }
+    .filters-container input[type="date"]:focus,
+    .filters-container select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+    background: var(--surface);
+    }
 
-        /* KPI Cards */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
+    /* KPI Cards */
+    .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    }
 
-        .kpi-card {
-            background: var(--surface);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius);
-            padding: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            box-shadow: var(--shadow);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
+    .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: var(--shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    }
 
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-        }
+    .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
 
-        .kpi-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-xl);
-            background: var(--surface-hover);
-        }
+    .kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+    background: var(--surface-hover);
+    }
 
-        .kpi-icon {
-            flex-shrink: 0;
-            width: 4rem;
-            height: 4rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-            box-shadow: var(--shadow);
-        }
-        
-        .kpi-icon svg {
-            width: 1.75rem;
-            height: 1.75rem;
-            color: white;
-        }
+    .kpi-icon {
+    flex-shrink: 0;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    box-shadow: var(--shadow);
+    }
+    
+    .kpi-icon svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    color: white;
+    }
 
-        .kpi-info {
-            flex: 1;
-        }
+    .kpi-info {
+    flex: 1;
+    }
 
-        .kpi-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
+    .kpi-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    }
 
-        .kpi-number {
-            font-size: 2.25rem;
-            font-weight: 700;
-            line-height: 1.2;
-            color: var(--text);
-        }
+    .kpi-number {
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text);
+    }
 
-        .kpi-change {
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-top: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
+    .kpi-change {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    }
 
-        .kpi-change.up { color: var(--success); }
-        .kpi-change.down { color: var(--error); }
-        .kpi-timestamp { color: var(--text-light); font-size: 0.75rem; }
+    .kpi-change.up { color: var(--success); }
+    .kpi-change.down { color: var(--error); }
+    .kpi-timestamp { color: var(--text-light); font-size: 0.75rem; }
 
-        /* Charts */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
+    /* Charts */
+    .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+    }
 
-        .chart-container {
-            background: var(--surface);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius);
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-        }
+    .chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    }
 
-        .chart-container:hover {
-            box-shadow: var(--shadow-lg);
-        }
+    .chart-container:hover {
+    box-shadow: var(--shadow-lg);
+    }
 
-        .chart-container.full-width {
-            grid-column: 1 / -1;
-        }
+    .chart-container.full-width {
+    grid-column: 1 / -1;
+    }
 
-        .chart-header {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--border-light);
-        }
+    .chart-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-light);
+    }
 
-        .chart-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .chart-title svg {
-            width: 1.5rem;
-            height: 1.5rem;
-            color: var(--primary);
-        }
+    .chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    }
+    
+    .chart-title svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--primary);
+    }
 
-        .chart-canvas {
-            position: relative;
-            height: 350px;
-        }
+    .chart-canvas {
+    position: relative;
+    height: 350px;
+    }
 
-        /* Table */
-        .table-container {
-            background: var(--surface);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius);
-            padding: 2rem;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
+    /* Table */
+    .table-container {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    }
 
-        .table-container h3 {
-            color: var(--text);
-            margin-bottom: 1.5rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .table-container h3 svg {
-            width: 1.5rem;
-            height: 1.5rem;
-            color: var(--primary);
-        }
+    .table-container h3 {
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    }
+    
+    .table-container h3 svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--primary);
+    }
 
-        .table-wrapper {
-            overflow-x: auto;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-        }
+    .table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    }
 
-        th, td {
-            padding: 1.25rem 1rem;
-            text-align: left;
-            font-size: 0.875rem;
-            vertical-align: middle;
-            border-bottom: 1px solid var(--border-light);
-        }
+    th, td {
+    padding: 1.25rem 1rem;
+    text-align: left;
+    font-size: 0.875rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-light);
+    }
 
-        th {
-            background: var(--surface-2);
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.1em;
-        }
+    th {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    }
 
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
+    tbody tr:last-child td {
+    border-bottom: none;
+    }
 
-        tbody tr:hover {
-            background: var(--surface-hover);
-        }
+    tbody tr:hover {
+    background: var(--surface-hover);
+    }
 
-        tbody tr:nth-child(even) {
-            background: var(--surface-2);
-        }
+    tbody tr:nth-child(even) {
+    background: var(--surface-2);
+    }
 
-        tbody tr:nth-child(even):hover {
-            background: var(--surface-hover);
-        }
+    tbody tr:nth-child(even):hover {
+    background: var(--surface-hover);
+    }
 
-        /* Status Messages */
-        .status-message {
-            margin: 0 0 2rem;
-            padding: 1rem 1.5rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.875rem;
-            border: 1px solid transparent;
-            transition: opacity 0.5s ease-out;
-            font-weight: 500;
-        }
+    /* Status Messages */
+    .status-message {
+    margin: 0 0 2rem;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    border: 1px solid transparent;
+    transition: opacity 0.5s ease-out;
+    font-weight: 500;
+    }
 
-        .status-info {
-            background: var(--primary-light);
-            border-color: var(--primary);
-            color: var(--primary-hover);
-        }
+    .status-info {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary-hover);
+    }
 
-        .status-error {
-            background: var(--error-light);
-            border-color: var(--error);
-            color: var(--error);
-        }
+    .status-error {
+    background: var(--error-light);
+    border-color: var(--error);
+    color: var(--error);
+    }
 
-        /* Loading */
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 200px;
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            flex-direction: column;
-            gap: 1rem;
-        }
+    /* Loading */
+    .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    flex-direction: column;
+    gap: 1rem;
+    }
 
-        .loading::before {
-            content: '';
-            width: 32px;
-            height: 32px;
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+    .loading::before {
+    content: '';
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+    @keyframes spin {
+    to { transform: rotate(360deg); }
+    }
 
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+    .charts-grid {
+    grid-template-columns: 1fr;
+    }
+    }
 
-        @media (max-width: 768px) {
-            .container { padding: 1rem; }
-            .header { padding: 2rem 1rem; }
-            .header h1 { font-size: 2rem; }
-            .filters-container { padding: 1.5rem; gap: 1rem; }
-            .kpi-grid { grid-template-columns: 1fr; }
-            .charts-grid { grid-template-columns: 1fr; gap: 1rem; }
-            .chart-container { padding: 1.5rem; }
-            .chart-canvas { height: 300px; }
-        }
-        
-        /* Enhanced gradients for different card types */
-        .kpi-card:nth-child(1) .kpi-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-        .kpi-card:nth-child(2) .kpi-icon { background: linear-gradient(135deg, #ef4444, #f97316); }
-        .kpi-card:nth-child(3) .kpi-icon { background: linear-gradient(135deg, #f59e0b, #eab308); }
-        .kpi-card:nth-child(4) .kpi-icon { background: linear-gradient(135deg, #10b981, #059669); }
+    @media (max-width: 768px) {
+    .container { padding: 1rem; }
+    .header { padding: 2rem 1rem; }
+    .header h1 { font-size: 2rem; }
+    .filters-container { padding: 1.5rem; gap: 1rem; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .chart-container { padding: 1.5rem; }
+    .chart-canvas { height: 300px; }
+    }
+    
+    /* Enhanced gradients for different card types */
+    .kpi-card:nth-child(1) .kpi-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .kpi-card:nth-child(2) .kpi-icon { background: linear-gradient(135deg, #ef4444, #f97316); }
+    .kpi-card:nth-child(3) .kpi-icon { background: linear-gradient(135deg, #f59e0b, #eab308); }
+    .kpi-card:nth-child(4) .kpi-icon { background: linear-gradient(135deg, #10b981, #059669); }
     </style>
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <h1>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12H5V21H3V12ZM7 6H9V21H7V6ZM11 16H13V21H11V16ZM15 10H17V21H15V10ZM19 3H21V21H19V3Z"></path></svg>
-                <span class="title-text">Delivery Performance Analytics</span>
-            </h1>
-            <p>Comprehensive insights into delivery operations and performance metrics</p>
-            <div class="header-actions">
-                <a href="aging.html" class="btn btn-primary">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.2119 14.3662L15.8166 7.11618C15.6942 6.49343 15.1216 6 14.4764 6H9.52358C8.87841 6 8.30578 6.49343 8.1834 7.11618L6.78809 14.3662C5.06284 14.8343 4 16.2998 4 18C4 19.6569 5.34315 21 7 21C8.65685 21 10 19.6569 10 18C10 16.3533 8.7234 14.915 7.0401 14.4182L8.43541 7.16819C8.48347 6.92004 8.69176 6.75 8.94436 6.75H15.0556C15.3082 6.75 15.5165 6.92004 15.5646 7.16819L16.9599 14.4182C15.2766 14.915 14 16.3533 14 18C14 19.6569 15.3431 21 17 21C18.6569 21 20 19.6569 20 18C20 16.2998 18.9372 14.8343 17.2119 14.3662ZM7 20C5.89543 20 5 19.1046 5 18C5 16.8954 5.89543 16 7 16C8.10457 16 9 16.8954 9 18C9 19.1046 8.10457 20 7 20ZM17 20C15.8954 20 15 19.1046 15 18C15 16.8954 15.8954 16 17 16C18.1046 16 19 16.8954 19 18C19 19.1046 18.1046 20 17 20Z"></path><path d="M20 11H4V13H20V11Z"></path></svg>
-                    Track Aging Dashboard
-                </a>
-            </div>
-        </header>
+    <header class="header">
+    <h1>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12H5V21H3V12ZM7 6H9V21H7V6ZM11 16H13V21H11V16ZM15 10H17V21H15V10ZM19 3H21V21H19V3Z"></path></svg>
+    <span class="title-text">Delivery Performance Analytics</span>
+    </h1>
+    <p>Comprehensive insights into delivery operations and performance metrics</p>
+    <div class="header-actions">
+    <a href="aging.html" class="btn btn-primary">
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.2119 14.3662L15.8166 7.11618C15.6942 6.49343 15.1216 6 14.4764 6H9.52358C8.87841 6 8.30578 6.49343 8.1834 7.11618L6.78809 14.3662C5.06284 14.8343 4 16.2998 4 18C4 19.6569 5.34315 21 7 21C8.65685 21 10 19.6569 10 18C10 16.3533 8.7234 14.915 7.0401 14.4182L8.43541 7.16819C8.48347 6.92004 8.69176 6.75 8.94436 6.75H15.0556C15.3082 6.75 15.5165 6.92004 15.5646 7.16819L16.9599 14.4182C15.2766 14.915 14 16.3533 14 18C14 19.6569 15.3431 21 17 21C18.6569 21 20 19.6569 20 18C20 16.2998 18.9372 14.8343 17.2119 14.3662ZM7 20C5.89543 20 5 19.1046 5 18C5 16.8954 5.89543 16 7 16C8.10457 16 9 16.8954 9 18C9 19.1046 8.10457 20 7 20ZM17 20C15.8954 20 15 19.1046 15 18C15 16.8954 15.8954 16 17 16C18.1046 16 19 16.8954 19 18C19 19.1046 18.1046 20 17 20Z"></path><path d="M20 11H4V13H20V11Z"></path></svg>
+    Track Aging Dashboard
+    </a>
+    </div>
+    </header>
 
-        <div id="statusMessage"></div>
+    <div id="statusMessage"></div>
 
-        <div class="filters-container">
-            <label for="startDate">From Date:</label>
-            <input type="date" id="startDate">
-            <label for="endDate">To Date:</label>
-            <input type="date" id="endDate">
-            <label for="departmentFilter">Department:</label>
-            <select id="departmentFilter">
-                <option value="all">All Departments</option>
-            </select>
-        </div>
+    <div class="filters-container">
+    <label for="startDate">From Date:</label>
+    <input type="date" id="startDate">
+    <label for="endDate">To Date:</label>
+    <label for="periodType">Period:</label>
+    <select id="periodType">
+    <option value="date" selected>Date Range</option>
+    <option value="month">Month Range</option>
+    </select>
+    <label for="startMonth" class="month-only" style="display:none;">From Month:</label>
+    <input type="month" id="startMonth" class="month-only" style="display:none;">
+    <label for="endMonth" class="month-only" style="display:none;">To Month:</label>
+    <input type="month" id="endMonth" class="month-only" style="display:none;">
 
-        <main>
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 11C21 11.5523 20.5523 12 20 12H17.8162C17.5486 13.7313 16.2026 15 14.5 15C12.7974 15 11.4514 13.7313 11.1838 12H4C3.44772 12 3 11.5523 3 11V4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V11ZM19 5H5V10H19V5Z"></path><path d="M3 14H21V16H3V14Z"></path><path d="M3 18H21V20H3V18Z"></path></svg>
-                    </div>
-                    <div class="kpi-info">
-                        <div class="kpi-label">Total Orders</div>
-                        <div class="kpi-number" id="totalDeliveries">-</div>
-                        <div class="kpi-change" id="totalOrdersChange"></div>
-                    </div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 11.25V6.75C12 6.33579 11.6642 6 11.25 6C10.8358 6 10.5 6.33579 10.5 6.75V12.75C10.5 13.1642 10.8358 13.5 11.25 13.5H16.5C16.9142 13.5 17.25 13.1642 17.25 12.75C17.25 12.3358 16.9142 12 16.5 12H12.75C12.4739 12 12.25 11.7761 12.25 11.5C12.25 11.3619 12.1381 11.25 12 11.25Z"></path></svg>
-                    </div>
-                    <div class="kpi-info">
-                        <div class="kpi-label">Urgent Orders</div>
-                        <div class="kpi-number" id="urgentOrders">-</div>
-                        <div class="kpi-change" id="urgentOrdersChange"></div>
-                    </div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 15H13V17H11V15ZM11 7H13V13H11V7Z"></path></svg>
-                    </div>
-                    <div class="kpi-info">
-                        <div class="kpi-label">Pending Orders</div>
-                        <div class="kpi-number" id="pendingDeliveries">-</div>
-                        <div class="kpi-change kpi-timestamp" id="pendingOrdersTimestamp"></div>
-                    </div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM16.0303 8.96967L10.5 14.5L7.96967 12.0303L9.38388 10.6161L10.5 11.702L14.6161 7.55546L16.0303 8.96967Z"></path></svg>
-                    </div>
-                    <div class="kpi-info">
-                        <div class="kpi-label">Tickets Done</div>
-                        <div class="kpi-number" id="ticketsDone">-</div>
-                        <div class="kpi-change" id="ticketsDoneChange"></div>
-                    </div>
-                </div>
-            </div>
+    <input type="date" id="endDate">
+    <label for="departmentFilter">Department:</label>
+    <select id="departmentFilter">
+    <option value="all">All Departments</option>
+    </select>
+    </div>
 
-            <div class="charts-grid">
-                <div class="chart-container full-width">
-                    <div class="chart-header">
-                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5H14V3C14 2.44772 13.5523 2 13 2H11C10.4477 2 10 2.44772 10 3V5H8C6.89543 5 6 5.89543 6 7V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V7C18 5.89543 17.1046 5 16 5ZM8 7H16V19H8V7ZM10 9V11H14V9H10ZM10 13V15H14V13H10Z"></path></svg> Order & Status Trend Over Time</div>
-                    </div>
-                    <div class="chart-canvas"><canvas id="combinedTrendChart"></canvas></div>
-                </div>
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM11 13H5.05494C5.55137 16.3922 8.26201 19 11.8387 19C11.9448 19 12.0502 18.9958 12.1545 18.9877L11 13ZM13 13V19.9451C16.5513 19.4486 19 16.738 19 13H13ZM13 11H19C19 7.26198 16.5513 4.55137 13 4.05494V11ZM11 11V4.05494C7.44863 4.55137 5 7.26198 5 11H11Z"></path></svg> Service Type Distribution</div>
-                    </div>
-                    <div class="chart-canvas"><canvas id="serviceTypePieChart"></canvas></div>
-                </div>
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM13 12V7H11V14H18V12H13Z"></path></svg> Urgent vs. Non-Urgent</div>
-                    </div>
-                    <div class="chart-canvas"><canvas id="urgentPieChart"></canvas></div>
-                </div>
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L9 9H2L7 14L5 22L12 17L19 22L17 14L22 9H15L12 1Z"></path></svg> Top 5 Customers by Service Type</div>
-                    </div>
-                    <div class="chart-canvas"><canvas id="topCustomerBarChart"></canvas></div>
-                </div>
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 20H3V11C3 10.4477 3.44772 10 4 10H20C20.5523 10 21 10.4477 21 11V20ZM21 4C21 3.44772 20.5523 3 20 3H4C3.44772 3 3 3.44772 3 4V8C3 8.55228 3.44772 9 4 9H20C20.5523 9 21 8.55228 21 8V4ZM19 12H5V18H19V12ZM19 5H5V7H19V5Z"></path></svg> Orders by Department</div>
-                    </div>
-                    <div class="chart-canvas"><canvas id="ordersByDeptChart"></canvas></div>
-                </div>
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 4C8 3.44772 8.44772 3 9 3H15C15.5523 3 16 3.44772 16 4V6H20C20.5523 6 21 6.44772 21 7V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V7C3 6.44772 3.44772 6 4 6H8V4ZM14 5V6H10V5H14ZM5 8V19H19V8H5ZM7 10H9V12H7V10ZM7 14H9V16H7V14Z"></path></svg> Delivery vs. Collection by Day</div>
-                    </div>
-                    <div class="chart-canvas"><canvas id="deliveryBarChart"></canvas></div>
-                </div>
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.8769 3.11811L21.4648 18.0001H3.53516L12.1231 3.11811C12.1293 3.10736 12.1361 3.09703 12.1433 3.08711C12.3334 2.83393 12.6666 2.83393 12.8567 3.08711C12.8639 3.09703 12.8707 3.10736 12.8769 3.11811ZM12.5 14V16H11.5V14H12.5ZM12.5 10V13H11.5V10H12.5Z"></path></svg> Urgent Count by Department</div>
-                    </div>
-                    <div class="chart-canvas"><canvas id="urgentByDeptChart"></canvas></div>
-                </div>
-            </div>
-            
-            <div class="table-container">
-                <h3><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21H22V19H2V21ZM2 16H22V14H2V16ZM4 3H20V12H4V3ZM6 5V10H18V5H6Z"></path></svg> Department Performance</h3>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Department</th>
-                                <th>Delivery</th>
-                                <th>Collection</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="departmentTableBody">
-                            <tr><td colspan="4" class="loading">Loading department data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+    <main>
+    <div class="kpi-grid">
+    <div class="kpi-card">
+    <div class="kpi-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 11C21 11.5523 20.5523 12 20 12H17.8162C17.5486 13.7313 16.2026 15 14.5 15C12.7974 15 11.4514 13.7313 11.1838 12H4C3.44772 12 3 11.5523 3 11V4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V11ZM19 5H5V10H19V5Z"></path><path d="M3 14H21V16H3V14Z"></path><path d="M3 18H21V20H3V18Z"></path></svg>
+    </div>
+    <div class="kpi-info">
+    <div class="kpi-label">Total Orders</div>
+    <div class="kpi-number" id="totalDeliveries">-</div>
+    <div class="kpi-change" id="totalOrdersChange"></div>
+    </div>
+    </div>
+    <div class="kpi-card">
+    <div class="kpi-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 11.25V6.75C12 6.33579 11.6642 6 11.25 6C10.8358 6 10.5 6.33579 10.5 6.75V12.75C10.5 13.1642 10.8358 13.5 11.25 13.5H16.5C16.9142 13.5 17.25 13.1642 17.25 12.75C17.25 12.3358 16.9142 12 16.5 12H12.75C12.4739 12 12.25 11.7761 12.25 11.5C12.25 11.3619 12.1381 11.25 12 11.25Z"></path></svg>
+    </div>
+    <div class="kpi-info">
+    <div class="kpi-label">Urgent Orders</div>
+    <div class="kpi-number" id="urgentOrders">-</div>
+    <div class="kpi-change" id="urgentOrdersChange"></div>
+    </div>
+    </div>
+    <div class="kpi-card">
+    <div class="kpi-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM11 15H13V17H11V15ZM11 7H13V13H11V7Z"></path></svg>
+    </div>
+    <div class="kpi-info">
+    <div class="kpi-label">Pending Orders</div>
+    <div class="kpi-number" id="pendingDeliveries">-</div>
+    <div class="kpi-change kpi-timestamp" id="pendingOrdersTimestamp"></div>
+    </div>
+    </div>
+    <div class="kpi-card">
+    <div class="kpi-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM16.0303 8.96967L10.5 14.5L7.96967 12.0303L9.38388 10.6161L10.5 11.702L14.6161 7.55546L16.0303 8.96967Z"></path></svg>
+    </div>
+    <div class="kpi-info">
+    <div class="kpi-label">Tickets Done</div>
+    <div class="kpi-number" id="ticketsDone">-</div>
+    <div class="kpi-change" id="ticketsDoneChange"></div>
+    </div>
+    </div>
+    </div>
+
+    <div class="charts-grid">
+    <div class="chart-container full-width">
+    <div class="chart-header">
+    <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5H14V3C14 2.44772 13.5523 2 13 2H11C10.4477 2 10 2.44772 10 3V5H8C6.89543 5 6 5.89543 6 7V19C6 20.1046 6.89543 21 8 21H16C17.1046 21 18 20.1046 18 19V7C18 5.89543 17.1046 5 16 5ZM8 7H16V19H8V7ZM10 9V11H14V9H10ZM10 13V15H14V13H10Z"></path></svg> Order & Status Trend Over Time</div>
+    </div>
+    <div class="chart-canvas"><canvas id="combinedTrendChart"></canvas></div>
+    </div>
+    <div class="chart-container">
+    <div class="chart-header">
+    <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM11 13H5.05494C5.55137 16.3922 8.26201 19 11.8387 19C11.9448 19 12.0502 18.9958 12.1545 18.9877L11 13ZM13 13V19.9451C16.5513 19.4486 19 16.738 19 13H13ZM13 11H19C19 7.26198 16.5513 4.55137 13 4.05494V11ZM11 11V4.05494C7.44863 4.55137 5 7.26198 5 11H11Z"></path></svg> Service Type Distribution</div>
+    </div>
+    <div class="chart-canvas"><canvas id="serviceTypePieChart"></canvas></div>
+    </div>
+    <div class="chart-container">
+    <div class="chart-header">
+    <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM13 12V7H11V14H18V12H13Z"></path></svg> Urgent vs. Non-Urgent</div>
+    </div>
+    <div class="chart-canvas"><canvas id="urgentPieChart"></canvas></div>
+    </div>
+    <div class="chart-container">
+    <div class="chart-header">
+    <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L9 9H2L7 14L5 22L12 17L19 22L17 14L22 9H15L12 1Z"></path></svg> Top 5 Customers by Service Type</div>
+    </div>
+    <div class="chart-canvas"><canvas id="topCustomerBarChart"></canvas></div>
+    </div>
+    <div class="chart-container">
+    <div class="chart-header">
+    <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 20H3V11C3 10.4477 3.44772 10 4 10H20C20.5523 10 21 10.4477 21 11V20ZM21 4C21 3.44772 20.5523 3 20 3H4C3.44772 3 3 3.44772 3 4V8C3 8.55228 3.44772 9 4 9H20C20.5523 9 21 8.55228 21 8V4ZM19 12H5V18H19V12ZM19 5H5V7H19V5Z"></path></svg> Orders by Department</div>
+    </div>
+    <div class="chart-canvas"><canvas id="ordersByDeptChart"></canvas></div>
+    </div>
+    <div class="chart-container">
+    <div class="chart-header">
+    <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 4C8 3.44772 8.44772 3 9 3H15C15.5523 3 16 3.44772 16 4V6H20C20.5523 6 21 6.44772 21 7V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V7C3 6.44772 3.44772 6 4 6H8V4ZM14 5V6H10V5H14ZM5 8V19H19V8H5ZM7 10H9V12H7V10ZM7 14H9V16H7V14Z"></path></svg> Delivery vs. Collection by Day</div>
+    </div>
+    <div class="chart-canvas"><canvas id="deliveryBarChart"></canvas></div>
+    </div>
+    <div class="chart-container">
+    <div class="chart-header">
+    <div class="chart-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.8769 3.11811L21.4648 18.0001H3.53516L12.1231 3.11811C12.1293 3.10736 12.1361 3.09703 12.1433 3.08711C12.3334 2.83393 12.6666 2.83393 12.8567 3.08711C12.8639 3.09703 12.8707 3.10736 12.8769 3.11811ZM12.5 14V16H11.5V14H12.5ZM12.5 10V13H11.5V10H12.5Z"></path></svg> Urgent Count by Department</div>
+    </div>
+    <div class="chart-canvas"><canvas id="urgentByDeptChart"></canvas></div>
+    </div>
+    </div>
+    
+    <div class="table-container">
+    <h3><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21H22V19H2V21ZM2 16H22V14H2V16ZM4 3H20V12H4V3ZM6 5V10H18V5H6Z"></path></svg> Department Performance</h3>
+    <div class="table-wrapper">
+    <table>
+    <thead>
+    <tr>
+    <th>Department</th>
+    <th>Delivery</th>
+    <th>Collection</th>
+    <th>Total</th>
+    </tr>
+    </thead>
+    <tbody id="departmentTableBody">
+    <tr><td colspan="4" class="loading">Loading department data...</td></tr>
+    </tbody>
+    </table>
+    </div>
+    </div>
+    </main>
     </div>
 
 <script>
     // --- CONFIGURATION ---
     const SUPABASE_CONFIG = {
-        url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
-        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
-        tableName: 'delivery_analytics',
+    url: 'https://iugwfmnfmulgxvaxjkwv.supabase.co',
+    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1Z3dmbW5mbXVsZ3h2YXhqa3d2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3MTU2MDIsImV4cCI6MjA2ODI5MTYwMn0.pUExanPG_BdTN11gtHg_cOubUkMOEv3n0a1mksLH_ZE',
+    tableName: 'delivery_analytics',
     };
     
     // Enhanced Chart Colors
     const CHART_COLORS = {
-        delivery: '#6366f1',
-        collection: '#14b8a6',
-        pending: '#f59e0b',
-        completed: '#10b981',
-        urgent: '#ef4444',
-        nonUrgent: '#8b5cf6',
+    delivery: '#6366f1',
+    collection: '#14b8a6',
+    pending: '#f59e0b',
+    completed: '#10b981',
+    urgent: '#ef4444',
+    nonUrgent: '#8b5cf6',
+    const periodTypeSelect = document.getElementById('periodType');
+    const startMonthInput = document.getElementById('startMonth');
+    const endMonthInput = document.getElementById('endMonth');
+
     };
 
     // --- GLOBAL STATE ---
@@ -634,685 +649,701 @@
 
     // --- UTILITY FUNCTIONS ---
     const showMessage = (message, type = 'info', autoClear = false, duration = 4000) => {
-        statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
-        if (autoClear) {
-            setTimeout(() => {
-                statusDiv.innerHTML = '';
-            }, duration);
-        }
+    statusDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+    if (autoClear) {
+    setTimeout(() => {
+    statusDiv.innerHTML = '';
+    }, duration);
+    }
     };
 
     const formatCustomerName = (str) => {
-        if (!str || typeof str !== 'string') return 'Unknown';
-        return str.toUpperCase();
+    if (!str || typeof str !== 'string') return 'Unknown';
+    return str.toUpperCase();
     };
 
     const startLiveClock = (elementId) => {
-        if (clockInterval) clearInterval(clockInterval);
-        const clockElement = document.getElementById(elementId);
-        if (!clockElement) return;
+    if (clockInterval) clearInterval(clockInterval);
+    const clockElement = document.getElementById(elementId);
+    if (!clockElement) return;
 
-        const updateClock = () => {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute:'2-digit', hour12: false });
-            const dateString = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-            clockElement.innerHTML = `<span>as at ${dateString}, ${timeString}</span>`;
-        };
+    const updateClock = () => {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute:'2-digit', hour12: false });
+    const dateString = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    clockElement.innerHTML = `<span>as at ${dateString}, ${timeString}</span>`;
+    };
 
-        updateClock();  
-        clockInterval = setInterval(updateClock, 1000); 
+    updateClock();  
+    clockInterval = setInterval(updateClock, 1000); 
     };
     
     /**
-     * Creates a base configuration for Chart.js charts to reduce code duplication.
-     * @param {string} legendPosition - The position of the legend (e.g., 'bottom', 'top').
-     * @returns {object} A Chart.js options object.
-     */
+    * Creates a base configuration for Chart.js charts to reduce code duplication.
+    * @param {string} legendPosition - The position of the legend (e.g., 'bottom', 'top').
+    * @returns {object} A Chart.js options object.
+    */
     const getBaseChartOptions = (legendPosition = 'bottom') => ({
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-            intersect: false,
-            mode: 'index',
-        },
-        plugins: {
-            legend: {
-                position: legendPosition,
-                labels: {
-                    usePointStyle: true,
-                    padding: 20,
-                    font: { size: 13, weight: '500' },
-                    color: '#0f172a'
-                }
-            },
-            tooltip: {
-                backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                titleColor: '#ffffff',
-                bodyColor: '#e2e8f0',
-                borderColor: '#334155',
-                borderWidth: 1,
-                cornerRadius: 8,
-                displayColors: true,
-                padding: 10,
-            },
-            datalabels: {
-                display: false // Disabled by default, can be overridden
-            }
-        }
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+    intersect: false,
+    mode: 'index',
+    },
+    plugins: {
+    legend: {
+    position: legendPosition,
+    labels: {
+    usePointStyle: true,
+    padding: 20,
+    font: { size: 13, weight: '500' },
+    color: '#0f172a'
+    }
+    },
+    tooltip: {
+    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+    titleColor: '#ffff',
+    bodyColor: '#e2e8f0',
+    borderColor: '#334155',
+    borderWidth: 1,
+    cornerRadius: 8,
+    displayColors: true,
+    padding: 10,
+    },
+    datalabels: {
+    display: false // Disabled by default, can be overridden
+    }
+    }
     });
 
     // --- DATA FETCHING & PROCESSING ---
     async function loadDataFromSupabase() {
-        showMessage('🔄 Loading all delivery records...', 'info');
-        try {
-            // NOTE: Ensure Row Level Security (RLS) is enabled in your Supabase project
-            // to protect your data, even with an anonymous key.
-            const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?select=*&order=created_at.desc`, {
-                headers: {
-                    'apikey': SUPABASE_CONFIG.key,
-                    'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Database error: ${response.statusText}`);
-            }
-            
-            const rawData = await response.json();
-            if (!rawData || rawData.length === 0) {
-                throw new Error('No data found in the database.');
-            }
+    showMessage('🔄 Loading all delivery records...', 'info');
+    try {
+    // NOTE: Ensure Row Level Security (RLS) is enabled in your Supabase project
+    // to protect your data, even with an anonymous key.
+    const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${SUPABASE_CONFIG.tableName}?select=*&order=created_at.desc`, {
+    headers: {
+    'apikey': SUPABASE_CONFIG.key,
+    'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+    }
+    });
+    if (!response.ok) {
+    throw new Error(`Database error: ${response.statusText}`);
+    }
+    
+    const rawData = await response.json();
+    if (!rawData || rawData.length === 0) {
+    throw new Error('No data found in the database.');
+    }
 
-            allData = rawData.map(d => ({
-                ...d,
-                customer: formatCustomerName(d.customer),
-                dept: d.dept || 'N/A',
-                order_date: d.order_received ? new Date(d.order_received) : null,
-                is_pending: d.status ? d.status.toLowerCase().includes('pending') : false,
-                is_urgent: d.urgent ? String(d.urgent).toLowerCase() === 'yes' : false,
-                type: d.type ? (String(d.type).toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
-            })).filter(d => d.order_date && d.customer);
-            
-            populateDepartmentFilter();
-            showMessage(`✅ Successfully loaded ${allData.length} records.`, 'info', true);
-            return true;
-        } catch (error) {
-            console.error('Data loading failed:', error);
-            showMessage(`❌ Error: ${error.message}`, 'error');
-            return false;
-        }
+    allData = rawData.map(d => ({
+    ...d,
+    customer: formatCustomerName(d.customer),
+    dept: d.dept || 'N/A',
+    order_date: d.order_received ? new Date(d.order_received) : null,
+    is_pending: d.status ? d.status.toLowerCase().includes('pending') : false,
+    is_urgent: d.urgent ? String(d.urgent).toLowerCase() === 'yes' : false,
+    type: d.type ? (String(d.type).toLowerCase().includes('delivery') ? 'Delivery' : 'Collection') : 'Unknown'
+    })).filter(d => d.order_date && d.customer);
+    
+    populateDepartmentFilter();
+    showMessage(`✅ Successfully loaded ${allData.length} records.`, 'info', true);
+    return true;
+    } catch (error) {
+    console.error('Data loading failed:', error);
+    showMessage(`❌ Error: ${error.message}`, 'error');
+    const periodType = periodTypeSelect.value;
+    let startDate = startDateInput.valueAsDate;
+    let endDate = endDateInput.valueAsDate;
+
+    if (periodType === 'month') {
+      // Convert selected months to start/end dates
+      const sm = startMonthInput.value;
+      const em = endMonthInput.value;
+      if (!sm || !em) return; // wait until both provided
+      const [sy, smm] = sm.split('-').map(Number);
+      const [ey, emm] = em.split('-').map(Number);
+      startDate = new Date(sy, smm - 1, 1);
+      // end of month: day 0 of next month
+      endDate = new Date(ey, emm, 0);
+    }
+
+    return false;
+    }
     }
 
     function populateDepartmentFilter() {
-        const departments = [...new Set(allData.map(d => d.dept))].filter(d => d && d !== 'N/A').sort();
-        departmentFilter.innerHTML = '<option value="all">All Departments</option>';
-        departments.forEach(dept => {
-            const option = document.createElement('option');
-            option.value = dept;
-            option.textContent = dept;
-            departmentFilter.appendChild(option);
-        });
+    const departments = [...new Set(allData.map(d => d.dept))].filter(d => d && d !== 'N/A').sort();
+    departmentFilter.innerHTML = '<option value="all">All Departments</option>';
+    departments.forEach(dept => {
+    const option = document.createElement('option');
+    option.value = dept;
+    option.textContent = dept;
+    departmentFilter.appendChild(option);
+    });
     }
 
     function filterAndProcessData() {
-        const startDate = startDateInput.valueAsDate;
-        const endDate = endDateInput.valueAsDate;
-        const selectedDept = departmentFilter.value;
+    const startDate = startDateInput.valueAsDate;
+    const endDate = endDateInput.valueAsDate;
+    const selectedDept = departmentFilter.value;
 
-        if (!startDate || !endDate) return;
+    if (!startDate || !endDate) return;
 
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
 
-        let filteredData = allData.filter(d => {
-            if (!d.order_date) return false;
-            const isAfterStart = d.order_date >= startDate;
-            const isBeforeEnd = d.order_date <= endDate;
-            return isAfterStart && isBeforeEnd;
-        });
+    let filteredData = allData.filter(d => {
+    if (!d.order_date) return false;
+    const isAfterStart = d.order_date >= startDate;
+    const isBeforeEnd = d.order_date <= endDate;
+    return isAfterStart && isBeforeEnd;
+    });
 
-        if (selectedDept !== 'all') {
-            filteredData = filteredData.filter(d => d.dept === selectedDept);
-        }
-        
-        updateDashboard(filteredData, startDate, endDate);
+    if (selectedDept !== 'all') {
+    filteredData = filteredData.filter(d => d.dept === selectedDept);
+    }
+    
+    updateDashboard(filteredData, startDate, endDate);
     }
 
     // --- DASHBOARD UPDATE & RENDERING ---
     function updateDashboard(data, currentStartDate, currentEndDate) {
-        // --- Previous Period Calculation ---
-        const diffDays = (currentEndDate - currentStartDate) / (1000 * 60 * 60 * 24);
-        const prevStartDate = new Date(currentStartDate);
-        prevStartDate.setDate(prevStartDate.getDate() - diffDays -1);
-        
-        const prevEndDate = new Date(currentStartDate);
-        prevEndDate.setDate(prevEndDate.getDate() - 1);
-        
-        const prevPeriodData = allData.filter(d => {
-            const dateMatch = d.order_date >= prevStartDate && d.order_date <= prevEndDate;
-            const deptMatch = departmentFilter.value === 'all' || d.dept === departmentFilter.value;
-            return dateMatch && deptMatch;
-        });
+    // --- Previous Period Calculation ---
+    const diffDays = (currentEndDate - currentStartDate) / (1000 * 60 * 60 * 24);
+    const prevStartDate = new Date(currentStartDate);
+    prevStartDate.setDate(prevStartDate.getDate() - diffDays -1);
+    
+    const prevEndDate = new Date(currentStartDate);
+    prevEndDate.setDate(prevEndDate.getDate() - 1);
+    
+    const prevPeriodData = allData.filter(d => {
+    const dateMatch = d.order_date >= prevStartDate && d.order_date <= prevEndDate;
+    const deptMatch = departmentFilter.value === 'all' || d.dept === departmentFilter.value;
+    return dateMatch && deptMatch;
+    });
 
-        const prevPeriodTotalOrders = prevPeriodData.length;
-        const prevPeriodUrgentOrders = prevPeriodData.filter(d => d.is_urgent).length;
-        const prevPeriodTicketsDone = prevPeriodTotalOrders - prevPeriodData.filter(d => d.is_pending).length;
+    const prevPeriodTotalOrders = prevPeriodData.length;
+    const prevPeriodUrgentOrders = prevPeriodData.filter(d => d.is_urgent).length;
+    const prevPeriodTicketsDone = prevPeriodTotalOrders - prevPeriodData.filter(d => d.is_pending).length;
 
-        // --- Current Period Calculations ---
-        const totalOrders = data.length;
-        const pendingOrders = data.filter(d => d.is_pending).length;
-        const ticketsDone = totalOrders - pendingOrders;
-        const urgentOrders = data.filter(d => d.is_urgent).length;
-        
-        // --- Render KPIs ---
-        document.getElementById('totalDeliveries').textContent = totalOrders.toLocaleString();
-        document.getElementById('pendingDeliveries').textContent = pendingOrders.toLocaleString();
-        document.getElementById('ticketsDone').textContent = ticketsDone.toLocaleString();
-        document.getElementById('urgentOrders').textContent = urgentOrders.toLocaleString();
-        
-        updateKpiChange('totalOrdersChange', totalOrders, prevPeriodTotalOrders);
-        updateKpiChange('urgentOrdersChange', urgentOrders, prevPeriodUrgentOrders);
-        updateKpiChange('ticketsDoneChange', ticketsDone, prevPeriodTicketsDone);
+    // --- Current Period Calculations ---
+    const totalOrders = data.length;
+    const pendingOrders = data.filter(d => d.is_pending).length;
+    const ticketsDone = totalOrders - pendingOrders;
+    const urgentOrders = data.filter(d => d.is_urgent).length;
+    
+    // --- Render KPIs ---
+    document.getElementById('totalDeliveries').textContent = totalOrders.toLocaleString();
+    document.getElementById('pendingDeliveries').textContent = pendingOrders.toLocaleString();
+    document.getElementById('ticketsDone').textContent = ticketsDone.toLocaleString();
+    document.getElementById('urgentOrders').textContent = urgentOrders.toLocaleString();
+    
+    updateKpiChange('totalOrdersChange', totalOrders, prevPeriodTotalOrders);
+    updateKpiChange('urgentOrdersChange', urgentOrders, prevPeriodUrgentOrders);
+    updateKpiChange('ticketsDoneChange', ticketsDone, prevPeriodTicketsDone);
 
 
-        // --- Chart & Table Data Aggregation ---
-        const serviceTypeCounts = data.reduce((acc, d) => {
-            if (d.type !== 'Unknown') acc[d.type] = (acc[d.type] || 0) + 1;
-            return acc;
-        }, { 'Delivery': 0, 'Collection': 0 });
+    // --- Chart & Table Data Aggregation ---
+    const serviceTypeCounts = data.reduce((acc, d) => {
+    if (d.type !== 'Unknown') acc[d.type] = (acc[d.type] || 0) + 1;
+    return acc;
+    }, { 'Delivery': 0, 'Collection': 0 });
 
-        const urgentCounts = {
-            urgent: urgentOrders,
-            nonUrgent: totalOrders - urgentOrders
-        };
+    const urgentCounts = {
+    urgent: urgentOrders,
+    nonUrgent: totalOrders - urgentOrders
+    };
 
-        const departmentPerformance = data.reduce((acc, d) => {
-            if (d.dept && d.dept !== 'N/A') {
-                if (!acc[d.dept]) acc[d.dept] = { dept: d.dept, delivery: 0, collection: 0 };
-                if (d.type === 'Delivery') acc[d.dept].delivery++;
-                else if (d.type === 'Collection') acc[d.dept].collection++;
-            }
-            return acc;
-        }, {});
-        
-        const deliveryByDay = data.reduce((acc, d) => {
-            const day = d.order_date.toLocaleDateString('en-US', { weekday: 'short' });
-            if (!acc[day]) acc[day] = { Delivery: 0, Collection: 0 };
-            if(d.type === 'Delivery' || d.type === 'Collection') {
-                acc[day][d.type]++;
-            }
-            return acc;
-        }, {});
-        
-        const urgentByDept = data
-            .filter(d => d.is_urgent && d.dept && d.dept !== 'N/A')
-            .reduce((acc, d) => {
-                acc[d.dept] = (acc[d.dept] || 0) + 1;
-                return acc;
-            }, {});
+    const departmentPerformance = data.reduce((acc, d) => {
+    if (d.dept && d.dept !== 'N/A') {
+    if (!acc[d.dept]) acc[d.dept] = { dept: d.dept, delivery: 0, collection: 0 };
+    if (d.type === 'Delivery') acc[d.dept].delivery++;
+    else if (d.type === 'Collection') acc[d.dept].collection++;
+    }
+    return acc;
+    }, {});
+    
+    const deliveryByDay = data.reduce((acc, d) => {
+    const day = d.order_date.toLocaleDateString('en-US', { weekday: 'short' });
+    if (!acc[day]) acc[day] = { Delivery: 0, Collection: 0 };
+    if(d.type === 'Delivery' || d.type === 'Collection') {
+    acc[day][d.type]++;
+    }
+    return acc;
+    }, {});
+    
+    const urgentByDept = data
+    .filter(d => d.is_urgent && d.dept && d.dept !== 'N/A')
+    .reduce((acc, d) => {
+    acc[d.dept] = (acc[d.dept] || 0) + 1;
+    return acc;
+    }, {});
 
-        const trendData = aggregateTrendData(data, currentStartDate, currentEndDate);
-        const topCustomerData = aggregateTopCustomerData(data);
+    const trendData = aggregateTrendData(data, currentStartDate, currentEndDate);
+    const topCustomerData = aggregateTopCustomerData(data);
 
-        // --- Render Visualizations ---
-        renderServiceTypePieChart(serviceTypeCounts);
-        renderUrgentPieChart(urgentCounts);
-        renderDepartmentTable(Object.values(departmentPerformance));
-        renderCombinedTrendChart(trendData);
-        renderTopCustomerBarChart(topCustomerData);
-        renderDeliveryBarChart(deliveryByDay);
-        renderOrdersByDeptChart(Object.values(departmentPerformance));
-        renderUrgentByDeptChart(urgentByDept);
+    // --- Render Visualizations ---
+    renderServiceTypePieChart(serviceTypeCounts);
+    renderUrgentPieChart(urgentCounts);
+    renderDepartmentTable(Object.values(departmentPerformance));
+    renderCombinedTrendChart(trendData);
+    renderTopCustomerBarChart(topCustomerData);
+    renderDeliveryBarChart(deliveryByDay);
+    renderOrdersByDeptChart(Object.values(departmentPerformance));
+    renderUrgentByDeptChart(urgentByDept);
     }
     
     function aggregateTrendData(data, startDate, endDate) {
-        const trend = {};
-        let currentDate = new Date(startDate);
+    const trend = {};
+    let currentDate = new Date(startDate);
 
-        while (currentDate <= endDate) {
-            const dateString = currentDate.toISOString().split('T')[0];
-            trend[dateString] = { total: 0, pending: 0, completed: 0 };
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
+    while (currentDate <= endDate) {
+    const dateString = currentDate.toISOString().split('T')[0];
+    trend[dateString] = { total: 0, pending: 0, completed: 0 };
+    currentDate.setDate(currentDate.getDate() + 1);
+    }
 
-        data.forEach(d => {
-            const dateString = d.order_date.toISOString().split('T')[0];
-            if (trend[dateString]) {
-                trend[dateString].total++;
-                if (d.is_pending) {
-                    trend[dateString].pending++;
-                } else {
-                    trend[dateString].completed++;
-                }
-            }
-        });
-        return trend;
+    data.forEach(d => {
+    const dateString = d.order_date.toISOString().split('T')[0];
+    if (trend[dateString]) {
+    trend[dateString].total++;
+    if (d.is_pending) {
+    trend[dateString].pending++;
+    } else {
+    trend[dateString].completed++;
+    }
+    }
+    });
+    return trend;
     }
 
     function aggregateTopCustomerData(data) {
-        const customerTotals = data.reduce((acc, d) => {
-            acc[d.customer] = (acc[d.customer] || 0) + 1;
-            return acc;
-        }, {});
+    const customerTotals = data.reduce((acc, d) => {
+    acc[d.customer] = (acc[d.customer] || 0) + 1;
+    return acc;
+    }, {});
 
-        const top5Customers = Object.keys(customerTotals)
-            .sort((a, b) => customerTotals[b] - customerTotals[a])
-            .slice(0, 5);
+    const top5Customers = Object.keys(customerTotals)
+    .sort((a, b) => customerTotals[b] - customerTotals[a])
+    .slice(0, 5);
 
-        const topCustomerPerformance = data
-            .filter(d => top5Customers.includes(d.customer))
-            .reduce((acc, d) => {
-                if (d.type === 'Delivery' || d.type === 'Collection') {
-                    if (!acc[d.customer]) acc[d.customer] = { customer: d.customer, Delivery: 0, Collection: 0 };
-                    acc[d.customer][d.type]++;
-                }
-                return acc;
-            }, {});
-        
-        return Object.values(topCustomerPerformance).sort((a,b) => (b.Delivery + b.Collection) - (a.Delivery + a.Collection));
+    const topCustomerPerformance = data
+    .filter(d => top5Customers.includes(d.customer))
+    .reduce((acc, d) => {
+    if (d.type === 'Delivery' || d.type === 'Collection') {
+    if (!acc[d.customer]) acc[d.customer] = { customer: d.customer, Delivery: 0, Collection: 0 };
+    acc[d.customer][d.type]++;
+    }
+    return acc;
+    }, {});
+    
+    return Object.values(topCustomerPerformance).sort((a,b) => (b.Delivery + b.Collection) - (a.Delivery + a.Collection));
     }
 
     // Modified: This function now calculates and displays percentage change.
     function updateKpiChange(elementId, currentValue, previousValue) {
-        const changeElement = document.getElementById(elementId);
+    const changeElement = document.getElementById(elementId);
 
-        if (previousValue === 0) {
-            if (currentValue > 0) {
-                changeElement.innerHTML = `<span>(vs 0)</span>`;
-                changeElement.className = 'kpi-change up';
-            } else {
-                changeElement.innerHTML = `<span>-</span>`;
-                changeElement.className = 'kpi-change';
-            }
-            return;
-        }
+    if (previousValue === 0) {
+    if (currentValue > 0) {
+    changeElement.innerHTML = `<span>(vs 0)</span>`;
+    changeElement.className = 'kpi-change up';
+    } else {
+    changeElement.innerHTML = `<span>-</span>`;
+    changeElement.className = 'kpi-change';
+    }
+    return;
+    }
 
-        const percentChange = ((currentValue - previousValue) / previousValue) * 100;
-        const isPositive = percentChange >= 0;
-        const trendClass = isPositive ? 'up' : 'down';
-        const icon = isPositive ? '▲' : '▼';
-        
-        changeElement.className = `kpi-change ${trendClass}`;
-        changeElement.innerHTML = `<span>${icon} ${Math.abs(percentChange).toFixed(1)}%</span> vs last period`;
+    const percentChange = ((currentValue - previousValue) / previousValue) * 100;
+    const isPositive = percentChange >= 0;
+    const trendClass = isPositive ? 'up' : 'down';
+    const icon = isPositive ? '▲' : '▼';
+    
+    changeElement.className = `kpi-change ${trendClass}`;
+    changeElement.innerHTML = `<span>${icon} ${Math.abs(percentChange).toFixed(1)}%</span> vs last period`;
     }
     
     /**
-     * Generic function to render a chart. It destroys the previous instance if it exists.
-     * @param {string} chartId - The ID of the chart instance in the chartInstances object.
-     * @param {string} canvasId - The ID of the canvas element.
-     * @param {object} config - The Chart.js configuration object.
-     */
+    * Generic function to render a chart. It destroys the previous instance if it exists.
+    * @param {string} chartId - The ID of the chart instance in the chartInstances object.
+    * @param {string} canvasId - The ID of the canvas element.
+    * @param {object} config - The Chart.js configuration object.
+    */
     function renderChart(chartId, canvasId, config) {
-        if (chartInstances[chartId]) {
-            chartInstances[chartId].destroy();
-        }
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        chartInstances[chartId] = new Chart(ctx, config);
+    if (chartInstances[chartId]) {
+    chartInstances[chartId].destroy();
+    }
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    chartInstances[chartId] = new Chart(ctx, config);
     }
 
     // --- ENHANCED CHART RENDERING FUNCTIONS ---
     function renderCombinedTrendChart(data) {
-        const labels = Object.keys(data);
-        const config = {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Total Orders',
-                        data: labels.map(label => data[label].total),
-                        borderColor: CHART_COLORS.delivery,
-                        backgroundColor: CHART_COLORS.delivery + '20',
-                        tension: 0.4,
-                        borderWidth: 4,
-                        fill: true,
-                    },
-                    {
-                        label: 'Completed',
-                        data: labels.map(label => data[label].completed),
-                        borderColor: CHART_COLORS.completed,
-                        backgroundColor: CHART_COLORS.completed + '15',
-                        tension: 0.4,
-                        borderWidth: 3,
-                        fill: true,
-                    },
-                    {
-                        label: 'Pending',
-                        data: labels.map(label => data[label].pending),
-                        borderColor: CHART_COLORS.pending,
-                        backgroundColor: CHART_COLORS.pending + '15',
-                        tension: 0.4,
-                        borderWidth: 3,
-                        fill: true,
-                    }
-                ]
-            },
-            options: {
-                ...getBaseChartOptions(),
-                scales: {
-                    x: { 
-                        type: 'time', 
-                        time: { unit: 'day' },
-                        grid: { color: '#f1f5f9', drawBorder: false },
-                        ticks: { color: '#64748b', font: { size: 12 } }
-                    },
-                    y: { 
-                        beginAtZero: true,
-                        grid: { color: '#f1f5f9', drawBorder: false },
-                        ticks: { color: '#64748b', font: { size: 12 } }
-                    }
-                }
-            }
-        };
-        renderChart('combinedTrend', 'combinedTrendChart', config);
+    const labels = Object.keys(data);
+    const config = {
+    type: 'line',
+    data: {
+    labels: labels,
+    datasets: [
+    {
+    label: 'Total Orders',
+    data: labels.map(label => data[label].total),
+    borderColor: CHART_COLORS.delivery,
+    backgroundColor: CHART_COLORS.delivery + '20',
+    tension: 0.4,
+    borderWidth: 4,
+    fill: true,
+    },
+    {
+    label: 'Completed',
+    data: labels.map(label => data[label].completed),
+    borderColor: CHART_COLORS.completed,
+    backgroundColor: CHART_COLORS.completed + '15',
+    tension: 0.4,
+    borderWidth: 3,
+    fill: true,
+    },
+    {
+    label: 'Pending',
+    data: labels.map(label => data[label].pending),
+    borderColor: CHART_COLORS.pending,
+    backgroundColor: CHART_COLORS.pending + '15',
+    tension: 0.4,
+    borderWidth: 3,
+    fill: true,
+    }
+    ]
+    },
+    options: {
+    ...getBaseChartOptions(),
+    scales: {
+    x: { 
+    type: 'time', 
+    time: { unit: 'day' },
+    grid: { color: '#f1f5f9', drawBorder: false },
+    ticks: { color: '#64748b', font: { size: 12 } }
+    },
+    y: { 
+    beginAtZero: true,
+    grid: { color: '#f1f5f9', drawBorder: false },
+    ticks: { color: '#64748b', font: { size: 12 } }
+    }
+    }
+    }
+    };
+    renderChart('combinedTrend', 'combinedTrendChart', config);
     }
     
     function renderUrgentPieChart(data) {
-        const config = {
-            type: 'doughnut',
-            data: {
-                labels: ['Urgent', 'Non-Urgent'],
-                datasets: [{
-                    data: [data.urgent, data.nonUrgent],
-                    backgroundColor: [CHART_COLORS.urgent, CHART_COLORS.nonUrgent],
-                    borderColor: '#ffffff',
-                    borderWidth: 4,
-                    hoverBorderWidth: 6,
-                    cutout: '60%',
-                }]
-            },
-            options: {
-                ...getBaseChartOptions(),
-                plugins: {
-                    ...getBaseChartOptions().plugins,
-                    datalabels: {
-                        color: '#ffffff',
-                        font: { weight: 'bold', size: 14 },
-                        formatter: (value, ctx) => {
-                            const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            if (sum === 0 || value === 0) return '';
-                            const percentage = ((value * 100) / sum).toFixed(1);
-                            return `${value}\n(${percentage}%)`;
-                        }
-                    }
-                }
-            },
-            plugins: [ChartDataLabels],
-        };
-        renderChart('urgentPie', 'urgentPieChart', config);
+    const config = {
+    type: 'doughnut',
+    data: {
+    labels: ['Urgent', 'Non-Urgent'],
+    datasets: [{
+    data: [data.urgent, data.nonUrgent],
+    backgroundColor: [CHART_COLORS.urgent, CHART_COLORS.nonUrgent],
+    borderColor: '#ffff',
+    borderWidth: 4,
+    hoverBorderWidth: 6,
+    cutout: '60%',
+    }]
+    },
+    options: {
+    ...getBaseChartOptions(),
+    plugins: {
+    ...getBaseChartOptions().plugins,
+    datalabels: {
+    color: '#ffff',
+    font: { weight: 'bold', size: 14 },
+    formatter: (value, ctx) => {
+    const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+    if (sum === 0 || value === 0) return '';
+    const percentage = ((value * 100) / sum).toFixed(1);
+    return `${value}\n(${percentage}%)`;
+    }
+    }
+    }
+    },
+    plugins: [ChartDataLabels],
+    };
+    renderChart('urgentPie', 'urgentPieChart', config);
     }
     
     function renderDeliveryBarChart(data) {
-        const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        const config = {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Delivery',
-                        data: labels.map(day => (data[day] && data[day].Delivery) || 0),
-                        backgroundColor: CHART_COLORS.delivery,
-                        borderRadius: 6,
-                    },
-                    {
-                        label: 'Collection',
-                        data: labels.map(day => (data[day] && data[day].Collection) || 0),
-                        backgroundColor: CHART_COLORS.collection,
-                        borderRadius: 6,
-                    }
-                ]
-            },
-            options: { 
-                ...getBaseChartOptions(),
-                scales: { 
-                    x: { 
-                        stacked: true,
-                        grid: { display: false },
-                        ticks: { color: '#64748b', font: { size: 12, weight: '500' } }
-                    }, 
-                    y: { 
-                        stacked: true, 
-                        beginAtZero: true,
-                        grid: { color: '#f1f5f9', drawBorder: false },
-                        ticks: { color: '#64748b', font: { size: 12 } }
-                    } 
-                },
-                plugins: {
-                    ...getBaseChartOptions().plugins,
-                    datalabels: {
-                        color: '#ffffff',
-                        font: { weight: 'bold', size: 12 },
-                        formatter: (value) => value > 0 ? value : ''
-                    }
-                }
-            },
-            plugins: [ChartDataLabels],
-        };
-        renderChart('deliveryBar', 'deliveryBarChart', config);
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const config = {
+    type: 'bar',
+    data: {
+    labels: labels,
+    datasets: [
+    {
+    label: 'Delivery',
+    data: labels.map(day => (data[day] && data[day].Delivery) || 0),
+    backgroundColor: CHART_COLORS.delivery,
+    borderRadius: 6,
+    },
+    {
+    label: 'Collection',
+    data: labels.map(day => (data[day] && data[day].Collection) || 0),
+    backgroundColor: CHART_COLORS.collection,
+    borderRadius: 6,
+    }
+    ]
+    },
+    options: { 
+    ...getBaseChartOptions(),
+    scales: { 
+    x: { 
+    stacked: true,
+    grid: { display: false },
+    ticks: { color: '#64748b', font: { size: 12, weight: '500' } }
+    }, 
+    y: { 
+    stacked: true, 
+    beginAtZero: true,
+    grid: { color: '#f1f5f9', drawBorder: false },
+    ticks: { color: '#64748b', font: { size: 12 } }
+    } 
+    },
+    plugins: {
+    ...getBaseChartOptions().plugins,
+    datalabels: {
+    color: '#ffff',
+    font: { weight: 'bold', size: 12 },
+    formatter: (value) => value > 0 ? value : ''
+    }
+    }
+    },
+    plugins: [ChartDataLabels],
+    };
+    renderChart('deliveryBar', 'deliveryBarChart', config);
     }
 
     function renderOrdersByDeptChart(data) {
-        const sortedData = data.sort((a,b) => (b.delivery + b.collection) - (a.delivery + a.collection));
-        const labels = sortedData.map(d => d.dept);
-        const config = {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Delivery',
-                        data: sortedData.map(d => d.delivery),
-                        backgroundColor: CHART_COLORS.delivery,
-                        borderRadius: 4,
-                    },
-                    {
-                        label: 'Collection',
-                        data: sortedData.map(d => d.collection),
-                        backgroundColor: CHART_COLORS.collection,
-                        borderRadius: 4,
-                    }
-                ]
-            },
-            options: {
-                ...getBaseChartOptions(),
-                indexAxis: 'y',
-                scales: { 
-                    x: { 
-                        stacked: true,
-                        grid: { color: '#f1f5f9', drawBorder: false },
-                        ticks: { color: '#64748b', font: { size: 12 } }
-                    }, 
-                    y: { 
-                        stacked: true,
-                        grid: { display: false },
-                        ticks: { color: '#64748b', font: { size: 11 } }
-                    } 
-                },
-                plugins: {
-                    ...getBaseChartOptions().plugins,
-                    datalabels: {
-                        color: '#ffffff',
-                        font: { weight: 'bold', size: 11 },
-                        formatter: (value) => value > 0 ? value : ''
-                    }
-                }
-            },
-            plugins: [ChartDataLabels]
-        };
-        renderChart('ordersByDept', 'ordersByDeptChart', config);
+    const sortedData = data.sort((a,b) => (b.delivery + b.collection) - (a.delivery + a.collection));
+    const labels = sortedData.map(d => d.dept);
+    const config = {
+    type: 'bar',
+    data: {
+    labels: labels,
+    datasets: [
+    {
+    label: 'Delivery',
+    data: sortedData.map(d => d.delivery),
+    backgroundColor: CHART_COLORS.delivery,
+    borderRadius: 4,
+    },
+    {
+    label: 'Collection',
+    data: sortedData.map(d => d.collection),
+    backgroundColor: CHART_COLORS.collection,
+    borderRadius: 4,
+    }
+    ]
+    },
+    options: {
+    ...getBaseChartOptions(),
+    indexAxis: 'y',
+    scales: { 
+    x: { 
+    stacked: true,
+    grid: { color: '#f1f5f9', drawBorder: false },
+    ticks: { color: '#64748b', font: { size: 12 } }
+    }, 
+    y: { 
+    stacked: true,
+    grid: { display: false },
+    ticks: { color: '#64748b', font: { size: 11 } }
+    } 
+    },
+    plugins: {
+    ...getBaseChartOptions().plugins,
+    datalabels: {
+    color: '#ffff',
+    font: { weight: 'bold', size: 11 },
+    formatter: (value) => value > 0 ? value : ''
+    }
+    }
+    },
+    plugins: [ChartDataLabels]
+    };
+    renderChart('ordersByDept', 'ordersByDeptChart', config);
     }
     
     function renderUrgentByDeptChart(data) {
-        const sortedDepts = Object.entries(data).sort((a, b) => b[1] - a[1]);
-        const labels = sortedDepts.map(entry => entry[0]);
-        const chartData = sortedDepts.map(entry => entry[1]);
-        const config = {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Urgent Orders',
-                    data: chartData,
-                    backgroundColor: CHART_COLORS.urgent,
-                    borderRadius: 4,
-                }]
-            },
-            options: {
-                ...getBaseChartOptions(),
-                indexAxis: 'y',
-                scales: { 
-                    x: { 
-                        beginAtZero: true,
-                        grid: { color: '#f1f5f9', drawBorder: false },
-                        ticks: { color: '#64748b', font: { size: 12 } }
-                    },
-                    y: {
-                        grid: { display: false },
-                        ticks: { color: '#64748b', font: { size: 11 } }
-                    }
-                },
-                plugins: {
-                    ...getBaseChartOptions().plugins,
-                    legend: { display: false },
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'end',
-                        color: '#64748b',
-                        font: { weight: 'bold', size: 12 },
-                        formatter: (value) => value > 0 ? value : ''
-                    }
-                }
-            },
-            plugins: [ChartDataLabels],
-        };
-        renderChart('urgentByDept', 'urgentByDeptChart', config);
+    const sortedDepts = Object.entries(data).sort((a, b) => b[1] - a[1]);
+    const labels = sortedDepts.map(entry => entry[0]);
+    const chartData = sortedDepts.map(entry => entry[1]);
+    const config = {
+    type: 'bar',
+    data: {
+    labels: labels,
+    datasets: [{
+    label: 'Urgent Orders',
+    data: chartData,
+    backgroundColor: CHART_COLORS.urgent,
+    borderRadius: 4,
+    }]
+    },
+    options: {
+    ...getBaseChartOptions(),
+    indexAxis: 'y',
+    scales: { 
+    x: { 
+    beginAtZero: true,
+    grid: { color: '#f1f5f9', drawBorder: false },
+    ticks: { color: '#64748b', font: { size: 12 } }
+    },
+    y: {
+    grid: { display: false },
+    ticks: { color: '#64748b', font: { size: 11 } }
+    }
+    },
+    plugins: {
+    ...getBaseChartOptions().plugins,
+    legend: { display: false },
+    datalabels: {
+    anchor: 'end',
+    align: 'end',
+    color: '#64748b',
+    font: { weight: 'bold', size: 12 },
+    formatter: (value) => value > 0 ? value : ''
+    }
+    }
+    },
+    plugins: [ChartDataLabels],
+    };
+    renderChart('urgentByDept', 'urgentByDeptChart', config);
     }
 
     function renderTopCustomerBarChart(data) {
-        const labels = data.map(d => d.customer);
-        const config = {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Delivery',
-                        data: data.map(d => d.Delivery),
-                        backgroundColor: CHART_COLORS.delivery,
-                        borderRadius: 4,
-                    },
-                    {
-                        label: 'Collection',
-                        data: data.map(d => d.Collection),
-                        backgroundColor: CHART_COLORS.collection,
-                        borderRadius: 4,
-                    }
-                ]
-            },
-            options: {
-                ...getBaseChartOptions(),
-                indexAxis: 'y',
-                scales: { 
-                    x: { 
-                        stacked: true,
-                        grid: { color: '#f1f5f9', drawBorder: false },
-                        ticks: { color: '#64748b', font: { size: 12 } }
-                    }, 
-                    y: { 
-                        stacked: true,
-                        grid: { display: false },
-                        ticks: { color: '#64748b', font: { size: 10 } }
-                    } 
-                },
-                plugins: {
-                    ...getBaseChartOptions().plugins,
-                    datalabels: {
-                        color: '#ffffff',
-                        font: { weight: 'bold', size: 11 },
-                        formatter: (value) => value > 0 ? value : ''
-                    }
-                }
-            },
-            plugins: [ChartDataLabels]
-        };
-        renderChart('topCustomer', 'topCustomerBarChart', config);
+    const labels = data.map(d => d.customer);
+    const config = {
+    type: 'bar',
+    data: {
+    labels: labels,
+    datasets: [
+    {
+    label: 'Delivery',
+    data: data.map(d => d.Delivery),
+    backgroundColor: CHART_COLORS.delivery,
+    borderRadius: 4,
+    },
+    {
+    label: 'Collection',
+    data: data.map(d => d.Collection),
+    backgroundColor: CHART_COLORS.collection,
+    borderRadius: 4,
+    }
+    ]
+    },
+    options: {
+    ...getBaseChartOptions(),
+    indexAxis: 'y',
+    scales: { 
+    x: { 
+    stacked: true,
+    grid: { color: '#f1f5f9', drawBorder: false },
+    ticks: { color: '#64748b', font: { size: 12 } }
+    }, 
+    y: { 
+    stacked: true,
+    grid: { display: false },
+    ticks: { color: '#64748b', font: { size: 10 } }
+    } 
+    },
+    plugins: {
+    ...getBaseChartOptions().plugins,
+    datalabels: {
+    color: '#ffff',
+    font: { weight: 'bold', size: 11 },
+    formatter: (value) => value > 0 ? value : ''
+    }
+    }
+    },
+    plugins: [ChartDataLabels]
+    };
+    renderChart('topCustomer', 'topCustomerBarChart', config);
     }
 
     function renderServiceTypePieChart(data) {
-        const config = {
-            type: 'doughnut',
-            data: {
-                labels: ['Delivery', 'Collection'],
-                datasets: [{
-                    data: [data['Delivery'], data['Collection']],
-                    backgroundColor: [CHART_COLORS.delivery, CHART_COLORS.collection],
-                    borderColor: '#ffffff',
-                    borderWidth: 4,
-                    hoverBorderWidth: 6,
-                    cutout: '60%',
-                }]
-            },
-            options: { 
-                ...getBaseChartOptions(),
-                plugins: {
-                    ...getBaseChartOptions().plugins,
-                    datalabels: {
-                        color: '#ffffff',
-                        font: { weight: 'bold', size: 14 },
-                        formatter: (value, ctx) => {
-                            let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                            if (sum === 0 || value === 0) return '';
-                            let percentage = (value*100 / sum).toFixed(1)+"%";
-                            return `${value}\n(${percentage})`;
-                        }
-                    }
-                }
-            },
-            plugins: [ChartDataLabels],
-        };
-        renderChart('serviceTypePie', 'serviceTypePieChart', config);
+    const config = {
+    type: 'doughnut',
+    data: {
+    labels: ['Delivery', 'Collection'],
+    datasets: [{
+    data: [data['Delivery'], data['Collection']],
+    backgroundColor: [CHART_COLORS.delivery, CHART_COLORS.collection],
+    borderColor: '#ffff',
+    borderWidth: 4,
+    hoverBorderWidth: 6,
+    cutout: '60%',
+    }]
+    },
+    options: { 
+    ...getBaseChartOptions(),
+    plugins: {
+    ...getBaseChartOptions().plugins,
+    datalabels: {
+    color: '#ffff',
+    font: { weight: 'bold', size: 14 },
+    formatter: (value, ctx) => {
+    let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+    if (sum === 0 || value === 0) return '';
+    let percentage = (value*100 / sum).toFixed(1)+"%";
+    return `${value}\n(${percentage})`;
+    }
+    }
+    }
+    },
+    plugins: [ChartDataLabels],
+    };
+    renderChart('serviceTypePie', 'serviceTypePieChart', config);
     }
     
     // --- TABLE RENDERING FUNCTIONS ---
     function renderDepartmentTable(data) {
-        const tbody = document.getElementById('departmentTableBody');
-        const sortedData = data.sort((a, b) => (b.delivery + b.collection) - (a.delivery + a.collection));
-        if (sortedData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; color: var(--text-muted);">📊 No department data for this period.</td></tr>`;
-        } else {
-            tbody.innerHTML = sortedData.map(d => `<tr>
-                <td style="font-weight: 600;">${d.dept}</td>
-                <td>${d.delivery.toLocaleString()}</td>
-                <td>${d.collection.toLocaleString()}</td>
-                <td style="font-weight: 600; color: var(--primary);">${(d.delivery + d.collection).toLocaleString()}</td>
-            </tr>`).join('');
-        }
+    const tbody = document.getElementById('departmentTableBody');
+    const sortedData = data.sort((a, b) => (b.delivery + b.collection) - (a.delivery + a.collection));
+    if (sortedData.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; color: var(--text-muted);">📊 No department data for this period.</td></tr>`;
+    } else {
+    tbody.innerHTML = sortedData.map(d => `<tr>
+    <td style="font-weight: 600;">${d.dept}</td>
+    <td>${d.delivery.toLocaleString()}</td>
+    <td>${d.collection.toLocaleString()}</td>
+    <td style="font-weight: 600; color: var(--primary);">${(d.delivery + d.collection).toLocaleString()}</td>
+    </tr>`).join('');
+    }
     }
 
     // --- INITIALIZATION ---
     async function onPageLoad() {
-        // Set default date range to the last 30 days
-        const today = new Date();
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(today.getDate() - 30);
-        endDateInput.valueAsDate = today;
-        startDateInput.valueAsDate = thirtyDaysAgo;
+    // Set default date range to the last 30 days
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    endDateInput.valueAsDate = today;
+    startDateInput.valueAsDate = thirtyDaysAgo;
 
-        startLiveClock('pendingOrdersTimestamp');
+    startLiveClock('pendingOrdersTimestamp');
 
-        startDateInput.addEventListener('change', filterAndProcessData);
-        endDateInput.addEventListener('change', filterAndProcessData);
-        departmentFilter.addEventListener('change', filterAndProcessData);
+    startDateInput.addEventListener('change', filterAndProcessData);
+    endDateInput.addEventListener('change', filterAndProcessData);
+    departmentFilter.addEventListener('change', filterAndProcessData);
 
-        const success = await loadDataFromSupabase();
-        if (success) {
-            filterAndProcessData();
-        } else {
-            document.querySelectorAll('.loading').forEach(el => {
-                const colspan = el.parentElement.cells.length;
-                el.parentElement.innerHTML = `<td colspan="${colspan}" style="text-align:center; padding: 2rem; color: var(--error);">❌ Could not load data.</td>`;
-            });
-        }
+    const success = await loadDataFromSupabase();
+    if (success) {
+    filterAndProcessData();
+    } else {
+    document.querySelectorAll('.loading').forEach(el => {
+    const colspan = el.parentElement.cells.length;
+    el.parentElement.innerHTML = `<td colspan="${colspan}" style="text-align:center; padding: 2rem; color: var(--error);">❌ Could not load data.</td>`;
+    });
+    }
     }
 
     document.addEventListener('DOMContentLoaded', onPageLoad);
