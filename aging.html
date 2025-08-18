@@ -358,26 +358,37 @@
             color: var(--error);
         }
 
-        /* Dashboard Layout */
+        /* === START: UPDATED CSS FOR ALIGNMENT === */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 2rem;
-            align-items: flex-start;
+            align-items: stretch; /* This makes both columns the same height */
         }
         
-        /* Reminders & Location Summary Section */
         .reminders, .summary-card {
             background: var(--surface);
             padding: 2rem;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
+            display: flex; /* Added for better internal alignment */
+            flex-direction: column; /* Added for better internal alignment */
         }
         
-        .summary-card {
-            margin-top: 2rem;
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            height: 100%; /* Stretches to fill the grid cell height */
         }
+
+        .summary-card {
+            flex: 1; /* Allows cards in the right column to balance their height */
+            display: flex;
+            flex-direction: column;
+        }
+        /* === END: UPDATED CSS FOR ALIGNMENT === */
         
         .reminders h3, .summary-card h3 {
             color: var(--text);
